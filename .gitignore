@@ -1,0 +1,10 @@
+.idea/
+GenerationAPI/.idea/
+GenerationAPI/JSOTdb
+GenerationAPI/notes/
+JSTG_App/.npmrc
+GenerationAPI/DocGen/.DocGen.csproj.un~
+GenerationAPI/DocGen/bin/
+GenerationAPI/DocGen/obj/
+GenerationAPI/bin/
+GenerationAPI/obj/

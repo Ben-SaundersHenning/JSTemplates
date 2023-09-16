@@ -4,9 +4,14 @@
 
     let name = ''
     let greetMsg = ''
+    let count = 1
 
     async function greet() {
         greetMsg = await invoke('greet', {name})
+    }
+
+    async function test() {
+        count = await invoke('test', {count})
     }
 
 </script>
@@ -16,4 +21,5 @@
     <button on:click="{greet}">Greet</button>
     <p>{greetMsg}</p>
     <p>This is a test!</p>
+    <button on:click="{test}">Double this num: {count}</button>
 </div>
