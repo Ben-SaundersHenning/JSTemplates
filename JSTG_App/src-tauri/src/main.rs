@@ -3,8 +3,7 @@
 
 fn main() {
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![greet])
-    .invoke_handler(tauri::generate_handler![test])
+    .invoke_handler(tauri::generate_handler![double, greet])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
@@ -15,6 +14,6 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn test(count: i32) -> i32 {
+fn double(count: i32) -> i32 {
     count * 2
 }
