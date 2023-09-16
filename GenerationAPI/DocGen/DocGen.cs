@@ -1,5 +1,3 @@
-using System.Data.SQLite;
-using System.Drawing.Text;
 using Xceed.Document.NET;
 using Xceed.Words.NET;
 
@@ -11,19 +9,6 @@ internal class DocGen {
     private Dictionary<string, string> outputs = new Dictionary<string, string>();
 
     internal DocGen() {
-
-        //inputs.Add("ADJUSTER");
-        //inputs.Add("INSURANCE COMPANY");
-        //inputs.Add("CLIENT SALUTATION");
-        //inputs.Add("CLIENT FIRST");
-        //inputs.Add("CLIENT LAST");
-        //inputs.Add("DOB");
-        //inputs.Add("DOA");
-        //inputs.Add("DOL");
-        //inputs.Add("CLAIM NO");
-        //inputs.Add("AGE");
-        //inputs.Add("ADDRESS");
-
     }
 
     internal void testMethod() {
@@ -44,9 +29,9 @@ internal class DocGen {
     internal void FindTags()
     {
 
+        //using (var document = DocX.Load(@""))
         //using (var document = DocX.Load(@"C:\Users\Ben Saunders-Henning\AppData\Roaming\JSTemplates\templates\NEB.docx"))
         using (var document = DocX.Load(@"C:\Users\Ben Saunders-Henning\AppData\Roaming\JSTemplates\templates\AC.docx"))
-        //using (var document = DocX.Load(@"B:\docs\jsot\2023\September\Anghela\Murat Sarioglu\Seiden_CAT GOSE_Murat Sarioglu_AS.docx"))
         //using (var document = DocX.Load(@"C:\Users\Ben Saunders-Henning\AppData\Roaming\JSTemplates\templates\MRB.docx"))
         //using (var document = DocX.Load(@"C:\Users\Ben Saunders-Henning\AppData\Roaming\JSTemplates\templates\CAT MRB.docx"))
         //using (var document = DocX.Load(@"C:\Users\Ben Saunders-Henning\AppData\Roaming\JSTemplates\templates\CAT.docx"))
@@ -65,9 +50,9 @@ internal class DocGen {
 
     internal void GenerateDocument()
     {
+        //using (var document = DocX.Load(@""))
         //using (var document = DocX.Load(@"C:\Users\Ben Saunders-Henning\AppData\Roaming\JSTemplates\templates\NEB.docx"))
         using (var document = DocX.Load(@"C:\Users\Ben Saunders-Henning\AppData\Roaming\JSTemplates\templates\AC.docx"))
-        //using (var document = DocX.Load(@"B:\docs\jsot\2023\September\Anghela\Murat Sarioglu\Seiden_CAT GOSE_Murat Sarioglu_AS.docx"))
         //using (var document = DocX.Load(@"C:\Users\Ben Saunders-Henning\AppData\Roaming\JSTemplates\templates\MRB.docx"))
         //using (var document = DocX.Load(@"C:\Users\Ben Saunders-Henning\AppData\Roaming\JSTemplates\templates\CAT MRB.docx"))
         //using (var document = DocX.Load(@"C:\Users\Ben Saunders-Henning\AppData\Roaming\JSTemplates\templates\CAT.docx"))

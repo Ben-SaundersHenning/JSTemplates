@@ -1,8 +1,4 @@
-﻿using System;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-
-namespace JSOT;
+﻿namespace JSOT;
 
 internal class Program {
 
