@@ -2,8 +2,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-  println!("Trying the DB function:\n\n");
-  test();
+  // println!("Trying the DB function:\n\n");
+  // test();
 
   tauri::Builder::default()
     .invoke_handler(tauri::generate_handler![double, greet])
@@ -24,7 +24,7 @@ fn double(count: i32) -> i32 {
 
 fn test() {
 
-    let connection = sqlite::open("/home/ben/projects/JSTG/JSOTdb").unwrap();
+    let connection = sqlite::open("/home/ben/projects/JSTG/JSOT.db").unwrap();
 
     let query = "
         SELECT * FROM [Assessors];
