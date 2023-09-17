@@ -1,6 +1,16 @@
+<div>
+    <input id="greet-input" placeholder="Enter a name..." bind:value="{name}"/>
+    <button on:click="{greet}">Greet</button>
+    <p>{greetMsg}</p>
+    <p>This is a test</p>
+    <button on:click="{double}">Double this num: {count}</button>
+    <hr>
+    <DocGen/>
+</div>
 <script>
-    
+
     import {invoke} from '@tauri-apps/api/tauri'
+    import DocGen from './GenerateDocuments/GenerateDocuments.svelte'
 
     let name = ''
     let greetMsg = 'Hello, ----'
@@ -16,10 +26,3 @@
 
 </script>
 
-<div>
-    <input id="greet-input" placeholder="Enter a name..." bind:value="{name}"/>
-    <button on:click="{greet}">Greet</button>
-    <p>{greetMsg}</p>
-    <p>This is a test</p>
-    <button on:click="{double}">Double this num: {count}</button>
-</div>
