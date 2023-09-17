@@ -8,3 +8,8 @@ GenerationAPI/DocGen/bin/
 GenerationAPI/DocGen/obj/
 GenerationAPI/bin/
 GenerationAPI/obj/
+DocumentGenerationAPI/bin/
+DocumentGenerationAPI/obj/
+GenerationAPI_old/
+JSOT.sqlite3
+JSOTdb
