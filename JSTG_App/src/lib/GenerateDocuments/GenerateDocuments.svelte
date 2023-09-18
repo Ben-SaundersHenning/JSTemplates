@@ -32,21 +32,20 @@
     <br>
 
     <label for="claimDOB">Claimant DOB:</label>
-    <input type="date" id="claimDOB" bind:value={asmData.claimant.gender}>
+    <input type="date" id="claimDOB" bind:value={asmData.claimant.dateOfBirth}>
     <br>
 
     <label for="claimAge">Claimaint Age:</label>
     <input class="textbox" id="claimAge" type="text" bind:value={asmData.claimant.age}/>
     <br>
 
-            "age": 50,
-            "dateOfLoss": "",
-            "addressLong": "",
-            "country": "",
-            "province": "",
-            "street": "",
-            "streeNum": 100,
-            "postalCode": ""
+    <label for="claimDOL">Claimant DOL:</label>
+    <input type="date" id="claimDOL" bind:value={asmData.claimant.dateOfLoss}>
+    <br>
+
+    <label for="claimAddress">Claimaint Address:</label>
+    <input class="textbox" id="claimAddress" type="text" bind:value={asmData.claimant.addressLong}/>
+    <br>
 
 </div>
 <script>
