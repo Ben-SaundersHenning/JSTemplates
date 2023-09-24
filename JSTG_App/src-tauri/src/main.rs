@@ -22,21 +22,21 @@ fn double(count: i32) -> i32 {
     count * 2
 }
 
-fn test() {
-
-    let connection = sqlite::open("/home/ben/projects/JSTG/JSOT.db").unwrap();
-
-    let query = "
-        SELECT * FROM [Assessors];
-    ";
-
-    connection
-        .iterate(query, |pairs| {
-            for &(name, value) in pairs.iter() {
-                println!("{} = {}", name, value.unwrap());
-            }
-            true
-        })
-        .unwrap();
-
-}
+// fn test() {
+//
+//     let connection = sqlite::open("/home/ben/projects/JSTG/JSOT.db").unwrap();
+//
+//     let query = "
+//         SELECT * FROM [Assessors];
+//     ";
+//
+//     connection
+//         .iterate(query, |pairs| {
+//             for &(name, value) in pairs.iter() {
+//                 println!("{} = {}", name, value.unwrap());
+//             }
+//             true
+//         })
+//         .unwrap();
+//
+// }

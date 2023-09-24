@@ -53,7 +53,6 @@
 <script>
 
     import {invoke} from '@tauri-apps/api/tauri'
-    import {writeBinaryFile, writeFile} from '@tauri-apps/api/fs'
     import axios from 'axios';
 
     let fileLocation = {
@@ -105,7 +104,6 @@
         }
     }
 
-    let greetMsg = ""
     let name = ""
     let genders = [
         "male",
@@ -170,10 +168,6 @@
             "1": "",
             "2": "",
         }
-    }
-
-    async function greet() {
-        greetMsg = await invoke('greet', {name})
     }
 
 </script>
