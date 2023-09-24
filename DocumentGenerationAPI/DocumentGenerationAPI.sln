@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TemplateGenerationAPI", "TemplateGenerationAPI.csproj", "{DD8EBE58-6D47-48A3-92EB-C2BE3809941B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocumentGenerationAPI", "DocumentGenerationAPI.csproj", "{DD8EBE58-6D47-48A3-92EB-C2BE3809941B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
