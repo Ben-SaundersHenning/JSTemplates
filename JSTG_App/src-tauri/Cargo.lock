@@ -72,7 +72,6 @@ dependencies = [
  "sqlite",
  "tauri",
  "tauri-build",
- "tokio",
 ]
 
 [[package]]
