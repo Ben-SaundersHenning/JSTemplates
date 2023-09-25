@@ -53,58 +53,17 @@
 <script>
 
     import {invoke} from '@tauri-apps/api/tauri'
-    import axios from 'axios';
-
-    let fileLocation = {
-        "baseTemplate": "/run/media/ben/Windows/Users/Ben Saunders-Henning/AppData/Roaming/JSTemplates/templates/CAT.docx"
-    }
-    
-    let path = "/home/ben/Downloads/test.docx"
-    let url = 'http://localhost:5056/api/DocumentRequest'
 
     async function submitPost() {
         try {
 
-        const data = JSON.stringify(fileLocation);
-
-        // axios.post(options)
-        axios.post(url, data, {responseType: 'blob', headers: {'content-type': 'application/json'}})
-        .then((response) => {
-
-            // var reader = new FileReader();
-            // reader.readAsDataURL(response.data);
-            // reader.onloadend = function () {
-            //     var base64 = reader.result;
-            //     invoke('save_bytes', {base64});
-            // }
-
-            const file = new Uint8Array(response.data);
-            // const test = Array.from(response.data);
-            // invoke('save_bytes', {test});
-
-
-            // writeBinaryFile(path, file);
-
-           //  // create file link in browser's memory
-           //  const href = URL.createObjectURL(response.data);
-           // // create "a" HTML element with href to file & click
-           //  const link = document.createElement('a');
-           //  link.href = href;
-           //  link.setAttribute('download', 'file.docx'); //or any other extension
-           //  document.body.appendChild(link);
-           //  link.click();
-           //
-           //  // clean up "a" element & remove ObjectURL
-           //  document.body.removeChild(link);
-           //  URL.revokeObjectURL(href);
-        })
+            invoke('test');
 
         } catch (exceptionVar){
             asmData.claimant.firstName = "did not work";
         }
     }
 
-    let name = ""
     let genders = [
         "male",
         "female",
