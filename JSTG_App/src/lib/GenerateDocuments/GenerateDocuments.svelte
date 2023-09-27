@@ -57,12 +57,57 @@
     async function submitPost() {
         try {
 
-            invoke('test');
+            let test = {};
+            let map = {};
+
+            test["hello"] = asmData.adjuster;
+
+            map["OCCUPATIONAL THERAPIST"] = asmData.therapist.salutation + asmData.therapist.firstName + asmData.therapist.lastName;
+            map["ADJUSTER"] = asmData.adjuster;
+            map["INSURANCE COMPANY"] = asmData.insCompany;
+            map["CLIENT SALUTATION"] = asmData.claimant.salutation;
+            map["CLIENT FIRST"] = asmData.claimant.firstName;
+            map["CLIENT LAST"] = asmData.claimant.lastName;
+            map["DOB"] = asmData.claimant.dateOfBirth;
+            map["CLAIM NUMBER"] = asmData.claimNumber;
+            map["DOL"] = asmData.claimant.dateOfLoss;
+            map["DOA"] = asmData.dateOfAssessment;
+            map["CLIENT AGE"] = asmData.claimant.age;
+            map["REFERRAL COMPANY"] = asmData.referralCompany;
+
+                map["HE---SHE_Lower"] = "";
+                map["MALE---FEMALE_Lower"] = "";
+                map["HIS---HER_Lower"] = "";
+                map["HE---SHE_Upper"] = "";
+                map["HIM---HER_Lower"] = "";
+
+            if(asmData.claimant.gender == "male") {
+                map["HE---SHE_Lower"] = "he";
+                map["MALE---FEMALE_Lower"] = "male";
+                map["HIS---HER_Lower"] = "his";
+                map["HE---SHE_Upper"] = "He";
+                map["HIM---HER_Lower"] = "him";
+            } else {
+                map["HE---SHE_Lower"] = "she";
+                map["MALE---FEMALE_Lower"] = "female";
+                map["HIS---HER_Lower"] = "her";
+                map["HE---SHE_Upper"] = "She";
+                map["HIM---HER_Lower"] = "her";
+            }
+
+            map["CLIENT ADDRESS"] = asmData.claimant.addressLong;
+
+            // const send = JSON.stringify(Object.fromEntries(map));
+            const send = JSON.stringify(map);
+
+            invoke('test', {test: send});
 
         } catch (exceptionVar){
             asmData.claimant.firstName = "did not work";
         }
     }
+
+    // let map = new Object();
 
     let genders = [
         "male",
@@ -88,44 +133,45 @@
         "NEB"
     ]
     let asmData = {
-        "type": "",
+        "type": "blah",
         "therapist": {
-            "salutation": "",
-            "firstName": "",
-            "lastName": "",
-            "registationNumber": "",
-            "qualifications": "",
+            "salutation": "blah",
+            "firstName": "blah",
+            "lastName": "blah",
+            "registationNumber": "blah",
+            "qualifications": "blah",
         },
-        "adjuster": "",
-        "insCompany": "",
-        "claimNumber": "",
-        "dateOfAssessment": "",
+        "adjuster": "blah",
+        "insCompany": "blah",
+        "claimNumber": "blah",
+        "referralCompany": "blah",
+        "dateOfAssessment": "blah",
         "seidenFileNumber": null,
         "claimant": {
-            "salutation": "",
+            "salutation": "blah",
             "firstName": "TestFirstName",
-            "lastName": "",
+            "lastName": "blah",
 
-            "gender": "",
-            "male-female": "",
-            "he-she": "",
-            "his-her": "",
-            "himself-herself": "",
+            "gender": "blah",
+            "male-female": "blah",
+            "he-she": "blah",
+            "his-her": "blah",
+            "himself-herself": "blah",
 
-            "youth": false,
-            "dateOfBirth": "",
-            "age": 50,
-            "dateOfLoss": "",
-            "addressLong": "",
-            "country": "",
-            "province": "",
-            "street": "",
-            "streeNum": 100,
-            "postalCode": ""
+            "youth": "false",
+            "dateOfBirth": "blah",
+            "age": "50",
+            "dateOfLoss": "blah",
+            "addressLong": "blah",
+            "country": "blah",
+            "province": "blah",
+            "street": "blah",
+            "streeNum": "100",
+            "postalCode": "blah"
         },
         "questions": {
-            "1": "",
-            "2": "",
+            "1": "blah",
+            "2": "blah",
         }
     }
 

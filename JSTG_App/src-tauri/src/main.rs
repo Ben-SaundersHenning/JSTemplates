@@ -27,25 +27,53 @@ fn double(count: i32) -> i32 {
 }
 
 #[tauri::command]
-async fn test() -> i32 {
+async fn test(test: String) {
 
     println!("In test");
-    let _ = send_request().await;
+    println!("{test}");
+    let map: HashMap<&str, &str> = serde_json::from_str(&test).unwrap();
+    for key in map.keys() {
+        println!("{key}");
+    }
+    for val in map.values() {
+        println!("{val}");
+    }
+    // let value = serde_json::from_str(&test).unwrap();
+    // println!("{value}");
+    // let mut map = HashMap<String, String>;
+    
+    
+    // let _ = send_request(json_to_hashmap(json, keys));
+    println!("Going into send request");
+    let _ = send_request(map).await;
 
-    5
 
 }
 
-async fn send_request() -> Result<(), Box<dyn std::error::Error>> {
+// fn json_to_hashmap(json: &str, keys: Vec<&str>) -> Result<HashMap<String, String>> {
+//     let mut lookup: HashMap<String, String> = serde_json::from_str(json).unwrap();
+//     let mut map = HashMap::new();
+//     for key in keys {
+//         let (k, v) = lookup.remove_entry (key).unwrap();
+//         map.insert(k, v);
+//     }
+//     Ok(map)
+// }
 
-    let mut map = HashMap::new();
-    map.insert("baseTemplate", "file.docx");
+async fn send_request(map: HashMap<&str, &str>) -> Result<(), Box<dyn std::error::Error>> {
 
+    // let mut map = HashMap::new();
+    // map.insert("baseTemplate", "file.docx");
+    //
+    // let mut data = HashMap::new();
+    // data.insert("baseAddress", "/run/media/ben/Windows/Users/Ben Saunders-Henning/AppData/Roaming/JSTemplates/templates/CAT.docx");
+    //
     println!("In send request");
     let client = reqwest::Client::new();
 
     let res = client.post("http://localhost:5056/api/DocumentRequest")
         .json(&map)
+        // .body(&data)
         .header("responseType", "blob")
         .header("content-type", "application/json")
         .send()
@@ -55,9 +83,9 @@ async fn send_request() -> Result<(), Box<dyn std::error::Error>> {
     match res.status() {
         reqwest::StatusCode::OK => {
             println!("Response OK");
-            let _body = res.bytes().await?;
-            // let mut file = File::create("TEST.docx").unwrap();
-            // let _ = file.write_all(&body);
+            let body = res.bytes().await?;
+            let mut file = File::create("/run/media/ben/Windows/Users/Ben Saunders-Henning/AppData/Roaming/JSTemplates/templates/TEST.docx").unwrap();
+            let _ = file.write_all(&body);
         }
         status => {
             println!("StatusCode is not okay {status}");
