@@ -17,7 +17,7 @@ namespace TemplateGenerationAPI.Controllers
     public class DocumentRequestController : ControllerBase
     {
         private readonly ILogger<WeatherForecastController> _logger;
-        private Dictionary<string, string> outputs;
+        private Dictionary<string, string> outputs = new Dictionary<String,String>();
 
         public DocumentRequestController(ILogger<WeatherForecastController> logger)
         {
@@ -31,42 +31,35 @@ namespace TemplateGenerationAPI.Controllers
             foreach(KeyValuePair<string, string> entry in data)
             {
                
-                Console.WriteLine(entry.Key + " : " + entry.Value);
-                outputs.Add(entry.Key, entry.Value);
+                //Console.WriteLine(entry.Key + " : " + entry.Value);
+                outputs[entry.Key] = entry.Value;
                 
             }
 
-            using (MemoryStream stream = new MemoryStream())
-            {
-                DocX doc;
-                doc = DocX.Load(
-                    @"/run/media/ben/Windows/Users/Ben Saunders-Henning/AppData/Roaming/JSTemplates/templates/AC.docx");
-                if (doc.FindUniqueByPattern(@"<[\w _-]{3,}>", System.Text.RegularExpressions.RegexOptions.IgnoreCase).Count > 0)
-                {
-                    var replaceTextOptions = new FunctionReplaceTextOptions()
-                    {
-                        FindPattern = "<(.*?)>",
-                        RegexMatchHandler = ReplaceFunc,
-                        RegExOptions = System.Text.RegularExpressions.RegexOptions.IgnoreCase,
-                        NewFormatting = new Formatting() { FontColor = System.Drawing.Color.Black, Size = 12, FontFamily = new Font("Times New Roman") }
-                    };
-
+             using (MemoryStream stream = new MemoryStream())
+             {
+                 DocX doc;
+                 doc = DocX.Load(
+                     @$"/run/media/ben/Windows/Users/Ben Saunders-Henning/AppData/Roaming/JSTemplates/templates/{outputs["Template"]}");
+                 if (doc.FindUniqueByPattern(@"<[\w _-]{3,}>", System.Text.RegularExpressions.RegexOptions.IgnoreCase).Count > 0)
+                 {
+                     var replaceTextOptions = new FunctionReplaceTextOptions()
+                     {
+                         FindPattern = "<(.*?)>",
+                         RegexMatchHandler = ReplaceFunc,
+                         RegExOptions = System.Text.RegularExpressions.RegexOptions.IgnoreCase,
+                         NewFormatting = new Formatting() { FontColor = System.Drawing.Color.Black, Size = 12, FontFamily = new Font("Times New Roman") }
+                     };
+            
                     doc.ReplaceText(replaceTextOptions);
-                    doc.SaveAs(stream);
-                    byte[] test = stream.ToArray();
-                    outputs = null;
-                    return new FileContentResult(test, "application/octet-stream");
-                    //doc.SaveAs(@"B:\docs\jsot\2023\replaced.docx");
-                }
-                
-                //doc.InsertParagraph("Blah blah blah blah blah blob lbol lb jsad;lfkj as;lf jk");
-                //doc.InsertParagraph("This is some new text that I have inserted...");
-                //doc.SaveAs(stream);
-                //byte[] test = stream.ToArray();
-                //outputs = null;
+                     doc.SaveAs(stream);
+                     byte[] test = stream.ToArray();
+                     outputs = null;
+                     return new FileContentResult(test, "application/octet-stream");
+                 }
+                 
                 return null;
                 
-                //return new FileContentResult(do:wc, "application/octet-stream");
             }
         }
         
