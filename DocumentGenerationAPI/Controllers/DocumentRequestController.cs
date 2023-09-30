@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -36,27 +38,38 @@ namespace TemplateGenerationAPI.Controllers
                 
             }
 
-             using (MemoryStream stream = new MemoryStream())
-             {
-                 DocX doc;
-                 doc = DocX.Load(
-                     @$"/run/media/ben/Windows/Users/Ben Saunders-Henning/AppData/Roaming/JSTemplates/templates/{outputs["Template"]}");
-                 if (doc.FindUniqueByPattern(@"<[\w _-]{3,}>", System.Text.RegularExpressions.RegexOptions.IgnoreCase).Count > 0)
-                 {
-                     var replaceTextOptions = new FunctionReplaceTextOptions()
-                     {
-                         FindPattern = "<(.*?)>",
-                         RegexMatchHandler = ReplaceFunc,
-                         RegExOptions = System.Text.RegularExpressions.RegexOptions.IgnoreCase,
-                         NewFormatting = new Formatting() { FontColor = System.Drawing.Color.Black, Size = 12, FontFamily = new Font("Times New Roman") }
-                     };
+            using (MemoryStream stream = new MemoryStream())
+            {
+                DocX doc = DocX.Load(@$"/run/media/ben/Windows/Users/Ben Saunders-Henning/AppData/Roaming/JSTemplates/templates/{outputs["Template"]}");
+
+                if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+                    var image = doc.AddImage(
+                        $@"/run/media/ben/Windows/Users/Ben Saunders-Henning/AppData/Roaming/JSTemplates/images/{outputs["Image"]}");
+                    var picture = image.CreatePicture();
+                    ObjectReplaceTextOptions options = new ObjectReplaceTextOptions();
+                    options.RegExOptions = RegexOptions.IgnoreCase;
+                    options.NewObject = picture;
+                    options.SearchValue = "<PICTURE>";
+                    options.TrackChanges = false;
+                    doc.ReplaceTextWithObject(options);
+                }
+
+                if (doc.FindUniqueByPattern(@"<[\w _-]{3,}>", System.Text.RegularExpressions.RegexOptions.IgnoreCase).Count > 0)
+                {
+                    var replaceTextOptions = new FunctionReplaceTextOptions()
+                    {
+                        FindPattern = "<(.*?)>",
+                        RegexMatchHandler = ReplaceFunc,
+                        RegExOptions = System.Text.RegularExpressions.RegexOptions.IgnoreCase,
+                        NewFormatting = new Formatting() { FontColor = System.Drawing.Color.Black, Size = 12, FontFamily = new Font("Times New Roman") }
+                    };
             
                     doc.ReplaceText(replaceTextOptions);
-                     doc.SaveAs(stream);
-                     byte[] test = stream.ToArray();
-                     outputs = null;
-                     return new FileContentResult(test, "application/octet-stream");
-                 }
+                    doc.SaveAs(stream);
+                    byte[] test = stream.ToArray();
+                    outputs = null;
+                    return new FileContentResult(test, "application/octet-stream");
+                }
                  
                 return null;
                 

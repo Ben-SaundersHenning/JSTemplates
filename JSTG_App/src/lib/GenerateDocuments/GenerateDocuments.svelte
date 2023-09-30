@@ -122,6 +122,30 @@
             map["CLIENT ADDRESS"] = asmData.claimant.addressLong;
 
             map["Template"] = asmData.type;
+            map["Image"] = "";
+
+            switch(asmData.therapist.fullName) {
+
+                case "Ms. Joan Saunders":
+                map["Image"] = "JS.png";
+                break;
+
+                case "Ms. Montana Mullane":
+                map["Image"] = "MM.png";
+                break;
+
+                case "Ms. Anghela Sivananthan":
+                map["Image"] = "AS.png";
+                break;
+
+                case "Mr. Josh Melo":
+                map["Image"] = "JM.png";
+                break;
+
+                default:
+                map["Image"] = "JS.png";
+
+            }
 
             // const send = JSON.stringify(Object.fromEntries(map));
             const send = JSON.stringify(map);
