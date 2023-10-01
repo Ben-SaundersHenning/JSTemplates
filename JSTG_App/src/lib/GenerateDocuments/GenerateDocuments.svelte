@@ -72,13 +72,13 @@
     <p>{status}</p>
 
 </div>
-<script lang="ts">
+<script>
 
     import {invoke} from '@tauri-apps/api/tauri'
     import {onMount} from 'svelte'
 
     onMount(() => {
-        invoke('print_assessors').then((assessors) => therapists = assessors as []);
+        invoke('print_assessors').then((assessors) => therapists = assessors);
         therapists = therapists;
     });
 
