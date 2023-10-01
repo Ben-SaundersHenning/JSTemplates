@@ -3,7 +3,7 @@ use std::string::String;
 use serde::Serialize;
 
 const DB_PATH: &str = if cfg!(windows) {
-    "C:\\Users\\Ben Saunders-Henning\\projects\\JSTG\\JSTG.sqlite3"
+    "B:\\projects\\JSTG\\JSTG.sqlite3"
 } 
 else {
     "/home/ben/projects/JSTG/JSTG.sqlite3"
