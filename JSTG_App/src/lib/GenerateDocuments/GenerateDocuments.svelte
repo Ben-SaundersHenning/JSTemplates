@@ -8,9 +8,9 @@
     <br>
 
     <label for="therapist">Therapist:</label>
-    <select id="threapist" bind:value={asmData.therapist.fullName}>
+    <select id="therapist" bind:value={asmData.therapist}>
     {#each therapists as therapist}
-        <option value={therapist}>{therapist}</option>
+        <option value={therapist}>{therapist.salutation}. {therapist.first_name} {therapist.last_name}</option>
     {/each}
     </select>
     <br>
@@ -72,34 +72,43 @@
     <p>{status}</p>
 
 </div>
-<script>
+<script lang="ts">
 
     import {invoke} from '@tauri-apps/api/tauri'
+    import {onMount} from 'svelte'
+
+    onMount(() => {
+        invoke('print_assessors').then((assessors) => therapists = assessors as []);
+        therapists = therapists;
+    });
 
     async function submitPost() {
         try {
 
-            let map = {};
+            let map = {
+                "ADJUSTER": asmData.adjuster,
+                "INSURANCE COMPANY": asmData.insCompany,
+                "CLIENT FIRST": asmData.claimant.firstName,
+                "CLIENT LAST": asmData.claimant.lastName,
+                "DOB": asmData.claimant.dateOfBirth,
+                "CLAIM NUMBER": asmData.claimNumber,
+                "DOL": asmData.claimant.dateOfLoss,
+                "DOA": asmData.dateOfAssessment,
+                "CLIENT AGE": asmData.claimant.age,
+                "REFERRAL COMPANY": asmData.referralCompany,
+                "CLIENT ADDRESS": asmData.claimant.addressLong,
+                "Template": asmData.type,
+                "OCCUPATIONAL THERAPIST": asmData.therapist.salutation + ". " + asmData.therapist.first_name + " " + asmData.therapist.last_name,
+                "HE---SHE_Lower": "hello",
+                "MALE---FEMALE_Lower": "",
+                "HIS---HER_Lower": "",
+                "MALE---FEMALE_LOWER": "",
+                "HE---SHE_Upper": "",
+                "HIM---HER_Lower": "",
+                "CLIENT SALUTATION": "",
+                "Image": ""
+            };
 
-            map["OCCUPATIONAL THERAPIST"] = asmData.therapist.fullName;
-            map["ADJUSTER"] = asmData.adjuster;
-            map["INSURANCE COMPANY"] = asmData.insCompany;
-            map["CLIENT FIRST"] = asmData.claimant.firstName;
-            map["CLIENT LAST"] = asmData.claimant.lastName;
-            map["DOB"] = asmData.claimant.dateOfBirth;
-            map["CLAIM NUMBER"] = asmData.claimNumber;
-            map["DOL"] = asmData.claimant.dateOfLoss;
-            map["DOA"] = asmData.dateOfAssessment;
-            map["CLIENT AGE"] = asmData.claimant.age;
-            map["REFERRAL COMPANY"] = asmData.referralCompany;
-
-                map["HE---SHE_Lower"] = "";
-                map["MALE---FEMALE_Lower"] = "";
-                map["HIS---HER_Lower"] = "";
-                map["MALE---FEMALE_LOWER"] = "";
-                map["HE---SHE_Upper"] = "";
-                map["HIM---HER_Lower"] = "";
-                map["CLIENT SALUTATION"] = "";
 
             if(asmData.claimant.gender == "male") {
                 map["HE---SHE_Lower"] = "he";
@@ -119,26 +128,21 @@
                 map["CLIENT SALUTATION"] = "Ms";
             }
 
-            map["CLIENT ADDRESS"] = asmData.claimant.addressLong;
+            switch(asmData.therapist.first_name) {
 
-            map["Template"] = asmData.type;
-            map["Image"] = "";
-
-            switch(asmData.therapist.fullName) {
-
-                case "Ms. Joan Saunders":
+                case "Joan":
                 map["Image"] = "JS.png";
                 break;
 
-                case "Ms. Montana Mullane":
+                case "Montana":
                 map["Image"] = "MM.png";
                 break;
 
-                case "Ms. Anghela Sivananthan":
+                case "Anghela":
                 map["Image"] = "AS.png";
                 break;
 
-                case "Mr. Josh Melo":
+                case "Josh":
                 map["Image"] = "JM.png";
                 break;
 
@@ -158,8 +162,6 @@
         }
     }
 
-    // let map = new Object();
-
     let status = "Not sent"
 
     let genders = [
@@ -167,12 +169,9 @@
         "female",
         "other"
     ]
-    let therapists = [
-        "Ms. Joan Saunders",
-        "Ms. Montana Mullane",
-        "Ms. Anghela Sivananthan",
-        "Mr. Josh Melo"
-    ]
+
+    let therapists = new Array();
+
     let asmTypes = [
         "AC.docx",
         "AC MRB.docx",
@@ -189,12 +188,9 @@
         "type": "",
         "path": "",
         "therapist": {
-            "fullName": "",
             "salutation": "",
-            "firstName": "",
-            "lastName": "",
-            "registationNumber": "",
-            "qualifications": "",
+            "first_name": "",
+            "last_name": ""
         },
         "adjuster": "",
         "insCompany": "",

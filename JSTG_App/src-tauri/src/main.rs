@@ -4,13 +4,16 @@
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Write;
+use db::Assessor;
+
+mod db;
 
 fn main() {
   // println!("Trying the DB function:\n\n");
   // test();
 
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![double, greet, test])
+    .invoke_handler(tauri::generate_handler![double, greet, test, print_assessors])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 
@@ -24,6 +27,13 @@ fn greet(name: &str) -> String {
 #[tauri::command]
 fn double(count: i32) -> i32 {
     count * 2
+}
+
+#[tauri::command]
+fn print_assessors() -> Vec<Assessor> {
+    println!("path:");
+    println!("{}", db::get_path("OpenSuse", "Templates"));
+    db::get_all_assessor_info()
 }
 
 #[tauri::command]
@@ -73,22 +83,3 @@ async fn send_request(map: HashMap<&str, &str>) -> Result<(), Box<dyn std::error
     Ok(())
 
 }
-
-// fn test() {
-//
-//     let connection = sqlite::open("/home/ben/projects/JSTG/JSOT.db").unwrap();
-//
-//     let query = "
-//         SELECT * FROM [Assessors];
-//     ";
-//
-//     connection
-//         .iterate(query, |pairs| {
-//             for &(name, value) in pairs.iter() {
-//                 println!("{} = {}", name, value.unwrap());
-//             }
-//             true
-//         })
-//         .unwrap();
-//
-// }
