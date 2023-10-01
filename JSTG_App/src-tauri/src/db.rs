@@ -18,7 +18,6 @@ pub struct Assessor {
 
 pub fn get_all_assessor_info() -> Vec<Assessor> {
 
-    // let mut assessors: Vec<String> = Vec::new();
     let connection = sqlite::open(DB_PATH).unwrap();
     let query = "SELECT Salutation, FirstName, LastName FROM [Assessors];";
     let mut statement = connection.prepare(query).unwrap();

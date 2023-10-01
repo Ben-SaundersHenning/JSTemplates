@@ -33,18 +33,17 @@ namespace TemplateGenerationAPI.Controllers
             foreach(KeyValuePair<string, string> entry in data)
             {
                
-                //Console.WriteLine(entry.Key + " : " + entry.Value);
                 outputs[entry.Key] = entry.Value;
                 
             }
 
             using (MemoryStream stream = new MemoryStream())
             {
-                DocX doc = DocX.Load(@$"/run/media/ben/Windows/Users/Ben Saunders-Henning/AppData/Roaming/JSTemplates/templates/{outputs["Template"]}");
+                DocX doc = DocX.Load($"{outputs["TEMPLATE_PATH"]}{outputs["Template"]}");
 
                 if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
                     var image = doc.AddImage(
-                        $@"/run/media/ben/Windows/Users/Ben Saunders-Henning/AppData/Roaming/JSTemplates/images/{outputs["Image"]}");
+                        $"{outputs["IMAGE_PATH"]}{outputs["Image"]}");
                     var picture = image.CreatePicture();
                     ObjectReplaceTextOptions options = new ObjectReplaceTextOptions();
                     options.RegExOptions = RegexOptions.IgnoreCase;
@@ -54,13 +53,13 @@ namespace TemplateGenerationAPI.Controllers
                     doc.ReplaceTextWithObject(options);
                 }
 
-                if (doc.FindUniqueByPattern(@"<[\w _-]{3,}>", System.Text.RegularExpressions.RegexOptions.IgnoreCase).Count > 0)
+                if (doc.FindUniqueByPattern(@"<[\w _-]{3,}>", RegexOptions.IgnoreCase).Count > 0)
                 {
                     var replaceTextOptions = new FunctionReplaceTextOptions()
                     {
                         FindPattern = "<(.*?)>",
                         RegexMatchHandler = ReplaceFunc,
-                        RegExOptions = System.Text.RegularExpressions.RegexOptions.IgnoreCase,
+                        RegExOptions = RegexOptions.IgnoreCase,
                         NewFormatting = new Formatting() { FontColor = System.Drawing.Color.Black, Size = 12, FontFamily = new Font("Times New Roman") }
                     };
             
@@ -84,12 +83,6 @@ namespace TemplateGenerationAPI.Controllers
             }
 
             return "NULL: " + findStr;
-        }
-        
-        [HttpGet("Test")]
-        public int TestGet()
-        {
-            return 1;
         }
         
     }

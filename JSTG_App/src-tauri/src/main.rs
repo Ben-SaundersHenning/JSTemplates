@@ -9,11 +9,9 @@ use db::Assessor;
 mod db;
 
 fn main() {
-  // println!("Trying the DB function:\n\n");
-  // test();
 
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![double, greet, test, print_assessors])
+    .invoke_handler(tauri::generate_handler![double, greet, request_document, get_assessors])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 
@@ -30,50 +28,60 @@ fn double(count: i32) -> i32 {
 }
 
 #[tauri::command]
-fn print_assessors() -> Vec<Assessor> {
-    println!("path:");
-    println!("{}", db::get_path("OpenSuse", "Templates"));
+fn get_assessors() -> Vec<Assessor> {
     db::get_all_assessor_info()
 }
 
 #[tauri::command]
-async fn test(test: String) {
+async fn request_document(data: String) {
 
-    let map: HashMap<&str, &str> = serde_json::from_str(&test).unwrap();
+    let mut map: HashMap<&str, &str> = serde_json::from_str(&data).unwrap();
 
-    // for key in map.keys() {
-    //     println!("Key: {key}");
-    // }
-    // for val in map.values() {
-    //     println!("Val: {val}");
-    // }
+    let template_path: String;
+    let image_path: String;
 
-    println!("Going into send request");
+    if cfg!(windows) {
+        template_path = db::get_path("Windows", "Templates");
+        image_path = db::get_path("Windows", "Images");
+    }
+    else {
+        template_path = db::get_path("OpenSuse", "Templates");
+        image_path = db::get_path("OpenSuse", "Images");
+    };
+
+    map.insert("TEMPLATE_PATH", &template_path);
+    map.insert("IMAGE_PATH", &image_path);
     let _ = send_request(map).await;
-
 
 }
 
 async fn send_request(map: HashMap<&str, &str>) -> Result<(), Box<dyn std::error::Error>> {
 
-    println!("In send request");
     let client = reqwest::Client::new();
-
     let res = client.post("http://localhost:5056/api/DocumentRequest")
         .json(&map)
         .header("responseType", "blob")
         .header("content-type", "application/json")
         .send()
         .await?;
-    println!("The post has been sent");
 
     match res.status() {
         reqwest::StatusCode::OK => {
             println!("Response OK");
             let body = res.bytes().await?;
-            let mut file = File::create("/run/media/ben/Windows/Users/Ben Saunders-Henning/AppData/Roaming/JSTemplates/templates/TEST.docx").unwrap();
+
+            //for development only
+            let mut path: String = if cfg!(windows) {
+                db::get_path("Windows", "Templates")
+            } else {
+                db::get_path("OpenSuse", "Templates")
+            };
+
+            path.push_str("TEST.docx");
+
+            let mut file: File = File::create(path).unwrap();
             let _ = file.write_all(&body);
-            println!("Wrote to the test file");
+
         }
         status => {
             println!("StatusCode is not okay {status}");

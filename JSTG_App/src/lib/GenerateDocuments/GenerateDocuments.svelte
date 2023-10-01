@@ -78,7 +78,7 @@
     import {onMount} from 'svelte'
 
     onMount(() => {
-        invoke('print_assessors').then((assessors) => therapists = assessors);
+        invoke('get_assessors').then((assessors) => therapists = assessors);
         therapists = therapists;
     });
 
@@ -151,14 +151,13 @@
 
             }
 
-            // const send = JSON.stringify(Object.fromEntries(map));
             const send = JSON.stringify(map);
 
-            invoke('test', {test: send});
-            status="Saved.";
+            invoke('request_document', {data: send});
+            status="Saved."; //only works for 1 document
 
         } catch (exceptionVar){
-            asmData.claimant.firstName = "did not work";
+            status="Error!";
         }
     }
 
