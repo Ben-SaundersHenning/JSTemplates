@@ -1,5 +1,5 @@
 runG:
-	dotnet run --project ./GenerationAPI/DocGen/DocGen.csproj
+	dotnet run --project ./DocumentGenerationAPI/DocumentGenerationAPI.csproj & cargo tauri dev
 
 buildG:
 	dotnet build ./GenerationAPI/DocGen/DocGen.csproj

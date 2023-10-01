@@ -1,3 +1,4 @@
+DocumentGenerationAPI/jsonSchema.json
 .idea/
 GenerationAPI/.idea/
 GenerationAPI/JSOTdb
@@ -8,3 +9,8 @@ GenerationAPI/DocGen/bin/
 GenerationAPI/DocGen/obj/
 GenerationAPI/bin/
 GenerationAPI/obj/
+DocumentGenerationAPI/bin/
+DocumentGenerationAPI/obj/
+JSOT.sqlite3
+JSOTdb
+node_modules/

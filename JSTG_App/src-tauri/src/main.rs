@@ -1,11 +1,20 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::collections::HashMap;
+use std::fs::File;
+use std::io::Write;
+use db::Assessor;
+
+mod db;
+
 fn main() {
+
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![double, greet])
+    .invoke_handler(tauri::generate_handler![double, greet, request_document, get_assessors])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
+
 }
 
 #[tauri::command]
@@ -16,4 +25,69 @@ fn greet(name: &str) -> String {
 #[tauri::command]
 fn double(count: i32) -> i32 {
     count * 2
+}
+
+#[tauri::command]
+fn get_assessors() -> Vec<Assessor> {
+    db::get_all_assessor_info()
+}
+
+#[tauri::command]
+async fn request_document(data: String) {
+
+    let mut map: HashMap<&str, &str> = serde_json::from_str(&data).unwrap();
+
+    let template_path: String;
+    let image_path: String;
+
+    if cfg!(windows) {
+        template_path = db::get_path("Windows", "Templates");
+        image_path = db::get_path("Windows", "Images");
+    }
+    else {
+        template_path = db::get_path("OpenSuse", "Templates");
+        image_path = db::get_path("OpenSuse", "Images");
+    };
+
+    map.insert("TEMPLATE_PATH", &template_path);
+    map.insert("IMAGE_PATH", &image_path);
+    let _ = send_request(map).await;
+
+}
+
+async fn send_request(map: HashMap<&str, &str>) -> Result<(), Box<dyn std::error::Error>> {
+
+    let client = reqwest::Client::new();
+    let res = client.post("http://localhost:5056/api/DocumentRequest")
+        .json(&map)
+        .header("responseType", "blob")
+        .header("content-type", "application/json")
+        .send()
+        .await?;
+
+    match res.status() {
+        reqwest::StatusCode::OK => {
+            println!("Response OK");
+            let body = res.bytes().await?;
+
+            //for development only
+            let mut path: String = if cfg!(windows) {
+                db::get_path("Windows", "Templates")
+            } else {
+                db::get_path("OpenSuse", "Templates")
+            };
+
+            path.push_str("TEST.docx");
+
+            let mut file: File = File::create(path).unwrap();
+            let _ = file.write_all(&body);
+
+        }
+        status => {
+            println!("StatusCode is not okay {status}");
+        }
+    }
+
+    Ok(())
+
 }
