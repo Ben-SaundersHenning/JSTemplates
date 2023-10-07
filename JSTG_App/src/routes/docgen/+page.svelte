@@ -71,11 +71,14 @@
 
     <p>{status}</p>
 
+    <Test/>
+
 </div>
 <script>
 
     import {invoke} from '@tauri-apps/api/tauri'
     import {onMount} from 'svelte'
+    import Test from './components/test.svelte'
 
     onMount(() => {
         invoke('get_assessors').then((assessors) => therapists = assessors);

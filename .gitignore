@@ -11,6 +11,6 @@ GenerationAPI/bin/
 GenerationAPI/obj/
 DocumentGenerationAPI/bin/
 DocumentGenerationAPI/obj/
-JSOT.sqlite3
+JSTG.sqlite3
 JSOTdb
 node_modules/
