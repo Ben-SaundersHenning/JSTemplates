@@ -8,6 +8,7 @@ use db::Assessor;
 use db::get_path;
 
 mod db;
+mod request_builder;
 
 fn main() {
 
