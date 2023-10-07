@@ -5,13 +5,14 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::Write;
 use db::Assessor;
+use db::get_path;
 
 mod db;
 
 fn main() {
 
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![double, greet, request_document, get_assessors])
+    .invoke_handler(tauri::generate_handler![double, greet, request_document, get_assessors, get_path])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 
@@ -41,16 +42,16 @@ async fn request_document(data: String) {
     let image_path: String;
 
     if cfg!(windows) {
-        template_path = db::get_path("Windows", "Templates");
-        image_path = db::get_path("Windows", "Images");
+        template_path = get_path("Windows", "Templates");
+        image_path = get_path("Windows", "Images");
     }
     else {
-        template_path = db::get_path("OpenSuse", "Templates");
-        image_path = db::get_path("OpenSuse", "Images");
+        template_path = get_path("OpenSuse", "Templates");
+        image_path = get_path("OpenSuse", "Images");
     };
 
-    map.insert("TEMPLATE_PATH", &template_path);
-    map.insert("IMAGE_PATH", &image_path);
+    map.insert("TEMPLATE PATH", &template_path);
+    map.insert("IMAGE PATH", &image_path);
     let _ = send_request(map).await;
 
 }
@@ -72,9 +73,9 @@ async fn send_request(map: HashMap<&str, &str>) -> Result<(), Box<dyn std::error
 
             //for development only
             let mut path: String = if cfg!(windows) {
-                db::get_path("Windows", "Templates")
+                get_path("Windows", "Templates")
             } else {
-                db::get_path("OpenSuse", "Templates")
+                get_path("OpenSuse", "Templates")
             };
 
             path.push_str("TEST.docx");
