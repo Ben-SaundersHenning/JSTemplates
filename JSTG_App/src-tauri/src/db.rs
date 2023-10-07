@@ -39,6 +39,7 @@ pub fn get_all_assessor_info() -> Vec<Assessor> {
 
 //func to help retrieve absolute paths
 //on different machines during development.
+#[tauri::command]
 pub fn get_path(system: &str, dir: &str) -> String {
     let connection = sqlite::open(DB_PATH).unwrap();
     let query = "

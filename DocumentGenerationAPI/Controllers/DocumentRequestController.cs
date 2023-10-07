@@ -39,11 +39,11 @@ namespace TemplateGenerationAPI.Controllers
 
             using (MemoryStream stream = new MemoryStream())
             {
-                DocX doc = DocX.Load($"{outputs["TEMPLATE_PATH"]}{outputs["Template"]}");
+                DocX doc = DocX.Load($"{outputs["TEMPLATE PATH"]}{outputs["Template"]}");
 
                 if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
                     var image = doc.AddImage(
-                        $"{outputs["IMAGE_PATH"]}{outputs["Image"]}");
+                        $"{outputs["IMAGE PATH"]}{outputs["IMAGE"]}");
                     var picture = image.CreatePicture();
                     ObjectReplaceTextOptions options = new ObjectReplaceTextOptions();
                     options.RegExOptions = RegexOptions.IgnoreCase;
