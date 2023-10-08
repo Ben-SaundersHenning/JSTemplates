@@ -1,6 +1,6 @@
 <div>
     <label for="type">Assessment Type:</label>
-    <select id="type" bind:value={asmtData.type}>
+    <select id="type" bind:value={asmtData.asmtType}>
     {#each asmTypes as type}
         <option value={type}>{type}</option>
     {/each}
@@ -106,7 +106,7 @@
             map["CLIENT AGE"] = asmtData.claimant.age;
             map["REFERRAL COMPANY"] = asmtData.referralCompany;
             map["CLIENT ADDRESS"] = asmtData.claimant.addressLong;
-            map["TEMPLATE"] = asmtData.type;
+            map["TEMPLATE"] = asmtData.asmtType;
             map["OCCUPATIONAL THERAPIST"] = asmtData.therapist.salutation + ". " + asmtData.therapist.firstName + " " + asmtData.therapist.lastName;
 
             if(asmtData.claimant.gender == "male") {
@@ -150,7 +150,9 @@
 
             }
 
-            const send = JSON.stringify(map);
+            const _ = JSON.stringify(map);
+
+            const send = JSON.stringify(asmtData);
 
             invoke('request_document', {data: send});
             status="Saved."; //only works for 1 document
@@ -210,7 +212,7 @@
     };
 
     let asmtData = {
-        "type": "",
+        "asmtType": "",
         "therapist": {
             "salutation": "",
             "firstName": "",

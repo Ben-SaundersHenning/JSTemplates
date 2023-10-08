@@ -39,7 +39,7 @@ namespace TemplateGenerationAPI.Controllers
 
             using (MemoryStream stream = new MemoryStream())
             {
-                DocX doc = DocX.Load($"{outputs["TEMPLATE PATH"]}{outputs["Template"]}");
+                DocX doc = DocX.Load($"{outputs["TEMPLATE PATH"]}{outputs["TEMPLATE"]}");
 
                 if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
                     var image = doc.AddImage(

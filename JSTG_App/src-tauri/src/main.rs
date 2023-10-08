@@ -48,27 +48,30 @@ fn get_assessors() -> Vec<Assessor> {
 #[tauri::command]
 async fn request_document(data: String) {
 
-    let mut map: HashMap<&str, &str> = serde_json::from_str(&data).unwrap();
+    // let mut map: HashMap<&str, &str> = serde_json::from_str(&data).unwrap();
+    //
+    // let template_path: String;
+    // let image_path: String;
+    //
+    // if cfg!(windows) {
+    //     template_path = get_path("Windows", "Templates");
+    //     image_path = get_path("Windows", "Images");
+    // }
+    // else {
+    //     template_path = get_path("OpenSuse", "Templates");
+    //     image_path = get_path("OpenSuse", "Images");
+    // };
+    //
+    // map.insert("TEMPLATE PATH", &template_path);
+    // map.insert("IMAGE PATH", &image_path);
 
-    let template_path: String;
-    let image_path: String;
+    let map = request_builder::build_request(data);
 
-    if cfg!(windows) {
-        template_path = get_path("Windows", "Templates");
-        image_path = get_path("Windows", "Images");
-    }
-    else {
-        template_path = get_path("OpenSuse", "Templates");
-        image_path = get_path("OpenSuse", "Images");
-    };
-
-    map.insert("TEMPLATE PATH", &template_path);
-    map.insert("IMAGE PATH", &image_path);
     let _ = send_request(map).await;
 
 }
 
-async fn send_request(map: HashMap<&str, &str>) -> Result<(), Box<dyn std::error::Error>> {
+async fn send_request(map: HashMap<&str, String>) -> Result<(), Box<dyn std::error::Error>> {
 
     let client = reqwest::Client::new();
     let res = client.post("http://localhost:5056/api/DocumentRequest")
