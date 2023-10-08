@@ -71,6 +71,8 @@
 
     <p>{status}</p>
 
+    <button on:click={testRequestBuilder}>Press me to test the request builder</button>
+
     <Test/>
 
 </div>
@@ -84,6 +86,11 @@
         invoke('get_assessors').then((assessors) => therapists = assessors);
         therapists = therapists;
     });
+
+    function testRequestBuilder() {
+        const send = JSON.stringify(asmtData);
+        invoke('test', {data: send});
+    }
 
     async function submitPost() {
         try {
@@ -207,7 +214,8 @@
         "therapist": {
             "salutation": "",
             "first_name": "",
-            "last_name": ""
+            "last_name": "",
+            "qualifications": "",
         },
         "adjuster": "",
         "insCompany": "",

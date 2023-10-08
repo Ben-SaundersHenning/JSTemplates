@@ -13,7 +13,7 @@ mod request_builder;
 fn main() {
 
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![double, greet, request_document, get_assessors, get_path])
+    .invoke_handler(tauri::generate_handler![double, greet, request_document, get_assessors, get_path, test])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 
@@ -27,6 +27,17 @@ fn greet(name: &str) -> String {
 #[tauri::command]
 fn double(count: i32) -> i32 {
     count * 2
+}
+
+#[tauri::command]
+fn test(data: String) {
+    println!("In the test method");
+    let map: HashMap<&str, String> = request_builder::build_request(data);
+
+    for (key, val) in map.iter() {
+        println!("{key}: |{val}|");
+    }
+
 }
 
 #[tauri::command]
