@@ -10,6 +10,7 @@ else {
 };
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Assessor {
     salutation: String,
     first_name: String,

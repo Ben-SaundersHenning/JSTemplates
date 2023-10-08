@@ -10,7 +10,7 @@
     <label for="therapist">Therapist:</label>
     <select id="therapist" bind:value={asmtData.therapist}>
     {#each therapists as therapist}
-        <option value={therapist}>{therapist.salutation}. {therapist.first_name} {therapist.last_name}</option>
+        <option value={therapist}>{therapist.salutation}. {therapist.firstName} {therapist.lastName}</option>
     {/each}
     </select>
     <br>
@@ -31,7 +31,7 @@
     </select>
     <br>
 
-    <label for="claimDOB">Claimant DOB:</label>
+    <label for="claimDOB">claimant DOB:</label>
     <input type="text" id="claimDOB" bind:value={asmtData.claimant.dateOfBirth}>
     <br>
 
@@ -39,7 +39,7 @@
     <input class="textbox" id="claimAge" type="text" bind:value={asmtData.claimant.age}/>
     <br>
 
-    <label for="claimDOL">Claimant DOL:</label>
+    <label for="claimDOL">claimant DOL:</label>
     <input type="text" id="claimDOL" bind:value={asmtData.claimant.dateOfLoss}>
     <br>
 
@@ -107,7 +107,7 @@
             map["REFERRAL COMPANY"] = asmtData.referralCompany;
             map["CLIENT ADDRESS"] = asmtData.claimant.addressLong;
             map["TEMPLATE"] = asmtData.type;
-            map["OCCUPATIONAL THERAPIST"] = asmtData.therapist.salutation + ". " + asmtData.therapist.first_name + " " + asmtData.therapist.last_name;
+            map["OCCUPATIONAL THERAPIST"] = asmtData.therapist.salutation + ". " + asmtData.therapist.firstName + " " + asmtData.therapist.lastName;
 
             if(asmtData.claimant.gender == "male") {
                 map["HE---SHE_Lower"] = "he";
@@ -127,7 +127,7 @@
                 map["CLIENT SALUTATION"] = "Ms";
             }
 
-            switch(asmtData.therapist.first_name) {
+            switch(asmtData.therapist.firstName) {
 
                 case "Joan":
                 map["IMAGE"] = "JS.png";
@@ -213,8 +213,8 @@
         "type": "",
         "therapist": {
             "salutation": "",
-            "first_name": "",
-            "last_name": "",
+            "firstName": "",
+            "lastName": "",
             "qualifications": "",
         },
         "adjuster": "",

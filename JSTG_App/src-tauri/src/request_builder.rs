@@ -2,81 +2,82 @@
 //key-value pairs that the API needs to generate a document. Note that
 //its being done this way as practice with Rust.
 
-//Need to build a hashmap with the following keys:
-//
-//     "ADJUSTER"
-//     "INSURANCE COMPANY"
-//     "OCCUPATIONAL THERAPIST"
-//     "ASSESSOR QUALS"
-//
-//     "CLIENT SALUTATION"
-//     "CLIENT FIRST"
-//     "CLIENT LAST"
-//     "CLIENT AGE"
-//     "CLIENT ADDRESS"
-//     "DOB"
-//
-//     "HE---SHE_Lower"
-//     "MALE---FEMALE_Lower"
-//     "HIS---HER_Lower"
-//     "MALE---FEMALE_LOWER"
-//     "HE---SHE_Upper"
-//     "HIM---HER_Lower"
-//
-//     "CLAIM NUMBER"
-//     "DOL"
-//     "DOA"
-//     "REFERRAL COMPANY"
-//
-//     "TEMPLATE"
-//     "IMAGE"
-//
-//     These are to be removed
-//     "TEMPLATE PATH"
-//     "IMAGE PATH"
-//
-//     Plus any asmt specific keys
-
+use serde::{Serialize, Deserialize};
 use serde_json::Value;
 use std::collections::HashMap;
 
-pub fn build_request(request: String) -> HashMap<&'static str, String> {
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct Request {
+    adjuster: String,
+    ins_company: String,
+    claim_number: String,
+    date_of_assessment: String,
+    referral_company: String,
+    therapist: Therapist,
+    claimant: Claimant
+}
 
-    let v: Value = serde_json::from_str(&request).unwrap();
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct Therapist {
+    salutation: String,
+    first_name: String,
+    last_name: String,
+    // qualifications: String
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct Claimant {
+    first_name: String,
+    last_name: String,
+    age: String,
+    gender: String,
+    address_long: String,
+    date_of_birth: String,
+    date_of_loss: String
+}
+
+pub fn build_request(obj: String) -> HashMap<&'static str, String> {
+
+    let _v: Value = serde_json::from_str(&obj).unwrap();
+
+    let request: Request = serde_json::from_str(&obj).unwrap();
 
     let mut map: HashMap<&str, String> = HashMap::from([
-        ("ADJUSTER", v["adjuster"].to_string()),
-        ("INSURANCE COMPANY", v["insCompany"].to_string()),
-        ("OCCUPATIONAL THERAPIST", 
-            v["therapist"]["salutation"].to_string()
-            + ". " 
-            + &v["therapist"]["first_name"].to_string()
-            + " " 
-            + &v["therapist"]["last_name"].to_string()),
-        ("ASSESSOR QUALS", v["therapist"]["qualifications"].to_string()),
-        ("CLIENT FIRST", v["claimant"]["firstName"].to_string()),
-        ("CLIENT LAST", v["claimant"]["lastName"].to_string()),
-        ("CLIENT AGE", v["claimant"]["age"].to_string()),
-        ("CLIENT ADDRESS", v["claimant"]["addressLong"].to_string()),
-        ("DOB", v["claimant"]["dateOfBirth"].to_string()),
-        ("DOL", v["claimant"]["dateOfLoss"].to_string()),
-        ("CLAIM NUMBER", v["claimNumber"].to_string()),
-        ("DOA", v["dateOfAssessment"].to_string()),
-        ("REFERRAL COMPANY", v["referralCompany"].to_string()),
+        ("ADJUSTER", request.adjuster),
+        ("INSURANCE COMPANY", request.ins_company),
+        ("OCCUPATIONAL THERAPIST",
+            request.therapist.salutation
+            + ". "
+            + &request.therapist.first_name
+            + " "
+            + &request.therapist.last_name),
+        // ("ASSESSOR QUALS", request.therapist.qualifications),
+        ("CLIENT FIRST", request.claimant.first_name),
+        ("CLIENT LAST", request.claimant.last_name),
+        ("CLIENT AGE", request.claimant.age),
+        ("CLIENT ADDRESS", request.claimant.address_long),
+        ("DOB", request.claimant.date_of_birth),
+        ("DOL", request.claimant.date_of_loss),
+        ("CLAIM NUMBER", request.claim_number),
+        ("DOA", request.date_of_assessment),
+        ("REFERRAL COMPANY", request.referral_company),
 
         // ("TEMPLATE", v[""].to_string()),
         // ("IMAGE", v[""].to_string()),
         // // ("MALE---FEMALE_LOWER", v[""].to_string()),
     ]);
 
-    if v["claimant"]["gender"] == "male" {
+    if request.claimant.gender == "male" {
         map.insert("HE---SHE_Lower", "he".to_string());
         map.insert("HE---SHE_Upper", "He".to_string());
         map.insert("MALE---FEMALE_Lower", "male".to_string());
         map.insert("HIS---HER_Lower", "his".to_string());
         map.insert("HIM---HER_Lower", "him".to_string());
         map.insert("CLIENT SALUATION", "Mr".to_string());
-    } else {
+    } else if request.claimant.gender == "female" {
         map.insert("HE---SHE_Lower", "she".to_string());
         map.insert("HE---SHE_Upper", "She".to_string());
         map.insert("MALE---FEMALE_Lower", "female".to_string());
