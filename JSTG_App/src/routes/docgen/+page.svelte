@@ -1,11 +1,4 @@
 <div>
-    <label for="type">Assessment Type:</label>
-    <select id="type" bind:value={asmtData.asmtType}>
-    {#each asmTypes as type}
-        <option value={type}>{type}</option>
-    {/each}
-    </select>
-    <br>
 
     <label for="therapist">Therapist:</label>
     <select id="therapist" bind:value={asmtData.therapist}>
@@ -67,20 +60,34 @@
     <input class="textbox" id="refComp" type="text" bind:value={asmtData.referralCompany}/>
     <br>
 
+    <label for="type">Assessment Type:</label>
+    <select id="type" bind:value={asmtData.asmtType}>
+    {#each asmTypes as type}
+        <option value={type}>{type}</option>
+    {/each}
+    </select>
+    <br>
+
     <button on:click={submitPost}>Press me to get file</button>
 
     <p>{status}</p>
 
-    <button on:click={testRequestBuilder}>Press me to test the request builder</button>
+    <hr/>
 
-    <Test/>
+    {#if asmtData.asmtType == "AC.docx"}
+        <AC/>
+    {/if}
+
+    <!-- <button on:click={testRequestBuilder}>Press me to test the request builder</button> -->
+    <!---->
+    <!-- <Test/> -->
 
 </div>
 <script>
 
     import {invoke} from '@tauri-apps/api/tauri'
     import {onMount} from 'svelte'
-    import Test from './components/test.svelte'
+    import AC from './components/ac.svelte'
 
     onMount(() => {
         invoke('get_assessors').then((assessors) => therapists = assessors);
