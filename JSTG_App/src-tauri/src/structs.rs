@@ -1,11 +1,22 @@
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Assessor {
-    pub salutation: String,
+pub struct AssessorListing {
+    pub registration_id: String,
     pub first_name: String,
     pub last_name: String
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Assessor {
+    pub registration_id: String,
+    pub first_name: String,
+    pub last_name: String,
+    pub salutation: String,
+    pub email: String,
+    pub qualifications: String
 }
 
 #[derive(Serialize, Deserialize)]
@@ -24,17 +35,8 @@ pub struct Request {
     pub date_of_assessment: String,
     pub referral_company: ReferralCompanyListing,
     pub asmt_type: String,
-    pub therapist: Therapist,
+    pub therapist: AssessorListing,
     pub claimant: Claimant
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Therapist {
-    pub salutation: String,
-    pub first_name: String,
-    pub last_name: String,
-    // qualifications: String
 }
 
 #[derive(Serialize, Deserialize)]

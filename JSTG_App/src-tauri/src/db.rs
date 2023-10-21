@@ -1,6 +1,6 @@
 use sqlite::State;
 use std::string::String;
-use crate::structs::{Assessor, ReferralCompanyListing, ReferralCompany};
+use crate::structs::{Assessor, AssessorListing, ReferralCompanyListing, ReferralCompany};
 
 const DB_PATH: &str = if cfg!(windows) {
     "B:\\projects\\JSTG\\JSTG.sqlite3"
@@ -9,17 +9,18 @@ else {
     "/home/ben/projects/JSTG/JSTG.sqlite3"
 };
 
-pub fn get_all_assessor_info() -> Vec<Assessor> {
+pub fn get_assessor_options() -> Vec<AssessorListing> {
 
     let connection = sqlite::open(DB_PATH).unwrap();
-    let query = "SELECT Salutation, FirstName, LastName FROM [Assessors];";
+    let query = "SELECT RegistrationID, FirstName, LastName FROM [Assessors]
+                 ORDER BY FirstName ASC;";
     let mut statement = connection.prepare(query).unwrap();
 
-    let mut assessors: Vec<Assessor> = Vec::new();
+    let mut assessors: Vec<AssessorListing> = Vec::new();
 
     while let Ok(State::Row) = statement.next() {
-        let assessor = Assessor {
-            salutation: statement.read::<String, _>("Salutation").unwrap(),
+        let assessor = AssessorListing {
+            registration_id: statement.read::<String, _>("RegistrationID").unwrap(),
             first_name: statement.read::<String, _>("FirstName").unwrap(),
             last_name: statement.read::<String, _>("LastName").unwrap(),
         };
@@ -27,6 +28,47 @@ pub fn get_all_assessor_info() -> Vec<Assessor> {
     }
 
     assessors
+
+}
+
+pub fn get_assessor(assessor: AssessorListing) -> Option<Assessor> {
+
+    let connection = sqlite::open(DB_PATH).unwrap();
+    let query = "SELECT FirstName, LastName, Salutation, Email, QualificationsParagraph FROM [Assessors]
+                 WHERE RegistrationID = ?;";
+    let mut statement = connection.prepare(query).unwrap();
+    statement.bind((1, assessor.registration_id.as_str())).unwrap();
+
+    while let Ok(State::Row) = statement.next() {
+        let assessor = Assessor {
+            registration_id: assessor.registration_id,
+            first_name: match statement.read::<String, _>("FirstName") {
+                Ok(val) => val,
+                _ => "NULL".to_string()
+            },
+            last_name: match statement.read::<String, _>("LastName") {
+                Ok(val) => val,
+                _ => "NULL".to_string()
+            },
+            salutation: match statement.read::<String, _>("Salutation") {
+                Ok(val) => val,
+                _ => "NULL".to_string()
+            },
+            email: match statement.read::<String, _>("Email") {
+                Ok(val) => val,
+                _ => "NULL".to_string()
+            },
+            qualifications: match statement.read::<String, _>("QualificationsParagraph") {
+                Ok(val) => val,
+                _ => "NULL".to_string()
+            },
+        };
+
+        return Some(assessor);
+
+    }
+
+    None
 
 }
 
@@ -57,7 +99,7 @@ pub fn get_referral_company(referral_company: ReferralCompanyListing) -> Option<
 
     let connection = sqlite::open(DB_PATH).unwrap();
     let query = "SELECT Name, Address, City, Province, ProvinceAb, PostalCode, Phone, Fax, Email FROM [ReferralCompanies]
-                 WHERE ReferralCompanyID = ?";
+                 WHERE ReferralCompanyID = ?;";
     let mut statement = connection.prepare(query).unwrap();
     statement.bind((1, referral_company.unique_id)).unwrap();
 
