@@ -14,7 +14,7 @@ struct Request {
     ins_company: String,
     claim_number: String,
     date_of_assessment: String,
-    referral_company: String,
+    referral_company: db::ReferralCompanyListing,
     asmt_type: String,
     therapist: Therapist,
     claimant: Claimant
@@ -42,11 +42,27 @@ struct Claimant {
     date_of_loss: String
 }
 
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReferralCompany {
+    pub name: String,
+    pub address: String,
+    pub city: String,
+    pub province: String,
+    pub province_ab: String,
+    pub postal_code: String,
+    pub phone: String,
+    pub fax: String,
+    pub email: String
+}
+
 pub fn build_request(data: String) -> HashMap<&'static str, String> {
 
     let _v: Value = serde_json::from_str(&data).unwrap();
 
     let request: Request = serde_json::from_str(&data).unwrap();
+
+    let referral_company: ReferralCompany = db::get_referral_company(request.referral_company).unwrap();
 
     let mut map: HashMap<&str, String> = HashMap::from([
         ("ADJUSTER", request.adjuster),
@@ -66,7 +82,15 @@ pub fn build_request(data: String) -> HashMap<&'static str, String> {
         ("DOL", request.claimant.date_of_loss),
         ("CLAIM NUMBER", request.claim_number),
         ("DOA", request.date_of_assessment),
-        ("REFERRAL COMPANY", request.referral_company),
+        ("REFCOMP NAME", referral_company.name),
+        ("REFCOMP ADDRESS", referral_company.address),
+        ("REFCOMP CITY", referral_company.city),
+        ("REFCOMP PROVINCE", referral_company.province),
+        ("REFCOMP PROVINCEAB", referral_company.province_ab),
+        ("REFCOMP POSTALCODE", referral_company.postal_code),
+        ("REFCOMP PHONE", referral_company.phone),
+        ("REFCOMP FAX", referral_company.fax),
+        ("REFCOMP EMAIL", referral_company.email),
         ("TEMPLATE", request.asmt_type),
 
         // ("TEMPLATE", v[""].to_string()),

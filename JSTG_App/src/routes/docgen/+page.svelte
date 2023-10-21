@@ -57,7 +57,11 @@
     <br>
 
     <label for="refComp">Referral Company:</label>
-    <input class="textbox" id="refComp" type="text" bind:value={asmtData.referralCompany}/>
+    <select id="refComp" bind:value={asmtData.referralCompany}>
+    {#each referralCompanies as company}
+        <option value={company}>{company.commonName}</option>
+    {/each}
+    </select>
     <br>
 
     <label for="type">Assessment Type:</label>
@@ -92,72 +96,12 @@
     onMount(() => {
         invoke('get_assessors').then((assessors) => therapists = assessors);
         therapists = therapists;
+        invoke('get_companies').then((comps) => referralCompanies = comps);
+        referralCompanies = referralCompanies;
     });
-
-    function testRequestBuilder() {
-        const send = JSON.stringify(asmtData);
-        invoke('test', {data: send});
-    }
 
     async function submitPost() {
         try {
-
-            map["ADJUSTER"] = asmtData.adjuster;
-            map["INSURANCE COMPANY"] = asmtData.insCompany;
-            map["CLIENT FIRST"] = asmtData.claimant.firstName;
-            map["CLIENT LAST"] = asmtData.claimant.lastName;
-            map["DOB"] = asmtData.claimant.dateOfBirth;
-            map["CLAIM NUMBER"] = asmtData.claimNumber;
-            map["DOL"] = asmtData.claimant.dateOfLoss;
-            map["DOA"] = asmtData.dateOfAssessment;
-            map["CLIENT AGE"] = asmtData.claimant.age;
-            map["REFERRAL COMPANY"] = asmtData.referralCompany;
-            map["CLIENT ADDRESS"] = asmtData.claimant.addressLong;
-            map["TEMPLATE"] = asmtData.asmtType;
-            map["OCCUPATIONAL THERAPIST"] = asmtData.therapist.salutation + ". " + asmtData.therapist.firstName + " " + asmtData.therapist.lastName;
-
-            if(asmtData.claimant.gender == "male") {
-                map["HE---SHE_Lower"] = "he";
-                map["MALE---FEMALE_Lower"] = "male";
-                map["MALE---FEMALE_LOWER"] = "male";
-                map["HIS---HER_Lower"] = "his";
-                map["HE---SHE_Upper"] = "He";
-                map["HIM---HER_Lower"] = "him";
-                map["CLIENT SALUTATION"] = "Mr";
-            } else {
-                map["HE---SHE_Lower"] = "she";
-                map["MALE---FEMALE_Lower"] = "female";
-                map["MALE---FEMALE_LOWER"] = "female";
-                map["HIS---HER_Lower"] = "her";
-                map["HE---SHE_Upper"] = "She";
-                map["HIM---HER_Lower"] = "her";
-                map["CLIENT SALUTATION"] = "Ms";
-            }
-
-            switch(asmtData.therapist.firstName) {
-
-                case "Joan":
-                map["IMAGE"] = "JS.png";
-                break;
-
-                case "Montana":
-                map["IMAGE"] = "MM.png";
-                break;
-
-                case "Anghela":
-                map["IMAGE"] = "AS.png";
-                break;
-
-                case "Josh":
-                map["IMAGE"] = "JM.png";
-                break;
-
-                default:
-                map["IMAGE"] = "JS.png";
-
-            }
-
-            const _ = JSON.stringify(map);
 
             const send = JSON.stringify(asmtData);
 
@@ -179,6 +123,8 @@
 
     let therapists = new Array();
 
+    let referralCompanies = new Array();
+
     let asmTypes = [
         "AC.docx",
         "AC MRB.docx",
@@ -192,32 +138,6 @@
         "NEB.docx"
     ]
 
-    let map = {
-        "ADJUSTER": "",
-        "INSURANCE COMPANY": "",
-        "CLIENT FIRST": "",
-        "CLIENT LAST": "",
-        "DOB": "",
-        "CLAIM NUMBER": "",
-        "DOL": "",
-        "DOA": "",
-        "CLIENT AGE": "",
-        "REFERRAL COMPANY": "",
-        "CLIENT ADDRESS": "",
-        "TEMPLATE": "",
-        "OCCUPATIONAL THERAPIST": "",
-        "HE---SHE_Lower": "",
-        "MALE---FEMALE_Lower": "",
-        "HIS---HER_Lower": "",
-        "MALE---FEMALE_LOWER": "",
-        "HE---SHE_Upper": "",
-        "HIM---HER_Lower": "",
-        "CLIENT SALUTATION": "",
-        "TEMPLATE PATH": "",
-        "IMAGE PATH": "",
-        "IMAGE": ""
-    };
-
     let asmtData = {
         "asmtType": "",
         "therapist": {
@@ -229,7 +149,10 @@
         "adjuster": "",
         "insCompany": "",
         "claimNumber": "",
-        "referralCompany": "",
+        "referralCompany": {
+            "uniqueId": "",
+            "commonName": "",
+        },
         "dateOfAssessment": "",
         "seidenFileNumber": "",
         "claimant": {

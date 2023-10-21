@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::Write;
 use db::Assessor;
+use db::ReferralCompanyListing;
 use db::get_path;
 
 mod db;
@@ -13,7 +14,7 @@ mod request_builder;
 fn main() {
 
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![double, greet, request_document, get_assessors, get_path, test])
+    .invoke_handler(tauri::generate_handler![double, greet, request_document, get_assessors, get_path, test, get_companies])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 
@@ -43,6 +44,11 @@ fn test(data: String) {
 #[tauri::command]
 fn get_assessors() -> Vec<Assessor> {
     db::get_all_assessor_info()
+}
+
+#[tauri::command]
+fn get_companies() -> Vec<ReferralCompanyListing> {
+    db::get_referral_company_options()
 }
 
 #[tauri::command]

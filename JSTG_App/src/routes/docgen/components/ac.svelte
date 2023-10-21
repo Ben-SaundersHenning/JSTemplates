@@ -5,7 +5,6 @@
 </div>
 <script>
 
-    import {invoke} from '@tauri-apps/api/tauri'
     import {onMount} from 'svelte'
 
     onMount(() => {
