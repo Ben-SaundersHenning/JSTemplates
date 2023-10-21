@@ -3,15 +3,19 @@
 
 use std::collections::HashMap;
 use std::fs::File;
+use std::fs::create_dir_all;
 use std::io::Write;
-use db::Assessor;
+use chrono::Datelike;
+use db::get_path;
 
 mod db;
+mod request_builder;
+mod structs;
 
 fn main() {
 
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![double, greet, request_document, get_assessors])
+    .invoke_handler(tauri::generate_handler![double, greet, request_document, get_assessors, get_path, test, get_companies])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 
@@ -28,42 +32,108 @@ fn double(count: i32) -> i32 {
 }
 
 #[tauri::command]
-fn get_assessors() -> Vec<Assessor> {
-    db::get_all_assessor_info()
+fn test(data: String) {
+    println!("In the test method");
+    let map: HashMap<&str, String> = request_builder::build_request(data);
+
+    for (key, val) in map.iter() {
+        println!("{key}: |{val}|");
+    }
+
+}
+
+#[tauri::command]
+fn get_assessors() -> Vec<structs::AssessorListing> {
+    db::get_assessor_options()
+}
+
+#[tauri::command]
+fn get_companies() -> Vec<structs::ReferralCompanyListing> {
+    db::get_referral_company_options()
 }
 
 #[tauri::command]
 async fn request_document(data: String) {
 
-    let mut map: HashMap<&str, &str> = serde_json::from_str(&data).unwrap();
+    let map = request_builder::build_request(data);
 
-    let template_path: String;
-    let image_path: String;
-
-    if cfg!(windows) {
-        template_path = db::get_path("Windows", "Templates");
-        image_path = db::get_path("Windows", "Images");
-    }
-    else {
-        template_path = db::get_path("OpenSuse", "Templates");
-        image_path = db::get_path("OpenSuse", "Images");
-    };
-
-    map.insert("TEMPLATE_PATH", &template_path);
-    map.insert("IMAGE_PATH", &image_path);
     let _ = send_request(map).await;
 
 }
 
-async fn send_request(map: HashMap<&str, &str>) -> Result<(), Box<dyn std::error::Error>> {
+async fn send_request(map: HashMap<&str, String>) -> Result<(), Box<dyn std::error::Error>> {
 
     let client = reqwest::Client::new();
-    let res = client.post("http://localhost:5056/api/DocumentRequest")
+    let res = client.post("http://localhost:5056/api/DocumentRequest/DocRequest")
         .json(&map)
         .header("responseType", "blob")
         .header("content-type", "application/json")
         .send()
         .await?;
+
+    let asmt_type = map.get("TEMPLATE").unwrap().replace(".docx", "");
+
+    if asmt_type.contains("AC") {
+        let client = reqwest::Client::new();
+        let res_f1 = client.post("http://localhost:5056/api/DocumentRequest/F1Request")
+            .json(&map)
+            .header("responseType", "blob")
+            .header("content-type", "application/json")
+            .send()
+            .await?;
+
+        match res_f1.status() {
+            reqwest::StatusCode::OK => {
+                println!("F1 Response OK");
+                let body = res_f1.bytes().await?;
+
+                //for development only
+                let mut path: String = if cfg!(windows) {
+                    get_path("Windows", "Assessments")
+                } else {
+                    get_path("OpenSuse", "Assessments")
+                };
+
+                let today = chrono::Utc::now();
+                let year: String = today.year().to_string();
+                let month: String = match today.month() {
+                    1 => "January".to_string(),
+                    2 => "February".to_string(),
+                    3 => "March".to_string(),
+                    4 => "April".to_string(),
+                    5 => "May".to_string(),
+                    6 => "June".to_string(),
+                    7 => "July".to_string(),
+                    8 => "August".to_string(),
+                    9 => "September".to_string(),
+                    10 => "October".to_string(),
+                    11 => "November".to_string(),
+                    12 => "December".to_string(),
+                    _ => "Unknown".to_string(),
+                };
+
+                let ref_name = map.get("REFCOMP COMMONNAME").unwrap();
+                let client_first_name = map.get("CLIENT FIRST").unwrap();
+                let client_last_name = map.get("CLIENT LAST").unwrap();
+                let assessor_first = map.get("ASSESSOR FIRST").unwrap();
+                let assessor_initials = map.get("IMAGE").unwrap().replace(".png", "");
+
+                path.push_str(format!("{year}/{month}/{assessor_first}/{client_first_name} {client_last_name}/").as_str());
+
+                match create_dir_all(path.as_str()) {
+                    Ok(_x) => path.push_str(format!("{ref_name}_F1_{client_first_name} {client_last_name}_{assessor_initials}.docx").as_str()),
+                    _ => path.push_str("REPLACED_F1.docx"),
+                }
+
+                let mut file: File = File::create(path).unwrap();
+                let _ = file.write_all(&body);
+
+            }
+            status => {
+                println!("F1 StatusCode is not okay {status}");
+            }
+        }
+    }
 
     match res.status() {
         reqwest::StatusCode::OK => {
@@ -72,12 +142,41 @@ async fn send_request(map: HashMap<&str, &str>) -> Result<(), Box<dyn std::error
 
             //for development only
             let mut path: String = if cfg!(windows) {
-                db::get_path("Windows", "Templates")
+                get_path("Windows", "Assessments")
             } else {
-                db::get_path("OpenSuse", "Templates")
+                get_path("OpenSuse", "Assessments")
             };
 
-            path.push_str("TEST.docx");
+            let today = chrono::Utc::now();
+            let year: String = today.year().to_string();
+            let month: String = match today.month() {
+                1 => "January".to_string(),
+                2 => "February".to_string(),
+                3 => "March".to_string(),
+                4 => "April".to_string(),
+                5 => "May".to_string(),
+                6 => "June".to_string(),
+                7 => "July".to_string(),
+                8 => "August".to_string(),
+                9 => "September".to_string(),
+                10 => "October".to_string(),
+                11 => "November".to_string(),
+                12 => "December".to_string(),
+                _ => "Unknown".to_string(),
+            };
+
+            let ref_name = map.get("REFCOMP COMMONNAME").unwrap();
+            let client_first_name = map.get("CLIENT FIRST").unwrap();
+            let client_last_name = map.get("CLIENT LAST").unwrap();
+            let assessor_first = map.get("ASSESSOR FIRST").unwrap();
+            let assessor_initials = map.get("IMAGE").unwrap().replace(".png", "");
+
+            path.push_str(format!("{year}/{month}/{assessor_first}/{client_first_name} {client_last_name}/").as_str());
+
+            match create_dir_all(path.as_str()) {
+                Ok(_x) => path.push_str(format!("{ref_name}_{asmt_type}_{client_first_name} {client_last_name}_{assessor_initials}.docx").as_str()),
+                _ => path.push_str("REPLACED.docx"),
+            }
 
             let mut file: File = File::create(path).unwrap();
             let _ = file.write_all(&body);

@@ -1,6 +1,8 @@
-<script>
-    import Greet from '../lib/Greet.svelte'
-</script>
+<!-- <script> -->
+<!--     import Greet from '../lib/Greet.svelte' -->
+<!-- </script> -->
 
 <h1>Welcome to SvelteKit</h1>
-<Greet/>
+<p>This is the main page</p>
+<!-- <Greet/> -->
+
