@@ -64,12 +64,76 @@ async fn request_document(data: String) {
 async fn send_request(map: HashMap<&str, String>) -> Result<(), Box<dyn std::error::Error>> {
 
     let client = reqwest::Client::new();
-    let res = client.post("http://localhost:5056/api/DocumentRequest")
+    let res = client.post("http://localhost:5056/api/DocumentRequest/DocRequest")
         .json(&map)
         .header("responseType", "blob")
         .header("content-type", "application/json")
         .send()
         .await?;
+
+    let asmt_type = map.get("TEMPLATE").unwrap().replace(".docx", "");
+
+    if asmt_type.contains("AC") {
+        let client = reqwest::Client::new();
+        let res_f1 = client.post("http://localhost:5056/api/DocumentRequest/F1Request")
+            .json(&map)
+            .header("responseType", "blob")
+            .header("content-type", "application/json")
+            .send()
+            .await?;
+
+        match res_f1.status() {
+            reqwest::StatusCode::OK => {
+                println!("F1 Response OK");
+                let body = res_f1.bytes().await?;
+
+                //for development only
+                let mut path: String = if cfg!(windows) {
+                    get_path("Windows", "Assessments")
+                } else {
+                    get_path("OpenSuse", "Assessments")
+                };
+
+                let today = chrono::Utc::now();
+                let year: String = today.year().to_string();
+                let month: String = match today.month() {
+                    1 => "January".to_string(),
+                    2 => "February".to_string(),
+                    3 => "March".to_string(),
+                    4 => "April".to_string(),
+                    5 => "May".to_string(),
+                    6 => "June".to_string(),
+                    7 => "July".to_string(),
+                    8 => "August".to_string(),
+                    9 => "September".to_string(),
+                    10 => "October".to_string(),
+                    11 => "November".to_string(),
+                    12 => "December".to_string(),
+                    _ => "Unknown".to_string(),
+                };
+
+                let ref_name = map.get("REFCOMP COMMONNAME").unwrap();
+                let client_first_name = map.get("CLIENT FIRST").unwrap();
+                let client_last_name = map.get("CLIENT LAST").unwrap();
+                let assessor_first = map.get("ASSESSOR FIRST").unwrap();
+                let assessor_initials = map.get("IMAGE").unwrap().replace(".png", "");
+
+                path.push_str(format!("{year}/{month}/{assessor_first}/{client_first_name} {client_last_name}/").as_str());
+
+                match create_dir_all(path.as_str()) {
+                    Ok(_x) => path.push_str(format!("{ref_name}_F1_{client_first_name} {client_last_name}_{assessor_initials}.docx").as_str()),
+                    _ => path.push_str("REPLACED_F1.docx"),
+                }
+
+                let mut file: File = File::create(path).unwrap();
+                let _ = file.write_all(&body);
+
+            }
+            status => {
+                println!("F1 StatusCode is not okay {status}");
+            }
+        }
+    }
 
     match res.status() {
         reqwest::StatusCode::OK => {
@@ -102,7 +166,6 @@ async fn send_request(map: HashMap<&str, String>) -> Result<(), Box<dyn std::err
             };
 
             let ref_name = map.get("REFCOMP COMMONNAME").unwrap();
-            let asmt_type = map.get("TEMPLATE").unwrap().replace(".docx", "");
             let client_first_name = map.get("CLIENT FIRST").unwrap();
             let client_last_name = map.get("CLIENT LAST").unwrap();
             let assessor_first = map.get("ASSESSOR FIRST").unwrap();
@@ -115,7 +178,6 @@ async fn send_request(map: HashMap<&str, String>) -> Result<(), Box<dyn std::err
                 _ => path.push_str("REPLACED.docx"),
             }
 
-            println!("WRITING FILE TO PATH: {path}");
             let mut file: File = File::create(path).unwrap();
             let _ = file.write_all(&body);
 

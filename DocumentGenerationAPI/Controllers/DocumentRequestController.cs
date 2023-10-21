@@ -26,8 +26,8 @@ namespace TemplateGenerationAPI.Controllers
             _logger = logger;
         }
 
-        [HttpPost]
-        public IActionResult Cat([FromBody] Dictionary<string, string> data)
+        [HttpPost("DocRequest")]
+        public IActionResult DocRequest([FromBody] Dictionary<string, string> data)
         {
 
             foreach(KeyValuePair<string, string> entry in data)
@@ -74,6 +74,55 @@ namespace TemplateGenerationAPI.Controllers
                 
             }
         }
+        
+       [HttpPost("F1Request")]
+        public IActionResult Form1([FromBody] Dictionary<string, string> data)
+        {
+
+            foreach(KeyValuePair<string, string> entry in data)
+            {
+               
+                outputs[entry.Key] = entry.Value;
+                
+            }
+            
+            using (MemoryStream stream = new MemoryStream())
+            {
+                DocX doc = DocX.Load($"{outputs["TEMPLATE PATH"]}/F1.docx");
+
+                if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
+                    var image = doc.AddImage(
+                        $"{outputs["IMAGE PATH"]}{outputs["IMAGE"]}");
+                    var picture = image.CreatePicture();
+                    ObjectReplaceTextOptions options = new ObjectReplaceTextOptions();
+                    options.RegExOptions = RegexOptions.IgnoreCase;
+                    options.NewObject = picture;
+                    options.SearchValue = "<PICTURE>";
+                    options.TrackChanges = false;
+                    doc.ReplaceTextWithObject(options);
+                }
+
+                if (doc.FindUniqueByPattern(@"<[\w _-]{3,}>", RegexOptions.IgnoreCase).Count > 0)
+                {
+                    var replaceTextOptions = new FunctionReplaceTextOptions()
+                    {
+                        FindPattern = "<(.*?)>",
+                        RegexMatchHandler = ReplaceFunc,
+                        RegExOptions = RegexOptions.IgnoreCase,
+                        NewFormatting = new Formatting() { FontColor = System.Drawing.Color.Black, Size = 9, FontFamily = new Font("Arial") }
+                    };
+            
+                    doc.ReplaceText(replaceTextOptions);
+                    doc.SaveAs(stream);
+                    byte[] test = stream.ToArray();
+                    outputs = null;
+                    return new FileContentResult(test, "application/octet-stream");
+                }
+                 
+                return null;
+                
+            }
+        } 
         
         private string ReplaceFunc(string findStr)
         {
