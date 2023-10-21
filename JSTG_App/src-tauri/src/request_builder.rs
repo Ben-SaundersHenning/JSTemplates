@@ -36,6 +36,7 @@ pub fn build_request(data: String) -> HashMap<&'static str, String> {
         ("ASSESSOR EMAIL", assessor.email),
         ("ASSESSOR QUALIFICATIONS", assessor.qualifications),
         ("REFCOMP NAME", referral_company.name),
+        ("REFCOMP COMMONNAME", referral_company.common_name),
         ("REFCOMP ADDRESS", referral_company.address),
         ("REFCOMP CITY", referral_company.city),
         ("REFCOMP PROVINCE", referral_company.province),

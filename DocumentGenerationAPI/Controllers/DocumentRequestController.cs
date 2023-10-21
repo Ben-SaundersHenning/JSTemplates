@@ -36,7 +36,7 @@ namespace TemplateGenerationAPI.Controllers
                 outputs[entry.Key] = entry.Value;
                 
             }
-
+            
             using (MemoryStream stream = new MemoryStream())
             {
                 DocX doc = DocX.Load($"{outputs["TEMPLATE PATH"]}{outputs["TEMPLATE"]}");

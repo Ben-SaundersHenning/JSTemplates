@@ -106,6 +106,7 @@ pub fn get_referral_company(referral_company: ReferralCompanyListing) -> Option<
     while let Ok(State::Row) = statement.next() {
         let company = ReferralCompany {
             name: statement.read::<String, _>("Name").unwrap(),
+            common_name: referral_company.common_name,
             address: match statement.read::<String, _>("Address") {
                 Ok(val) => val,
                 _ => "NULL".to_string()

@@ -56,6 +56,7 @@ pub struct Claimant {
 #[serde(rename_all = "camelCase")]
 pub struct ReferralCompany {
     pub name: String,
+    pub common_name: String,
     pub address: String,
     pub city: String,
     pub province: String,

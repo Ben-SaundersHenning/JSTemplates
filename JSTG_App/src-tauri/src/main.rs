@@ -3,7 +3,9 @@
 
 use std::collections::HashMap;
 use std::fs::File;
+use std::fs::create_dir_all;
 use std::io::Write;
+use chrono::Datelike;
 use db::get_path;
 
 mod db;
@@ -53,23 +55,6 @@ fn get_companies() -> Vec<structs::ReferralCompanyListing> {
 #[tauri::command]
 async fn request_document(data: String) {
 
-    // let mut map: HashMap<&str, &str> = serde_json::from_str(&data).unwrap();
-    //
-    // let template_path: String;
-    // let image_path: String;
-    //
-    // if cfg!(windows) {
-    //     template_path = get_path("Windows", "Templates");
-    //     image_path = get_path("Windows", "Images");
-    // }
-    // else {
-    //     template_path = get_path("OpenSuse", "Templates");
-    //     image_path = get_path("OpenSuse", "Images");
-    // };
-    //
-    // map.insert("TEMPLATE PATH", &template_path);
-    // map.insert("IMAGE PATH", &image_path);
-
     let map = request_builder::build_request(data);
 
     let _ = send_request(map).await;
@@ -93,13 +78,44 @@ async fn send_request(map: HashMap<&str, String>) -> Result<(), Box<dyn std::err
 
             //for development only
             let mut path: String = if cfg!(windows) {
-                get_path("Windows", "Templates")
+                get_path("Windows", "Assessments")
             } else {
-                get_path("OpenSuse", "Templates")
+                get_path("OpenSuse", "Assessments")
             };
 
-            path.push_str("TEST.docx");
+            let today = chrono::Utc::now();
+            let year: String = today.year().to_string();
+            let month: String = match today.month() {
+                1 => "January".to_string(),
+                2 => "February".to_string(),
+                3 => "March".to_string(),
+                4 => "April".to_string(),
+                5 => "May".to_string(),
+                6 => "June".to_string(),
+                7 => "July".to_string(),
+                8 => "August".to_string(),
+                9 => "September".to_string(),
+                10 => "October".to_string(),
+                11 => "November".to_string(),
+                12 => "December".to_string(),
+                _ => "Unknown".to_string(),
+            };
 
+            let ref_name = map.get("REFCOMP COMMONNAME").unwrap();
+            let asmt_type = map.get("TEMPLATE").unwrap().replace(".docx", "");
+            let client_first_name = map.get("CLIENT FIRST").unwrap();
+            let client_last_name = map.get("CLIENT LAST").unwrap();
+            let assessor_first = map.get("ASSESSOR FIRST").unwrap();
+            let assessor_initials = map.get("IMAGE").unwrap().replace(".png", "");
+
+            path.push_str(format!("{year}/{month}/{assessor_first}/{client_first_name} {client_last_name}/").as_str());
+
+            match create_dir_all(path.as_str()) {
+                Ok(_x) => path.push_str(format!("{ref_name}_{asmt_type}_{client_first_name} {client_last_name}_{assessor_initials}.docx").as_str()),
+                _ => path.push_str("REPLACED.docx"),
+            }
+
+            println!("WRITING FILE TO PATH: {path}");
             let mut file: File = File::create(path).unwrap();
             let _ = file.write_all(&body);
 
