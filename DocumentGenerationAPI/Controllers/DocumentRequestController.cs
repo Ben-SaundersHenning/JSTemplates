@@ -36,6 +36,7 @@ namespace TemplateGenerationAPI.Controllers
                 outputs[entry.Key] = entry.Value;
                 
             }
+
             
             using (MemoryStream stream = new MemoryStream())
             {
@@ -44,6 +45,7 @@ namespace TemplateGenerationAPI.Controllers
                 if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
                     var image = doc.AddImage(
                         $"{outputs["IMAGE PATH"]}{outputs["IMAGE"]}");
+
                     var picture = image.CreatePicture();
                     ObjectReplaceTextOptions options = new ObjectReplaceTextOptions();
                     options.RegExOptions = RegexOptions.IgnoreCase;
@@ -74,7 +76,7 @@ namespace TemplateGenerationAPI.Controllers
                 
             }
         }
-        
+
        [HttpPost("F1Request")]
         public IActionResult Form1([FromBody] Dictionary<string, string> data)
         {
@@ -124,6 +126,7 @@ namespace TemplateGenerationAPI.Controllers
             }
         } 
         
+
         private string ReplaceFunc(string findStr)
         {
             if(outputs.ContainsKey(findStr))
