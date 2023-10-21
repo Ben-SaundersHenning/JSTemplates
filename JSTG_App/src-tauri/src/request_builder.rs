@@ -5,8 +5,7 @@
 use serde_json::Value;
 use std::collections::HashMap;
 use crate::db;
-use crate::structs::{Request, ReferralCompany};
-
+use crate::structs::{Assessor, Request, ReferralCompany};
 
 pub fn build_request(data: String) -> HashMap<&'static str, String> {
 
@@ -16,16 +15,12 @@ pub fn build_request(data: String) -> HashMap<&'static str, String> {
 
     let referral_company: ReferralCompany = db::get_referral_company(request.referral_company).unwrap();
 
+    let assessor: Assessor = db::get_assessor(request.assessor).unwrap();
+    let assessor_first: String = assessor.first_name.clone();
+
     let mut map: HashMap<&str, String> = HashMap::from([
         ("ADJUSTER", request.adjuster),
         ("INSURANCE COMPANY", request.ins_company),
-        ("OCCUPATIONAL THERAPIST",
-            request.therapist.salutation
-            + ". "
-            + &request.therapist.first_name
-            + " "
-            + &request.therapist.last_name),
-        // ("ASSESSOR QUALS", request.therapist.qualifications),
         ("CLIENT FIRST", request.claimant.first_name),
         ("CLIENT LAST", request.claimant.last_name),
         ("CLIENT AGE", request.claimant.age),
@@ -34,6 +29,12 @@ pub fn build_request(data: String) -> HashMap<&'static str, String> {
         ("DOL", request.claimant.date_of_loss),
         ("CLAIM NUMBER", request.claim_number),
         ("DOA", request.date_of_assessment),
+        ("ASSESSOR REGISTRATIONID", assessor.registration_id),
+        ("ASSESSOR FIRST", assessor.first_name),
+        ("ASSESSOR LAST", assessor.last_name),
+        ("ASSESSOR SALUTATION", assessor.salutation),
+        ("ASSESSOR EMAIL", assessor.email),
+        ("ASSESSOR QUALIFICATIONS", assessor.qualifications),
         ("REFCOMP NAME", referral_company.name),
         ("REFCOMP ADDRESS", referral_company.address),
         ("REFCOMP CITY", referral_company.city),
@@ -66,16 +67,14 @@ pub fn build_request(data: String) -> HashMap<&'static str, String> {
         map.insert("CLIENT SALUTATION", "Ms".to_string());
     }
 
-
-    if request.therapist.first_name == "Joan" {
-        map.insert("IMAGE", "JS.png".to_string());
-    } else if request.therapist.first_name == "Montana" {
-        map.insert("IMAGE", "MM.png".to_string());
-    } else if request.therapist.first_name == "Anghela" {
-        map.insert("IMAGE", "AS.png".to_string());
-    } else if request.therapist.first_name == "Josh" {
-        map.insert("IMAGE", "JM.png".to_string());
-    }
+    //temporary.
+    match assessor_first.as_str() {
+        "Joan" => map.insert("IMAGE", "JS.png".to_string()),
+        "Montana" => map.insert("IMAGE", "MM.png".to_string()),
+        "Anghela" => map.insert("IMAGE", "AS.png".to_string()),
+        "Josh" => map.insert("IMAGE", "JM.png".to_string()),
+        _ => map.insert("IMAGE", "JS.png".to_string())
+    };
 
     //these are temporary
     let template_path: String;

@@ -41,8 +41,8 @@ fn test(data: String) {
 }
 
 #[tauri::command]
-fn get_assessors() -> Vec<structs::Assessor> {
-    db::get_all_assessor_info()
+fn get_assessors() -> Vec<structs::AssessorListing> {
+    db::get_assessor_options()
 }
 
 #[tauri::command]

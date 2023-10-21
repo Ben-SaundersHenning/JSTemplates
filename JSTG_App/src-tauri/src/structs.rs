@@ -35,7 +35,7 @@ pub struct Request {
     pub date_of_assessment: String,
     pub referral_company: ReferralCompanyListing,
     pub asmt_type: String,
-    pub therapist: AssessorListing,
+    pub assessor: AssessorListing,
     pub claimant: Claimant
 }
 

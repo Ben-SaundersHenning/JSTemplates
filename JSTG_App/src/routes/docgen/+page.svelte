@@ -1,9 +1,9 @@
 <div>
 
-    <label for="therapist">Therapist:</label>
-    <select id="therapist" bind:value={asmtData.therapist}>
-    {#each therapists as therapist}
-        <option value={therapist}>{therapist.salutation}. {therapist.firstName} {therapist.lastName}</option>
+    <label for="assessor">Assessor:</label>
+    <select id="assessor" bind:value={asmtData.assessor}>
+    {#each assessors as assessor}
+        <option value={assessor}>{assessor.firstName} {assessor.lastName}</option>
     {/each}
     </select>
     <br>
@@ -94,8 +94,8 @@
     import AC from './components/ac.svelte'
 
     onMount(() => {
-        invoke('get_assessors').then((assessors) => therapists = assessors);
-        therapists = therapists;
+        invoke('get_assessors').then((assessorOpts) => assessors = assessorOpts);
+        assessors = assessors;
         invoke('get_companies').then((comps) => referralCompanies = comps);
         referralCompanies = referralCompanies;
     });
@@ -121,7 +121,7 @@
         "other"
     ]
 
-    let therapists = new Array();
+    let assessors = new Array();
 
     let referralCompanies = new Array();
 
@@ -140,11 +140,10 @@
 
     let asmtData = {
         "asmtType": "",
-        "therapist": {
-            "salutation": "",
+        "assessor": {
+            "registationId": "",
             "firstName": "",
             "lastName": "",
-            "qualifications": "",
         },
         "adjuster": "",
         "insCompany": "",
