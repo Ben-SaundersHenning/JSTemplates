@@ -4,12 +4,11 @@
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Write;
-use db::Assessor;
-use db::ReferralCompanyListing;
 use db::get_path;
 
 mod db;
 mod request_builder;
+mod structs;
 
 fn main() {
 
@@ -42,12 +41,12 @@ fn test(data: String) {
 }
 
 #[tauri::command]
-fn get_assessors() -> Vec<Assessor> {
+fn get_assessors() -> Vec<structs::Assessor> {
     db::get_all_assessor_info()
 }
 
 #[tauri::command]
-fn get_companies() -> Vec<ReferralCompanyListing> {
+fn get_companies() -> Vec<structs::ReferralCompanyListing> {
     db::get_referral_company_options()
 }
 

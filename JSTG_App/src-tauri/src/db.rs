@@ -1,7 +1,6 @@
 use sqlite::State;
 use std::string::String;
-use serde::{Serialize, Deserialize};
-use crate::request_builder;
+use crate::structs::{Assessor, ReferralCompanyListing, ReferralCompany};
 
 const DB_PATH: &str = if cfg!(windows) {
     "B:\\projects\\JSTG\\JSTG.sqlite3"
@@ -9,21 +8,6 @@ const DB_PATH: &str = if cfg!(windows) {
 else {
     "/home/ben/projects/JSTG/JSTG.sqlite3"
 };
-
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Assessor {
-    salutation: String,
-    first_name: String,
-    last_name: String
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ReferralCompanyListing {
-    unique_id: i64,
-    common_name: String,
-}
 
 pub fn get_all_assessor_info() -> Vec<Assessor> {
 
@@ -69,7 +53,7 @@ pub fn get_referral_company_options() -> Vec<ReferralCompanyListing> {
 
 }
 
-pub fn get_referral_company(referral_company: ReferralCompanyListing) -> Option<request_builder::ReferralCompany> {
+pub fn get_referral_company(referral_company: ReferralCompanyListing) -> Option<ReferralCompany> {
 
     let connection = sqlite::open(DB_PATH).unwrap();
     let query = "SELECT Name, Address, City, Province, ProvinceAb, PostalCode, Phone, Fax, Email FROM [ReferralCompanies]
@@ -78,7 +62,7 @@ pub fn get_referral_company(referral_company: ReferralCompanyListing) -> Option<
     statement.bind((1, referral_company.unique_id)).unwrap();
 
     while let Ok(State::Row) = statement.next() {
-        let company = request_builder::ReferralCompany {
+        let company = ReferralCompany {
             name: statement.read::<String, _>("Name").unwrap(),
             address: match statement.read::<String, _>("Address") {
                 Ok(val) => val,

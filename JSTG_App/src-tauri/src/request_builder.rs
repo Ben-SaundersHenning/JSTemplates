@@ -2,59 +2,11 @@
 //key-value pairs that the API needs to generate a document. Note that
 //its being done this way as practice with Rust.
 
-use serde::{Serialize, Deserialize};
 use serde_json::Value;
 use std::collections::HashMap;
 use crate::db;
+use crate::structs::{Request, ReferralCompany};
 
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct Request {
-    adjuster: String,
-    ins_company: String,
-    claim_number: String,
-    date_of_assessment: String,
-    referral_company: db::ReferralCompanyListing,
-    asmt_type: String,
-    therapist: Therapist,
-    claimant: Claimant
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct Therapist {
-    salutation: String,
-    first_name: String,
-    last_name: String,
-    // qualifications: String
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct Claimant {
-    first_name: String,
-    last_name: String,
-    salutation: String,
-    age: String,
-    gender: String,
-    address_long: String,
-    date_of_birth: String,
-    date_of_loss: String
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ReferralCompany {
-    pub name: String,
-    pub address: String,
-    pub city: String,
-    pub province: String,
-    pub province_ab: String,
-    pub postal_code: String,
-    pub phone: String,
-    pub fax: String,
-    pub email: String
-}
 
 pub fn build_request(data: String) -> HashMap<&'static str, String> {
 
