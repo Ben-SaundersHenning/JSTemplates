@@ -1,0 +1,41 @@
+{
+    "type": "",
+    "therapist": {
+        "salutation": "",
+        "firstName": "",
+        "lastName": "",
+        "registationNumber": "",
+        "qualifications": "",
+    },
+    "adjuster": "",
+    "insCompany": "",
+    "claimNumber": "",
+    "dateOfAssessment": "",
+    "seidenFileNumber": null,
+    "claimaint": {
+        "salutation": "",
+        "firstName": "",
+        "lastName": "",
+
+        "gender": "",
+        "male-female": "",
+        "he-she": "",
+        "his-her": "",
+        "himself-herself": "",
+
+        "youth": false,
+        "dateOfBirth": "",
+        "age": 50,
+        "dateOfLoss": "",
+        "addressLong": "",
+        "country": "",
+        "province": "",
+        "street": "",
+        "streeNum": 100,
+        "postalCode": ""
+    },
+    "questions": {
+        "1": "",
+        "2": "",
+    }
+}
