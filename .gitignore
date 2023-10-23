@@ -14,3 +14,9 @@ DocumentGenerationAPI/obj/
 JSTG.sqlite3
 JSOTdb
 node_modules/
+DocumentGenerationAPI/DocProcessor/bin/
+DocumentGenerationAPI/DocProcessor/obj/
+DocumentGenerationAPI/DocumentGenerationAPI/bin/
+DocumentGenerationAPI/DocumentGenerationAPI/obj/
+DocumentGenerationAPI/TestRunner/bin/
+DocumentGenerationAPI/TestRunner/obj/
