@@ -129,16 +129,8 @@ public class Document: IDisposable
                 {
                     continue; //tag has to be contained in the 1 run.
                 }
-                else
+                else //tag is contained over more than 1 run
                 {
-                    /*
-                     * TODO: Have to find out which of the runs contain
-                     *       the split tag. For the ones that do, remove only
-                     *       their runs, and then combine them into a single run.
-                     *       the run should have the default formatting for all the
-                     *      replacements.
-                     */
-                    //tag is contained over multiple runs
                     StringBuilder content = new StringBuilder("");
                     foreach (var run in para.Elements<Run>())
                     {
@@ -159,6 +151,120 @@ public class Document: IDisposable
         }
 
         Doc.Save();
+        
+    }
+
+    public void FindTagsAndPushToNewRun(string pattern)
+    {
+
+        Regex matcher = new Regex(pattern);
+        
+        foreach (var para in Body.Descendants<Paragraph>())
+        {
+
+            var matches = matcher.Matches(para.InnerText);
+            foreach (Match match in matches)
+            {
+                if (match.Value.Contains("ASSESSOR QUALIFICATIONS"))
+                {
+                    int i = 0;
+                }
+                if (para.Elements<Run>().Count() == 1)
+                {
+                    continue; //tag(s) has/have to be contained in the 1 run.
+                }
+                else //tag is contained over more than 1 run
+                {
+
+                    List<string> paragraphsRuns = new List<string>();
+
+                    foreach (var run in para.Elements<Run>())
+                    {
+                        paragraphsRuns.Add(run.InnerText);
+                    }
+                    
+                    List<int> paragraphRunIndices = IndexRunsOfParagraphText(paragraphsRuns);
+
+                    int startRun = DetermineWhatRunIndexIsIn(paragraphRunIndices, match.Index) - 1;
+                    int endRun = DetermineWhatRunIndexIsIn(paragraphRunIndices, match.Index + match.Length - 1) - 1;
+
+                    var runWhereMatchStarted = para.Elements<Run>().ElementAt(startRun);
+                    var runWhereMatchEnded = para.Elements<Run>().ElementAt(endRun);
+
+                    //Create the new run, with the properties
+                    //of the (atleast) first char.
+                    Run newRun = new Run();
+                    
+                    //try and copy the properties
+                    RunProperties? properties = new RunProperties();
+                    var orgProperties = runWhereMatchStarted.Elements<RunProperties>().FirstOrDefault().CloneNode(true);
+                    if (orgProperties != null)
+                    {
+                        newRun.AppendChild((RunProperties)orgProperties);
+                    }
+                    
+                    Text newText = new Text(match.Value);
+                    newRun.AppendChild(newText);
+                    runWhereMatchStarted.InsertAfterSelf(newRun);
+                    
+                    //NOTE: Right now, the above is not removing the original split text.
+                    //So the replacement happens in the middle of the tag.
+                    //match is contained in a single run
+                    if (startRun == endRun)
+                    {
+                        //TODO: implement    
+                    }
+                    else //match is contained over atleast 2 runs
+                    {
+                        //TODO: implement
+                    }
+
+                }
+                
+            }
+                
+        }
+
+        Doc.Save();
+        
+    }
+
+    private List<int> IndexRunsOfParagraphText(List<string> runText)
+    {
+        List<int> indices = new List<int>();
+
+        for (int i = 0; i < runText.Count; i++)
+        {
+            int count = 0;
+            for (int j = i - 1; j >= 0; j--)
+            {
+                count += runText[j].Length;
+            }
+            indices.Add(count);
+        } 
+
+        return indices;
+    }
+
+    //This function assumes that index is in one of the runs 
+    //(or index groups). When this has been called, a match 
+    //has already been determined.
+    private int DetermineWhatRunIndexIsIn(List<int> indices, int index)
+    {
+        int indexMatch = 0;
+        foreach (int i in indices)
+        {
+            if (index < i)
+            {
+                return indexMatch;
+                break;
+
+            }
+
+            indexMatch++;
+        }
+
+        return indices.Count;
         
     }
 
