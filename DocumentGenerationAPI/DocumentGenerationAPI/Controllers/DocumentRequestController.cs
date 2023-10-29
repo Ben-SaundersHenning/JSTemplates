@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TemplateGenerationAPI.Models;
-using Xceed.Document.NET;
-using Xceed.Words.NET;
+using DocProcessor;
+using Document = DocProcessor.Document;
 
 namespace TemplateGenerationAPI.Controllers
 {
@@ -39,8 +39,13 @@ namespace TemplateGenerationAPI.Controllers
             
             using (MemoryStream stream = new MemoryStream())
             {
-                DocX doc = DocX.Load($"{outputs["TEMPLATE PATH"]}{outputs["TEMPLATE"]}");
 
+                Document document = new Document($"{outputs["TEMPLATE PATH"]}{outputs["TEMPLATE"]}",
+                    DocumentType.ExistingDocument);
+                
+                document.SearchAndReplaceText(@"<[\w _-]{3,}>", ReplaceFunction);
+                
+                /* not implemented yet
                 if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
                     var image = doc.AddImage(
                         $"{outputs["IMAGE PATH"]}{outputs["IMAGE"]}");
@@ -51,26 +56,12 @@ namespace TemplateGenerationAPI.Controllers
                     options.SearchValue = "<PICTURE>";
                     options.TrackChanges = false;
                     doc.ReplaceTextWithObject(options);
-                }
+                } */
 
-                if (doc.FindUniqueByPattern(@"<[\w _-]{3,}>", RegexOptions.IgnoreCase).Count > 0)
-                {
-                    var replaceTextOptions = new FunctionReplaceTextOptions()
-                    {
-                        FindPattern = "<(.*?)>",
-                        RegexMatchHandler = ReplaceFunc,
-                        RegExOptions = RegexOptions.IgnoreCase,
-                        NewFormatting = new Formatting() { FontColor = System.Drawing.Color.Black, Size = 12, FontFamily = new Font("Times New Roman") }
-                    };
-            
-                    doc.ReplaceText(replaceTextOptions);
-                    doc.SaveAs(stream);
-                    byte[] test = stream.ToArray();
-                    outputs = null;
-                    return new FileContentResult(test, "application/octet-stream");
-                }
-                 
-                return null;
+                document.SaveAsStream(stream);
+                byte[] test = stream.ToArray();
+                outputs.Clear();
+                return new FileContentResult(test, "application/octet-stream");
                 
             }
         }
@@ -88,8 +79,13 @@ namespace TemplateGenerationAPI.Controllers
             
             using (MemoryStream stream = new MemoryStream())
             {
-                DocX doc = DocX.Load($"{outputs["TEMPLATE PATH"]}/F1.docx");
 
+                Document document = new Document($"{outputs["TEMPLATE PATH"]}/F1.docx",
+                    DocumentType.ExistingDocument);
+                
+                document.SearchAndReplaceText(@"<[\w _-]{3,}>", ReplaceFunction);
+                
+                /* not implemented yet
                 if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
                     var image = doc.AddImage(
                         $"{outputs["IMAGE PATH"]}{outputs["IMAGE"]}");
@@ -100,33 +96,23 @@ namespace TemplateGenerationAPI.Controllers
                     options.SearchValue = "<PICTURE>";
                     options.TrackChanges = false;
                     doc.ReplaceTextWithObject(options);
-                }
+                } */
 
-                if (doc.FindUniqueByPattern(@"<[\w _-]{3,}>", RegexOptions.IgnoreCase).Count > 0)
-                {
-                    var replaceTextOptions = new FunctionReplaceTextOptions()
-                    {
-                        FindPattern = "<(.*?)>",
-                        RegexMatchHandler = ReplaceFunc,
-                        RegExOptions = RegexOptions.IgnoreCase,
-                        NewFormatting = new Formatting() { FontColor = System.Drawing.Color.Black, Size = 9, FontFamily = new Font("Arial") }
-                    };
-            
-                    doc.ReplaceText(replaceTextOptions);
-                    doc.SaveAs(stream);
-                    byte[] test = stream.ToArray();
-                    outputs = null;
-                    return new FileContentResult(test, "application/octet-stream");
-                }
-                 
-                return null;
+                document.SaveAsStream(stream);
+                byte[] test = stream.ToArray();
+                outputs.Clear();
+                return new FileContentResult(test, "application/octet-stream");
                 
             }
         } 
         
-        private string ReplaceFunc(string findStr)
+        private string ReplaceFunction(string findStr)
         {
-            if(outputs.ContainsKey(findStr))
+
+            Regex matcher = new Regex("<(.*?)>");
+            string key = matcher.Match(findStr).Groups[0].Value;
+            
+            if(outputs.ContainsKey(key))
             {
                 return outputs[findStr];
             }

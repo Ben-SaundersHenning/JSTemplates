@@ -5,6 +5,7 @@ using System.Xml.Serialization;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.Win32.SafeHandles;
 
 namespace DocProcessor;
 
@@ -23,9 +24,12 @@ public class Document: IDisposable
     
     private Body? Body { get; set; }
     
+    private string SavePath { get; set; }
+    
     
     public Document(string path, DocumentType type)
     {
+        SavePath = path;
         if (type == DocumentType.ExistingDocument)
         {
             Doc = WordprocessingDocument.Open(path, true);
@@ -42,6 +46,7 @@ public class Document: IDisposable
     
     public Document(string path)
     {
+        SavePath = path;
         Doc = WordprocessingDocument.Open(path, true);
         Body = Doc.MainDocumentPart.Document.Body;
     }
@@ -234,8 +239,16 @@ public class Document: IDisposable
         
     }
 
+    public void SaveAsStream(Stream stream)
+    {
+        Doc.Save();
+        byte[] bytes = File.ReadAllBytes(SavePath);
+        stream.Write(bytes, 0, (int)bytes.Length);
+    }
+
     public void Dispose()
     {
+        Doc.Save();
         Doc.Dispose();
     }
     
