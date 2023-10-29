@@ -8,13 +8,18 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using Document = DocProcessor.Document;
 using DocumentType = DocProcessor.DocumentType;
 
-string testPath = "/home/ben/projects/JSTG/DocumentGenerationAPI/TESTING_FILES/CAT CAT GOSE.docx";
+string testPath = "/home/ben/projects/JSTG/DocumentGenerationAPI/TESTING_FILES/AC_blah.docx";
 using (Document doc = new Document(testPath, DocumentType.ExistingDocument))
 {
 
     //TODO: instead of a replacementstr, pass in a callback function
     //that returns the replacement string. The callback should take 
     //in the matched tag (unedited).
-    doc.SearchAndReplaceText(@"<[\w _-]{3,}>", "Blah");
+    doc.SearchAndReplaceText(@"<[\w _-]{3,}>", GetHelloStr);
 
+}
+
+string GetHelloStr(string match)
+{
+    return "Hello!";
 }

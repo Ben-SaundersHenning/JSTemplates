@@ -79,7 +79,7 @@ public class Document: IDisposable
         return null;
     }
 
-    public void SearchAndReplaceText(string pattern, string replacementStr)
+    public void SearchAndReplaceText(string pattern, Func<string, string> getReplacementString)
     {
         
         Regex matcher = new Regex(pattern);
@@ -99,12 +99,19 @@ public class Document: IDisposable
             
             foreach (Text text in para.Descendants<Text>())
             {
-                if (matcher.IsMatch(text.Text))
+
+                foreach (Match match in matcher.Matches(text.Text))
                 {
-                    text.Text = matcher.Replace(text.Text, replacementStr);
+                    text.Text = matcher.Replace(text.Text, getReplacementString(match.Value));
                     text.Space = SpaceProcessingModeValues.Preserve;
-                    
                 }
+                
+                // if (matcher.IsMatch(text.Text))
+                // {
+                //     text.Text = matcher.Replace(text.Text, replacementStr);
+                //     text.Space = SpaceProcessingModeValues.Preserve;
+                //     
+                // }
                 
             }
 
@@ -117,13 +124,6 @@ public class Document: IDisposable
     private void IsolatePatternInParagraph(Paragraph para, string pattern)
     {
 
-        /*
-        //to catch debugger.
-        if (para.InnerText.Contains("<ASSESSOR QUALIFICATIONS>"))
-        {
-            int i = 0;
-        } */
-        
         List<Text> textElements = para.Descendants<Text>().ToList();
 
         List<string> textTexts = new List<string>();
@@ -203,170 +203,7 @@ public class Document: IDisposable
 
     }
 
-  
-    /*
-    //almost works, but discards elements that can be between text elements. Redo needed.
-    public void FindTagsAndPushToNewRun(string pattern)
-    {
-
-        Regex matcher = new Regex(pattern);
-        
-        foreach (var para in Body!.Descendants<Paragraph>())
-        {
-
-            var matches = matcher.Matches(para.InnerText);
-            foreach (Match match in matches) 
-            {
-                // just to catch debugger
-                  if (match.Value.Contains("DOL")) //CHECKOUT TABCHARS
-                  {
-                      int i = 0;
-                  }
-
-                IEnumerable<Run> runs = para.Elements<Run>().ToList();
-                
-                if (runs.Count() == 1) //Match exists over the 1 run.
-                {
-                    Run run = runs.ElementAt(0);
-                    Run newRun = CreateCopyOfRunWithSingleTextElement(run);
-                    run.InsertAfterSelf(newRun);
-                    run.Remove();
-                }
-                else //tag is contained over more than 1 run
-                {
-
-                    List<string> paragraphsRuns = new List<string>();
-
-                    foreach (var run in runs)
-                    {
-                        paragraphsRuns.Add(run.InnerText);
-                    }
-                    
-                    List<int> paragraphRunIndices = IndexRunsOfParagraphText(paragraphsRuns);
-
-                    int startRun = DetermineWhatRunIndexIsIn(paragraphRunIndices, match.Index) - 1;
-                    int endRun = DetermineWhatRunIndexIsIn(paragraphRunIndices, match.Index + match.Length - 1) - 1;
-
-                    var runWhereMatchStarted = para.Elements<Run>().ElementAt(startRun);
-                    var runWhereMatchEnded = para.Elements<Run>().ElementAt(endRun);
-
-                    if (startRun == endRun) //HANDLE SCENARIO 1
-                    {
-
-                        var textElements = para.Elements<Run>().ElementAt(startRun).Descendants<Text>().ToList();
-
-                        if (textElements.Count != 1) //HANDLE V2 
-                        {
-                            Run newRun = CreateCopyOfRunWithSingleTextElement(runWhereMatchEnded);
-                            para.Elements<Run>().ElementAt(endRun).InsertAfterSelf(newRun);
-                            para.Elements<Run>().ElementAt(endRun).Remove();
-                        }
-                        
-                    }
-                    else //HANDLE SCENARIO 2
-                    {
-
-                        //standardize runs to have 1 text element
-                        int runIndex = startRun;
-                        while (runIndex != endRun)
-                        {
-                            Run curRun = runs.ElementAt(runIndex);
-                            Run newRun = CreateCopyOfRunWithSingleTextElement(curRun);
-                            curRun.InsertAfterSelf(newRun);
-                            curRun.Remove();
-                            runIndex++;
-                        }
-
-                        int numCharsRemoved = 0;
-
-                        Text startRunText = runWhereMatchStarted.Descendants<Text>().ToList().ElementAt(0);
-                        
-                        //If it started in this run and doesnt end in this run, the tag has to go
-                        //to the end of the run.
-                        numCharsRemoved = startRunText.Text.Length - match.Index;
-                        startRunText.Text = startRunText.Text.Remove(match.Index, numCharsRemoved);
-                        var newStartRun = runWhereMatchStarted.CloneNode(true);
-                        para.Elements<Run>().ElementAt(startRun).InsertAfterSelf(newStartRun);
-                        para.Elements<Run>().ElementAt(startRun).Remove();
-
-                        while (numCharsRemoved < match.Length)
-                        {
-                            for (int rIndex = 1; rIndex <= endRun; rIndex++)
-                            {
-                                Run run = runs.ElementAt(rIndex);
-                                Text text = run.Descendants<Text>().ToList().ElementAt(0);
-                                int textLen = text.Text.Length;
-                                int textRemovalIndex = 0;
-
-                                for (int i = 0; i < textLen; i++)
-                                {
-                                    if (numCharsRemoved >= match.Length)
-                                    {
-                                        goto LoopEnd;
-                                    }
-
-                                    text.Text = text.Text.Remove(textRemovalIndex, 1);
-                                    //textRemovalIndex++;
-                                    numCharsRemoved++;
-                                }
-
-                                if (rIndex < endRun)
-                                {
-                                    //every char in the run has been removed
-                                    run.Remove();
-                                }
-                                
-                            }
-                        }
-LoopEnd:
-                        Run newRunWithMatch = new Run();
-                        //try and copy the properties
-                        var runProperties = runWhereMatchStarted.Elements<RunProperties>().FirstOrDefault();
-                        if (runProperties != null)
-                        {
-                            newRunWithMatch.AppendChild((RunProperties)runProperties.CloneNode(true));
-                        }
-                        
-                        newRunWithMatch.AppendChild(new Text(match.Value));
-                        para.Elements<Run>().ElementAt(endRun).InsertAfterSelf(newRunWithMatch);
-                        para.Elements<Run>().ElementAt(endRun).Remove();
-                    
-                    }
-
-                }
-                
-            }
-                
-        }
-
-        Doc.Save();
-        
-    } */
-
-    //this shouldn't be used! It discards elements that can go between
-    //text elements, such as a tab.
-    private Run CreateCopyOfRunWithSingleTextElement(Run run)
-    {
-            string runText = run.InnerText;
-            
-            //Create the new run, with the properties
-            //of the original run.
-            Run newRun = new Run();
-            var runProperties = run.Elements<RunProperties>().FirstOrDefault();
-
-            if (runProperties != null)
-            {
-                newRun.AppendChild((RunProperties)runProperties.CloneNode(true));
-            }
-            
-            //move all text into a single text element. There is no tPr, so this
-            //wont affect formatting.
-            newRun.AppendChild(new Text(runText));
-
-            return newRun;
-    }
-
-    public List<int> IndexPositionsInStrList(List<string> texts)
+    private List<int> IndexPositionsInStrList(List<string> texts)
     {
         
         List<int> indices = new List<int> { 0 };
@@ -382,7 +219,7 @@ LoopEnd:
 
     //This func assumes index IS in a valid index of indices.
     //It wont work properly if it isnt.
-    public int WhatPositionIsIndexIn(List<int> indices, int index)
+    private int WhatPositionIsIndexIn(List<int> indices, int index)
     {
 
         for (int i = 0; i < indices.Count; i++)
