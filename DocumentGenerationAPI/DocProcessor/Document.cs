@@ -86,33 +86,24 @@ public class Document: IDisposable
                 
         foreach (Paragraph para in Body!.Descendants<Paragraph>())
         {
-
-            if (para.InnerText.Contains("<HIS---HER_Lower>") || para.InnerText.Contains("<ASSESSOR QUALIFICATIONS>"))
-            {
-                int y = 0;
-            }
             
             if (!matcher.IsMatch(para.InnerText))
             {
                 continue;
             }
 
-            Paragraph paragraph;
-            
             if (para.Descendants<Text>().Count() > 1)
             {
-                paragraph = IsolatePatternInParagraph(para, pattern);
-            }
-            else
-            {
-                paragraph = para;
+                IsolatePatternInParagraph(para, pattern);
             }
             
-            foreach (Text text in paragraph.Descendants<Text>())
+            foreach (Text text in para.Descendants<Text>())
             {
                 if (matcher.IsMatch(text.Text))
                 {
                     text.Text = matcher.Replace(text.Text, replacementStr);
+                    text.Space = SpaceProcessingModeValues.Preserve;
+                    
                 }
                 
             }
@@ -123,7 +114,7 @@ public class Document: IDisposable
         
     }
 
-    private Paragraph IsolatePatternInParagraph(Paragraph para, string pattern)
+    private void IsolatePatternInParagraph(Paragraph para, string pattern)
     {
 
         /*
@@ -133,8 +124,7 @@ public class Document: IDisposable
             int i = 0;
         } */
         
-        Paragraph paragraph = (Paragraph)para.CloneNode(true);
-        List<Text> textElements = paragraph.Descendants<Text>().ToList();
+        List<Text> textElements = para.Descendants<Text>().ToList();
 
         List<string> textTexts = new List<string>();
 
@@ -157,8 +147,8 @@ public class Document: IDisposable
             int matchEndsInText = WhatPositionIsIndexIn(indices, match.Index + match.Value.Length - 1);
 
             if (matchStartsInText == matchEndsInText)
-            {
-                return para; //match is over a single text element already.
+            { 
+                continue; //match is over a single text element already.
             }
 
             #region CreateRunWithMatch
@@ -195,8 +185,9 @@ public class Document: IDisposable
                     text.Text = text.Text.Remove(0, matchEndsAtIndex + 1);
                     continue;
                 }
-                    
-                text.Text = "";
+
+                //if the text contained only the tag and absolutely nothing else..
+                text.Remove();
                     
             }
             
@@ -210,7 +201,6 @@ public class Document: IDisposable
 
         }
 
-        return paragraph;
     }
 
   
