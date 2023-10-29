@@ -10,11 +10,36 @@ using DocumentType = DocProcessor.DocumentType;
 
 string testPath = "/home/ben/projects/JSTG/DocumentGenerationAPI/TESTING_FILES/AC_blah.docx";
 using (Document doc = new Document(testPath, DocumentType.ExistingDocument))
-{ 
+{
+
+    doc.SearchAndReplaceText(@"<[\w _-]{3,}>", "Blah");
     //doc.CombineAllRuns();
-    //doc.SearchAndReplaceTest(@"<[\w _-]{3,}>", "Blah");
-    doc.FindTagsAndPushToNewRun(@"<[\w _-]{3,}>");
-    doc.SearchAndReplaceTextByRegex(@"<[\w _-]{3,}>", "Blah");
+    //doc.SearchAndReplaceTest(;
+    // doc.FindTagsAndPushToNewRun(@"<[\w _-]{3,}>");
+    // doc.SearchAndReplaceTextByRegex(@"<[\w _-]{3,}>", "Blah");
+
+    // var para = doc.GetParagraph("<ASSESSOR QUALIFICATIONS>");
+    //
+    // Paragraph paragraph = new Paragraph();
+    // Run run0 = new Run();
+    // run0.AppendChild(new Text("AB"));
+    // run0.AppendChild(new Text("<D"));
+    // Run run1 = new Run();
+    // run1.AppendChild(new Text("OA"));
+    // run1.AppendChild(new Text("L>"));
+    // Run run2 = new Run();
+    // run2.AppendChild(new Text("FGHIJK"));
+    // paragraph.AppendChild(run0);
+    // paragraph.AppendChild(run1);
+    // paragraph.AppendChild(run2);
+    //
+    // doc.IsolateStringInParagraph(paragraph, "<DOAL>", true);
+
+    // if (para != null)
+    // {
+    //     doc.IsolateStringInParagraph(para, "<ASSESSOR QUALIFICATIONS>", true);
+    // }
+
 }
 /*
 //need 0, 1, 16, 22
