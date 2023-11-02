@@ -43,22 +43,15 @@ namespace TemplateGenerationAPI.Controllers
                 Document document = new Document($"{outputs["TEMPLATE PATH"]}{outputs["TEMPLATE"]}",
                     DocumentType.ExistingDocument);
                 
-                document.SearchAndReplaceText(@"<[\w _-]{3,}>", ReplaceFunction);
+                document.SearchAndReplaceTextByRegex(@"<([\w _-]{3,})>", ReplaceFunction);
                 
                 /* not implemented yet
                 if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-                    var image = doc.AddImage(
-                        $"{outputs["IMAGE PATH"]}{outputs["IMAGE"]}");
-                    var picture = image.CreatePicture();
-                    ObjectReplaceTextOptions options = new ObjectReplaceTextOptions();
-                    options.RegExOptions = RegexOptions.IgnoreCase;
-                    options.NewObject = picture;
-                    options.SearchValue = "<PICTURE>";
-                    options.TrackChanges = false;
-                    doc.ReplaceTextWithObject(options);
+                //TODO: implement inserting a picture
                 } */
 
                 document.SaveAsStream(stream);
+                document.Dispose();
                 byte[] test = stream.ToArray();
                 outputs.Clear();
                 return new FileContentResult(test, "application/octet-stream");
@@ -83,22 +76,15 @@ namespace TemplateGenerationAPI.Controllers
                 Document document = new Document($"{outputs["TEMPLATE PATH"]}/F1.docx",
                     DocumentType.ExistingDocument);
                 
-                document.SearchAndReplaceText(@"<[\w _-]{3,}>", ReplaceFunction);
+                document.SearchAndReplaceTextByRegex(@"<([\w _-]{3,})>", ReplaceFunction);
                 
                 /* not implemented yet
                 if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-                    var image = doc.AddImage(
-                        $"{outputs["IMAGE PATH"]}{outputs["IMAGE"]}");
-                    var picture = image.CreatePicture();
-                    ObjectReplaceTextOptions options = new ObjectReplaceTextOptions();
-                    options.RegExOptions = RegexOptions.IgnoreCase;
-                    options.NewObject = picture;
-                    options.SearchValue = "<PICTURE>";
-                    options.TrackChanges = false;
-                    doc.ReplaceTextWithObject(options);
+                //TODO: implement inserting a picture
                 } */
 
                 document.SaveAsStream(stream);
+                document.Dispose();
                 byte[] test = stream.ToArray();
                 outputs.Clear();
                 return new FileContentResult(test, "application/octet-stream");
@@ -106,18 +92,14 @@ namespace TemplateGenerationAPI.Controllers
             }
         } 
         
-        private string ReplaceFunction(string findStr)
+        private string ReplaceFunction(string key)
         {
-
-            Regex matcher = new Regex("<(.*?)>");
-            string key = matcher.Match(findStr).Groups[0].Value;
-            
             if(outputs.ContainsKey(key))
             {
-                return outputs[findStr];
+                return outputs[key];
             }
 
-            return "NULL: " + findStr;
+            return "NULL: " + key;
         }
         
     }

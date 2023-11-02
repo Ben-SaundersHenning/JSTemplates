@@ -25,16 +25,17 @@ public class Document: IDisposable
     private Body? Body { get; set; }
     
     private string SavePath { get; set; }
+    private string TempPath { get; set; }
     
     
     public Document(string path, DocumentType type)
     {
         SavePath = path;
+        TempPath = SavePath.Replace(".docx", "_temp.docx");
+        CreateTempCopyOfDocument(SavePath, TempPath);
         if (type == DocumentType.ExistingDocument)
         {
-            Doc = WordprocessingDocument.Open(path, true);
-            MainPart = Doc.MainDocumentPart;
-            Body = MainPart.Document.Body;
+            OpenExistingDocument(TempPath);
         }
         else 
         {
@@ -49,6 +50,18 @@ public class Document: IDisposable
         SavePath = path;
         Doc = WordprocessingDocument.Open(path, true);
         Body = Doc.MainDocumentPart.Document.Body;
+    }
+
+    private void OpenExistingDocument(string path)
+    {
+        Doc = WordprocessingDocument.Open(path, true);
+        MainPart = Doc.MainDocumentPart;
+        Body = MainPart.Document.Body;
+    }
+
+    private void CreateTempCopyOfDocument(string docPath, string tempPath)
+    {
+        File.Copy(docPath, tempPath);
     }
     
     private void CreateDocument()
@@ -67,7 +80,6 @@ public class Document: IDisposable
         Paragraph paragraph = Body.AppendChild(new Paragraph());
         Run run = paragraph.AppendChild(new Run());
         run.AppendChild(new Text(newText));
-        Doc.Save();
     }
 
     //for testing
@@ -84,7 +96,7 @@ public class Document: IDisposable
         return null;
     }
 
-    public void SearchAndReplaceText(string pattern, Func<string, string> getReplacementString)
+    public void SearchAndReplace(string pattern, Func<string, string>? getReplacementString, string? replacementStr, bool isRegex)
     {
         
         Regex matcher = new Regex(pattern);
@@ -105,25 +117,35 @@ public class Document: IDisposable
             foreach (Text text in para.Descendants<Text>())
             {
 
-                foreach (Match match in matcher.Matches(text.Text))
+                if (isRegex)
                 {
-                    text.Text = matcher.Replace(text.Text, getReplacementString(match.Value));
-                    text.Space = SpaceProcessingModeValues.Preserve;
+                    foreach (Match match in matcher.Matches(text.Text))
+                    {
+                        string key = match.Groups[1].Value;
+                        text.Text = text.Text.Replace(match.Value, getReplacementString!(key));
+                    }
+                }
+                else
+                {
+                    text.Text = text.Text.Replace(pattern, replacementStr);
                 }
                 
-                // if (matcher.IsMatch(text.Text))
-                // {
-                //     text.Text = matcher.Replace(text.Text, replacementStr);
-                //     text.Space = SpaceProcessingModeValues.Preserve;
-                //     
-                // }
+                text.Space = SpaceProcessingModeValues.Preserve;
                 
             }
 
         } 
         
-        Doc.Save();
-        
+    }
+
+    public void SearchAndReplaceText(string textToReplace, string replaceWith) 
+    {
+        SearchAndReplace(textToReplace, null, replaceWith, false);
+    }
+    
+    public void SearchAndReplaceTextByRegex(string pattern, Func<string, string> getReplacementString)
+    {
+        SearchAndReplace(pattern, getReplacementString, null, true); //regex replace
     }
 
     private void IsolatePatternInParagraph(Paragraph para, string pattern)
@@ -239,16 +261,36 @@ public class Document: IDisposable
         
     }
 
-    public void SaveAsStream(Stream stream)
+    public void Save()
     {
-        Doc.Save();
-        byte[] bytes = File.ReadAllBytes(SavePath);
-        stream.Write(bytes, 0, (int)bytes.Length);
+        Doc.Dispose();
     }
 
+    public void SaveAs(string path)
+    {
+        Doc.Dispose();
+        File.Copy(TempPath, path);
+        File.Delete(TempPath);
+        
+        //so a user can continue modifying the same document
+        CreateTempCopyOfDocument(path, TempPath);
+        OpenExistingDocument(TempPath);
+    }
+    
+    public void SaveAsStream(Stream stream)
+    {
+        Doc.Dispose();
+        byte[] bytes = File.ReadAllBytes(TempPath);
+        stream.Write(bytes, 0, (int)bytes.Length);
+        OpenExistingDocument(TempPath);
+        // File.Delete(TempPath);
+    }
+
+    //NOTE: right now, if Dispose() is not called,
+    //the file at TempPath will still be there after the doc is generated.
     public void Dispose()
     {
-        Doc.Save();
+        File.Delete(TempPath);
         Doc.Dispose();
     }
     
