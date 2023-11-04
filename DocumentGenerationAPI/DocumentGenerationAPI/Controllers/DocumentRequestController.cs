@@ -1,29 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using TemplateGenerationAPI.Models;
 using DocProcessor;
 using Document = DocProcessor.Document;
 
-namespace TemplateGenerationAPI.Controllers
+namespace DocumentGenerationAPI.Controllers
 {
     [Route("api/DocumentRequest")]
     [ApiController]
     public class DocumentRequestController : ControllerBase
     {
-        private readonly ILogger _logger;
-        private Dictionary<string, string> outputs = new Dictionary<String,String>();
+        
+        private Dictionary<string, string> _outputs = new Dictionary<String,String>();
 
-        public DocumentRequestController(ILogger logger)
+        public DocumentRequestController()
         {
-            _logger = logger;
         }
 
         [HttpPost("DocRequest")]
@@ -33,18 +22,18 @@ namespace TemplateGenerationAPI.Controllers
             foreach(KeyValuePair<string, string> entry in data)
             {
                
-                outputs[entry.Key] = entry.Value;
+                _outputs[entry.Key] = entry.Value;
                 
             }
             
             using (MemoryStream stream = new MemoryStream())
             {
 
-                Document document = new Document($"{outputs["TEMPLATE PATH"]}{outputs["TEMPLATE"]}",
+                Document document = new Document($"{_outputs["TEMPLATE PATH"]}{_outputs["TEMPLATE"]}",
                     DocumentType.ExistingDocument);
                
                 //image replace has to be done first, since the tag matches the text replacement tags.
-                Image image = new Image($"{outputs["IMAGE PATH"]}{outputs["IMAGE"]}");
+                Image image = new Image($"{_outputs["IMAGE PATH"]}{_outputs["IMAGE"]}");
                 document.ReplaceTextWithImage("<PICTURE>", image);
                 
                 document.SearchAndReplaceTextByRegex(@"<([\w _-]{3,})>", ReplaceFunction);
@@ -52,7 +41,7 @@ namespace TemplateGenerationAPI.Controllers
                 document.SaveAsStream(stream);
                 document.Dispose();
                 byte[] test = stream.ToArray();
-                outputs.Clear();
+                _outputs.Clear();
                 return new FileContentResult(test, "application/octet-stream");
                 
             }
@@ -65,18 +54,18 @@ namespace TemplateGenerationAPI.Controllers
             foreach(KeyValuePair<string, string> entry in data)
             {
                
-                outputs[entry.Key] = entry.Value;
+                _outputs[entry.Key] = entry.Value;
                 
             }
             
             using (MemoryStream stream = new MemoryStream())
             {
 
-                Document document = new Document($"{outputs["TEMPLATE PATH"]}/F1.docx",
+                Document document = new Document($"{_outputs["TEMPLATE PATH"]}/F1.docx",
                     DocumentType.ExistingDocument);
                 
                 //image replace has to be done first, since the tag matches the text replacement tags.
-                Image image = new Image($"{outputs["IMAGE PATH"]}{outputs["IMAGE"]}");
+                Image image = new Image($"{_outputs["IMAGE PATH"]}{_outputs["IMAGE"]}");
                 document.ReplaceTextWithImage("<PICTURE>", image);
                 
                 document.SearchAndReplaceTextByRegex(@"<([\w _-]{3,})>", ReplaceFunction);
@@ -84,7 +73,7 @@ namespace TemplateGenerationAPI.Controllers
                 document.SaveAsStream(stream);
                 document.Dispose();
                 byte[] test = stream.ToArray();
-                outputs.Clear();
+                _outputs.Clear();
                 return new FileContentResult(test, "application/octet-stream");
                 
             }
@@ -92,9 +81,9 @@ namespace TemplateGenerationAPI.Controllers
         
         private string ReplaceFunction(string key)
         {
-            if(outputs.ContainsKey(key))
+            if(_outputs.TryGetValue(key, out var val))
             {
-                return outputs[key];
+                return val;
             }
 
             return "NULL: " + key;
