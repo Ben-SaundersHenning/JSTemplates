@@ -1,20 +1,28 @@
-﻿using System.Net.Mime;
-using System.Text;
-using System.Text.RegularExpressions;
-using DocProcessor;
-using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Wordprocessing;
+﻿using DocProcessor;
 using Document = DocProcessor.Document;
 using DocumentType = DocProcessor.DocumentType;
 
 string testPath = "/home/ben/projects/JSTG/DocumentGenerationAPI/TESTING_FILES/AC_blah.docx";
+string imageJS = "/home/ben/projects/JSTG/DocumentGenerationAPI/TESTING_FILES/images/JS.png";
+string imageJM = "/home/ben/projects/JSTG/DocumentGenerationAPI/TESTING_FILES/images/JM.png";
+string imageMM = "/home/ben/projects/JSTG/DocumentGenerationAPI/TESTING_FILES/images/MM.png";
+string imageAS = "/home/ben/projects/JSTG/DocumentGenerationAPI/TESTING_FILES/images/AS.png";
 Document doc = new Document(testPath, DocumentType.ExistingDocument);
+
+Image Image = new Image(imageJS);
+doc.ReplaceTextWithImage("<PICTURE>", Image);
+Image ImageJM = new Image(imageJM);
+doc.ReplaceTextWithImage("<JM>", ImageJM);
+Image ImageJS = new Image(imageJS);
+doc.ReplaceTextWithImage("<JS>", ImageJS);
+Image ImageMM = new Image(imageMM);
+doc.ReplaceTextWithImage("<MM>", ImageMM);
+Image ImageAS = new Image(imageAS);
+doc.ReplaceTextWithImage("<AS>", ImageAS);
 
 doc.SearchAndReplaceTextByRegex(@"<([\w _-]{3,})>", GetHelloStr);
 doc.SaveAs("/home/ben/projects/JSTG/DocumentGenerationAPI/TESTING_FILES/HELLO.docx");
-doc.SearchAndReplaceText("Hello!", "Bye!");
-doc.SaveAs("/home/ben/projects/JSTG/DocumentGenerationAPI/TESTING_FILES/BYE.docx");
+
 doc.Dispose();
 
 string GetHelloStr(string match)
@@ -36,7 +44,6 @@ using (MemoryStream stream = new MemoryStream())
 
 // string ReplaceFunction(string str)
 // {
-//     return "Ben";
 // }
 string ReplaceFunction(string key)
 {

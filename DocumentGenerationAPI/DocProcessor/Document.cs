@@ -1,11 +1,10 @@
-﻿using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Xml.Serialization;
+﻿using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
-using Microsoft.Win32.SafeHandles;
+using A = DocumentFormat.OpenXml.Drawing;
+using DW = DocumentFormat.OpenXml.Drawing.Wordprocessing;
+using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
 
 namespace DocProcessor;
 
@@ -20,9 +19,9 @@ public class Document: IDisposable
     
     private WordprocessingDocument Doc { get; set; }
     
-    private MainDocumentPart? MainPart { get; set; }
+    private MainDocumentPart MainPart { get; set; }
     
-    private Body? Body { get; set; }
+    private Body Body { get; set; }
     
     private string SavePath { get; set; }
     private string TempPath { get; set; }
@@ -30,6 +29,7 @@ public class Document: IDisposable
     
     public Document(string path, DocumentType type)
     {
+        
         SavePath = path;
         TempPath = SavePath.Replace(".docx", "_temp.docx");
         CreateTempCopyOfDocument(SavePath, TempPath);
@@ -45,35 +45,25 @@ public class Document: IDisposable
 
     }
     
-    public Document(string path)
-    {
-        SavePath = path;
-        Doc = WordprocessingDocument.Open(path, true);
-        Body = Doc.MainDocumentPart.Document.Body;
-    }
-
     private void OpenExistingDocument(string path)
     {
         Doc = WordprocessingDocument.Open(path, true);
-        MainPart = Doc.MainDocumentPart;
-        Body = MainPart.Document.Body;
-    }
-
-    private void CreateTempCopyOfDocument(string docPath, string tempPath)
-    {
-        File.Copy(docPath, tempPath);
+        MainPart = Doc.MainDocumentPart ?? Doc.AddMainDocumentPart();
+        Body = MainPart.Document.Body ?? MainPart.Document.AppendChild(new Body());
     }
     
     private void CreateDocument()
     {
-        // Add a main document part. 
         MainPart = Doc.AddMainDocumentPart();
-
-        // Create the document structure and add some text.
         MainPart.Document = new DocumentFormat.OpenXml.Wordprocessing.Document();
         Body = MainPart.Document.AppendChild(new Body());
-        
     }
+
+    private static void CreateTempCopyOfDocument(string docPath, string tempPath)
+    {
+        File.Copy(docPath, tempPath);
+    }
+    
     
     public void InsertText(string newText)
     {
@@ -96,7 +86,7 @@ public class Document: IDisposable
         return null;
     }
 
-    public void SearchAndReplace(string pattern, Func<string, string>? getReplacementString, string? replacementStr, bool isRegex)
+    private void SearchAndReplace(string pattern, Func<string, string>? getReplacementString, string? replacementStr, bool isRegex)
     {
         
         Regex matcher = new Regex(pattern);
@@ -136,6 +126,84 @@ public class Document: IDisposable
 
         } 
         
+    }
+    
+    public void ReplaceTextWithImage(string text, Image image)
+    {
+
+        ImagePart imagePart = MainPart!.AddImagePart(ImagePartType.Png); //static png for now
+        
+        using (FileStream stream = new FileStream(image.File, FileMode.Open))
+        {
+            imagePart.FeedData(stream);
+        }
+
+        Drawing drawing = GetImageElement(image, MainPart!.GetIdOfPart(imagePart));
+        
+        // Text text = Body!.Descendants<Text>().Where(t => t.InnerText)
+        Paragraph? para = Body.Descendants<Paragraph>().FirstOrDefault(p => p.InnerText.Contains(text));
+
+        if (para == null) return; //text doesn't exist in doc
+        
+        if (para.Descendants<Text>().Count() > 1)
+        {
+            IsolatePatternInParagraph(para, text);
+        }
+
+        Text? t = para.Descendants<Text>().FirstOrDefault(t => t.Text.Contains(text));
+
+        if (t == null) return;
+        
+        t.InsertAfterSelf(drawing);
+        t.Remove();
+
+    }
+
+    private Drawing GetImageElement(Image image, string relationshipId)
+    {
+        
+         return new Drawing(
+             new DW.Inline(
+                 new DW.Extent() { Cx = image.Width, Cy = image.Height },
+                 new DW.EffectExtent() { LeftEdge = 0L, TopEdge = 0L, 
+                     RightEdge = 0L, BottomEdge = 0L },
+                 new DW.DocProperties() { Id = (UInt32Value)1U, 
+                     Name = "Picture 1" },
+                 new DW.NonVisualGraphicFrameDrawingProperties(
+                     new A.GraphicFrameLocks() { NoChangeAspect = true }),
+                 new A.Graphic(
+                     new A.GraphicData(
+                         new PIC.Picture(
+                             new PIC.NonVisualPictureProperties(
+                                 new PIC.NonVisualDrawingProperties() 
+                                    { Id = (UInt32Value)0U, 
+                                        Name = "New Bitmap Image.jpg" },
+                                 new PIC.NonVisualPictureDrawingProperties()),
+                             new PIC.BlipFill(
+                                 new A.Blip(
+                                     new A.BlipExtensionList(
+                                         new A.BlipExtension() 
+                                            { Uri = 
+                                                "{28A0092B-C50C-407E-A947-70E740481C1C}" })
+                                 ) 
+                                 { Embed = relationshipId, 
+                                     CompressionState = 
+                                     A.BlipCompressionValues.Print },
+                                 new A.Stretch(
+                                     new A.FillRectangle())),
+                             new PIC.ShapeProperties(
+                                 new A.Transform2D(
+                                     new A.Offset() { X = 0L, Y = 0L },
+                                     new A.Extents() { Cx = image.Width, Cy = image.Height }),
+                                 new A.PresetGeometry(
+                                     new A.AdjustValueList()
+                                 ) { Preset = A.ShapeTypeValues.Rectangle }))
+                     ) { Uri = "http://schemas.openxmlformats.org/drawingml/2006/picture" })
+             ) { DistanceFromTop = (UInt32Value)0U, 
+                 DistanceFromBottom = (UInt32Value)0U, 
+                 DistanceFromLeft = (UInt32Value)0U, 
+                 DistanceFromRight = (UInt32Value)0U, EditId = "50D07946" });
+         
     }
 
     public void SearchAndReplaceText(string textToReplace, string replaceWith) 
@@ -194,7 +262,6 @@ public class Document: IDisposable
 
             int matchStartsAtIndex = match.Index - indices.ElementAt(matchStartsInText);
             int matchEndsAtIndex = match.Index + match.Length - 1 - indices.ElementAt(matchEndsInText);
-            // int matchEndsAtIndex = matchStartsAtIndex + match.Length - indices.ElementAt(matchEndsInText);
 
             for (int j = matchStartsInText; j <= matchEndsInText; j++)
             {
