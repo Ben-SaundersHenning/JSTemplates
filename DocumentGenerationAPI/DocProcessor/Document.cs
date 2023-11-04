@@ -302,20 +302,19 @@ public class Document: IDisposable
 
             matchStartsInRun.InsertAfterSelf(run);
            
-            //This is temporary, should really be updating the existing 
+            //This is a temporary solution, should really be updating the existing lists
             textElements = para.Descendants<Text>().ToList();
             textTexts.Clear();
             foreach (Text text in textElements)
             {
                 textTexts.Add(text.Text);
             }
-
             indices.Clear();
             indices = IndexPositionsInStrList(textTexts);
 
             #endregion
 
-        }
+        } 
 
     }
 
