@@ -368,8 +368,8 @@ public class Document: IDisposable
     //the file at TempPath will still be there after the doc is generated.
     public void Dispose()
     {
-        File.Delete(TempPath);
         Doc.Dispose();
+        File.Delete(TempPath);
     }
     
     
