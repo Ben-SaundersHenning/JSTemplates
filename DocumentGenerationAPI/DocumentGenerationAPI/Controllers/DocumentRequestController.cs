@@ -18,10 +18,10 @@ namespace TemplateGenerationAPI.Controllers
     [ApiController]
     public class DocumentRequestController : ControllerBase
     {
-        private readonly ILogger<WeatherForecastController> _logger;
+        private readonly ILogger _logger;
         private Dictionary<string, string> outputs = new Dictionary<String,String>();
 
-        public DocumentRequestController(ILogger<WeatherForecastController> logger)
+        public DocumentRequestController(ILogger logger)
         {
             _logger = logger;
         }
