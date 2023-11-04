@@ -42,13 +42,12 @@ namespace TemplateGenerationAPI.Controllers
 
                 Document document = new Document($"{outputs["TEMPLATE PATH"]}{outputs["TEMPLATE"]}",
                     DocumentType.ExistingDocument);
+               
+                //image replace has to be done first, since the tag matches the text replacement tags.
+                Image image = new Image($"{outputs["IMAGE PATH"]}{outputs["IMAGE"]}");
+                document.ReplaceTextWithImage("<PICTURE>", image);
                 
                 document.SearchAndReplaceTextByRegex(@"<([\w _-]{3,})>", ReplaceFunction);
-                
-                /* not implemented yet
-                if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-                //TODO: implement inserting a picture
-                } */
 
                 document.SaveAsStream(stream);
                 document.Dispose();
@@ -76,12 +75,11 @@ namespace TemplateGenerationAPI.Controllers
                 Document document = new Document($"{outputs["TEMPLATE PATH"]}/F1.docx",
                     DocumentType.ExistingDocument);
                 
-                document.SearchAndReplaceTextByRegex(@"<([\w _-]{3,})>", ReplaceFunction);
+                //image replace has to be done first, since the tag matches the text replacement tags.
+                Image image = new Image($"{outputs["IMAGE PATH"]}{outputs["IMAGE"]}");
+                document.ReplaceTextWithImage("<PICTURE>", image);
                 
-                /* not implemented yet
-                if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) {
-                //TODO: implement inserting a picture
-                } */
+                document.SearchAndReplaceTextByRegex(@"<([\w _-]{3,})>", ReplaceFunction);
 
                 document.SaveAsStream(stream);
                 document.Dispose();
