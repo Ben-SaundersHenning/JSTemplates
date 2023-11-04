@@ -219,11 +219,6 @@ public class Document: IDisposable
     private void IsolatePatternInParagraph(Paragraph para, string pattern)
     {
 
-        if (para.InnerText.Contains("The rationale of the assessment was explained to <CLIENT SALUTATION>."))
-        {
-            int i = 0;
-        }
-        
         List<Text> textElements = para.Descendants<Text>().ToList();
 
         List<string> textTexts = new List<string>();
@@ -241,11 +236,6 @@ public class Document: IDisposable
         for (int i = 0; i < matches.Count; i++)
         {
 
-            if (i == 9)
-            {
-                int sldkj = 0;
-            }
-            
             Match match = matches.ElementAt(i);
 
             int matchStartsInText = WhatPositionIsIndexIn(indices, match.Index);
