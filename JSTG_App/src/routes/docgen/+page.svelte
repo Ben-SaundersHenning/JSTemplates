@@ -1,7 +1,7 @@
-<div>
+<form on:submit={submitPost}>
 
     <label for="assessor">Assessor:</label>
-    <select id="assessor" bind:value={asmtData.assessor}>
+    <select id="assessor" bind:value={asmtData.assessor} required>
     {#each assessors as assessor}
         <option value={assessor}>{assessor.firstName} {assessor.lastName}</option>
     {/each}
@@ -9,15 +9,15 @@
     <br>
 
     <label for="claimFirst">Claimaint First Name:</label>
-    <input class="textbox" id="claimFirst" type="text" bind:value={asmtData.claimant.firstName}/>
+    <input class="textbox" id="claimFirst" type="text" bind:value={asmtData.claimant.firstName} required/>
     <br>
 
     <label for="claimLast">Claimaint Last Name:</label>
-    <input class="textbox" id="claimLast" type="text" bind:value={asmtData.claimant.lastName}/>
+    <input class="textbox" id="claimLast" type="text" bind:value={asmtData.claimant.lastName} required/>
     <br>
 
     <label for="claimGender">Claimaint Gender:</label>
-    <select id="claimGender" bind:value={asmtData.claimant.gender}>
+    <select id="claimGender" bind:value={asmtData.claimant.gender} required>
     {#each genders as gender}
         <option value={gender}>{gender}</option>
     {/each}
@@ -25,19 +25,19 @@
     <br>
 
     <label for="claimDOB">claimant DOB:</label>
-    <input type="text" id="claimDOB" bind:value={asmtData.claimant.dateOfBirth}>
+    <input type="text" id="claimDOB" bind:value={asmtData.claimant.dateOfBirth} required>
     <br>
 
     <label for="claimAge">Claimaint Age:</label>
-    <input class="textbox" id="claimAge" type="text" bind:value={asmtData.claimant.age}/>
+    <input class="textbox" id="claimAge" type="text" bind:value={asmtData.claimant.age} required/>
     <br>
 
     <label for="claimDOL">claimant DOL:</label>
-    <input type="text" id="claimDOL" bind:value={asmtData.claimant.dateOfLoss}>
+    <input type="text" id="claimDOL" bind:value={asmtData.claimant.dateOfLoss} required>
     <br>
 
     <label for="claimAddress">Claimaint Address:</label>
-    <input class="textbox" id="claimAddress" type="text" bind:value={asmtData.claimant.addressLong}/>
+    <input class="textbox" id="claimAddress" type="text" bind:value={asmtData.claimant.addressLong} required/>
     <br>
 
     <label for="adjuster">Adjuster:</label>
@@ -45,19 +45,19 @@
     <br>
 
     <label for="insuranceComp">Insurance Company:</label>
-    <input class="textbox" id="insuranceComp" type="text" bind:value={asmtData.insCompany}/>
+    <input class="textbox" id="insuranceComp" type="text" bind:value={asmtData.insCompany} required/>
     <br>
 
     <label for="claimNO">Claim Number:</label>
-    <input class="textbox" id="claimNO" type="text" bind:value={asmtData.claimNumber}/>
+    <input class="textbox" id="claimNO" type="text" bind:value={asmtData.claimNumber} required/>
     <br>
 
     <label for="doa">Date of assessment:</label>
-    <input class="textbox" id="doa" type="text" bind:value={asmtData.dateOfAssessment}/>
+    <input class="textbox" id="doa" type="text" bind:value={asmtData.dateOfAssessment} required/>
     <br>
 
     <label for="refComp">Referral Company:</label>
-    <select id="refComp" bind:value={asmtData.referralCompany}>
+    <select id="refComp" bind:value={asmtData.referralCompany} required>
     {#each referralCompanies as company}
         <option value={company}>{company.commonName}</option>
     {/each}
@@ -65,14 +65,14 @@
     <br>
 
     <label for="type">Assessment Type:</label>
-    <select id="type" bind:value={asmtData.asmtType}>
+    <select id="type" bind:value={asmtData.asmtType} required>
     {#each asmTypes as type}
         <option value={type}>{type}</option>
     {/each}
     </select>
     <br>
 
-    <button on:click={submitPost}>Press me to get file</button>
+    <button type="submit">Press me to get file</button>
 
     <p>{status}</p>
 
@@ -82,7 +82,7 @@
         <AC/>
     {/if}
 
-</div>
+</form>
 <script>
 
     import {invoke} from '@tauri-apps/api/tauri'
