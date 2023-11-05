@@ -82,10 +82,6 @@
         <AC/>
     {/if}
 
-    <!-- <button on:click={testRequestBuilder}>Press me to test the request builder</button> -->
-    <!---->
-    <!-- <Test/> -->
-
 </div>
 <script>
 
@@ -125,6 +121,7 @@
 
     let referralCompanies = new Array();
 
+    //TODO: these should be retrieived dynamically.
     let asmTypes = [
         "AC.docx",
         "AC MRB.docx",
@@ -137,6 +134,15 @@
         "MRB.docx",
         "NEB.docx"
     ]
+
+    // TO THIS OBJ, NEED TO ADD:
+    //
+    // dol, doa, dob, in formattable datetimes
+    // client address 
+    // client city 
+    // client province 
+    // client provinceAB
+    // client postal code 
 
     let asmtData = {
         "asmtType": "",
