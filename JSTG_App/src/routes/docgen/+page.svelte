@@ -25,17 +25,19 @@
     <br>
 
     <label for="claimDOB">claimant DOB:</label>
-    <input type="text" id="claimDOB" bind:value={asmtData.claimant.dateOfBirth} required>
+    <input type="text" id="claimDOB" bind:value={asmtData.claimant.dateOfBirth} required/>
     <br>
 
+    <!-- TODO: age could be calculated automatically -->
     <label for="claimAge">Claimaint Age:</label>
     <input class="textbox" id="claimAge" type="text" bind:value={asmtData.claimant.age} required/>
     <br>
 
     <label for="claimDOL">claimant DOL:</label>
-    <input type="text" id="claimDOL" bind:value={asmtData.claimant.dateOfLoss} required>
+    <input type="text" id="claimDOL" bind:value={asmtData.claimant.dateOfLoss} required/>
     <br>
 
+    <!-- TODO: need to retrieve the individual parts of this address -->
     <label for="claimAddress">Claimaint Address:</label>
     <input class="textbox" id="claimAddress" type="text" bind:value={asmtData.claimant.addressLong} required/>
     <br>
@@ -76,6 +78,9 @@
 
     <p>{status}</p>
 
+
+    <br>
+
     <hr/>
 
     {#if asmtData.asmtType == "AC.docx"}
@@ -83,6 +88,7 @@
     {/if}
 
 </form>
+
 <script>
 
     import {invoke} from '@tauri-apps/api/tauri'
@@ -113,8 +119,7 @@
 
     let genders = [
         "male",
-        "female",
-        "other"
+        "female"
     ]
 
     let assessors = new Array();
@@ -138,11 +143,11 @@
     // TO THIS OBJ, NEED TO ADD:
     //
     // dol, doa, dob, in formattable datetimes
-    // client address 
-    // client city 
-    // client province 
+    // client address
+    // client city
+    // client province
     // client provinceAB
-    // client postal code 
+    // client postal code
 
     let asmtData = {
         "asmtType": "",
