@@ -84,11 +84,11 @@ pub fn build_request(data: String) -> HashMap<&'static str, String> {
     let image_path: String;
 
     if cfg!(windows) {
-        template_path = db::get_path("Windows", "TemplatesDev");
+        template_path = db::get_path("Windows", "Templates");
         image_path = db::get_path("Windows", "Images");
     }
     else {
-        template_path = db::get_path("OpenSuse", "TemplatesDev");
+        template_path = db::get_path("OpenSuse", "Templates");
         image_path = db::get_path("OpenSuse", "Images");
     };
 
