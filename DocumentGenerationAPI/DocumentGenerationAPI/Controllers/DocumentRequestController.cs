@@ -68,7 +68,7 @@ namespace DocumentGenerationAPI.Controllers
                 Image image = new Image($"{_outputs["IMAGE PATH"]}{_outputs["IMAGE"]}");
                 document.ReplaceTextWithImage("<PICTURE>", image);
                 
-                document.SearchAndReplaceTextByRegex(@"<([\w _-]{3,})>", ReplaceFunction);
+                document.SearchAndReplaceTextByRegex(@"<([\w _-]{3,})>", ReplaceFunctionF1);
 
                 document.SaveAsStream(stream);
                 document.Dispose();
@@ -83,6 +83,32 @@ namespace DocumentGenerationAPI.Controllers
         {
             if(_outputs.TryGetValue(key, out var val))
             {
+                if (key.StartsWith("DO")) //date of
+                {
+                    bool success = DateTime.TryParse(val, out DateTime result);
+                    if (success)
+                    {
+                        return $"{result:MMMM dd, yyyy}";
+                    }
+                }
+                return val;
+            }
+
+            return "NULL: " + key;
+        }
+        
+        private string ReplaceFunctionF1(string key)
+        {
+            if(_outputs.TryGetValue(key, out var val))
+            {
+                if (key.StartsWith("DO")) //date of
+                {
+                    bool success = DateTime.TryParse(val, out DateTime result);
+                    if (success)
+                    {
+                        return $"{result:yyyy-MM-dd}";
+                    } 
+                }
                 return val;
             }
 

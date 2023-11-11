@@ -4,8 +4,10 @@
 
 use serde_json::Value;
 use std::collections::HashMap;
+use chrono::NaiveDate;
 use crate::db;
 use crate::structs::{Assessor, Request, ReferralCompany};
+
 
 pub fn build_request(data: String) -> HashMap<&'static str, String> {
 
@@ -25,10 +27,10 @@ pub fn build_request(data: String) -> HashMap<&'static str, String> {
         ("CLIENT LAST", request.claimant.last_name),
         ("CLIENT AGE", request.claimant.age),
         ("CLIENT ADDRESS", request.claimant.address_long),
-        ("DOB", request.claimant.date_of_birth),
-        ("DOL", request.claimant.date_of_loss),
         ("CLAIM NUMBER", request.claim_number),
-        ("DOA", request.date_of_assessment),
+        ("DOB", format_date(&request.claimant.date_of_birth)),
+        ("DOL", format_date(&request.claimant.date_of_loss)),
+        ("DOA", format_date(&request.date_of_assessment)),
         ("ASSESSOR REGISTRATIONID", assessor.registration_id),
         ("ASSESSOR FIRST", assessor.first_name),
         ("ASSESSOR LAST", assessor.last_name),
@@ -94,5 +96,27 @@ pub fn build_request(data: String) -> HashMap<&'static str, String> {
     map.insert("IMAGE PATH", image_path);
 
     map
+
+}
+
+//Intended to format a date, so that it can be parsed into a 
+//dotnet DateTime object.
+fn format_date(input: &str) -> String {
+
+    //try to parse from a date like "2023-11-01"
+    let date = NaiveDate::parse_from_str(input, "%Y-%m-%d");
+
+    match date {
+        Ok(d) => return d.format("%F").to_string(), //return formatted date
+        _ => {} //try second format
+    }
+
+    //try to parse from a date like November 1, 2023
+    let date = NaiveDate::parse_from_str(input, "%B %d, %Y");
+
+    match date {
+        Ok(d) => return d.format("%F").to_string(), //return formatted date
+        _ => return input.to_string() //return input
+    }
 
 }
