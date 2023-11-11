@@ -119,12 +119,22 @@ fn get_province_or_territory(province_or_territory: &str) -> String {
 
 }
 
-// fn calculate_age(claimant: &mut Claimant) {
-//     let mut age: i8 = 0;
-//
-//     let dob = chrono::NaiveDate::from_str(claimant.date_of_birth, 
-//
-// }
+fn calculate_age(claimant: &mut Claimant) -> bool {
+
+    let mut age: i8 = 0;
+
+    let dob = chrono::NaiveDate::parse_from_str(&claimant.date_of_birth, "%F");
+
+    match dob {
+        Ok(val) => {
+            //try to calculate age here.
+            return true;
+        },
+        _ => {return false;}
+    };
+
+
+}
 
 /*
 pub fn build_request(data: String) -> HashMap<&'static str, String> {
