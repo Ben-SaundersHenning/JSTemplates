@@ -119,7 +119,8 @@
 
     let genders = [
         "male",
-        "female"
+        "female",
+        "other"
     ]
 
     let assessors = new Array();
@@ -145,7 +146,7 @@
         "asmtType": "",
         "assessor": {
             "registationId": "",
-            "salutation": "",
+            "title": "",
             "firstName": "",
             "lastName": "",
             "email": "",
@@ -158,11 +159,15 @@
             "uniqueId": "",
             "commonName": "",
             "name": "",
-            "address": "",
-            "city": "",
-            "province": "",
-            "provinceAb": "",
-            "postalCode": "",
+            "address": {
+                "address": "",
+                "city": "",
+                "province": "",
+                "provinceAb": "",
+                "postalCode": "",
+                "country": "",
+                "addressLong": "",
+            },
             "phone": "",
             "fax": "",
             "email": ""
@@ -170,32 +175,36 @@
         "dateOfAssessment": "",
         "seidenFileNumber": "",
         "claimant": {
-            "salutation": "",
             "firstName": "",
             "lastName": "",
             "gender": {
-                "male-female": "",
-                "he-she": "",
-                "his-her": "",
-                "himself-herself": "",
+                "title": "",
+                "pronouns": {
+                    "p_0": "",
+                    "p_1": "",
+                    "p_2": "",
+                    "p_3": "",
+                }
             },
             "dateOfBirth": "",
             "age": "",
             "youth": "",
             "dateOfLoss": "",
-            "address": "",
-            "city": "",
-            "province": "",
-            "provinceAb": "",
-            "postalCode": "",
-            "country": "",
-            "addressLong": "",
+            "address": {
+                "address": "",
+                "city": "",
+                "province": "",
+                "provinceAb": "",
+                "postalCode": "",
+                "country": "",
+                "addressLong": "",
+            },
         },
         "asmtSpecifics": {
             //data inserted from child component.
         },
-        "questions": {
-        }
+        "questions": [
+        ]
     }
 
 </script>

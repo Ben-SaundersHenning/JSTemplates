@@ -15,7 +15,7 @@ mod structs;
 fn main() {
 
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![double, greet, request_document, get_assessors, get_path, test, get_companies])
+    .invoke_handler(tauri::generate_handler![double, greet, request_document, get_assessors, get_path, get_companies])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 
@@ -32,17 +32,6 @@ fn double(count: i32) -> i32 {
 }
 
 #[tauri::command]
-fn test(data: String) {
-    println!("In the test method");
-    let map: HashMap<&str, String> = request_builder::build_request(data);
-
-    for (key, val) in map.iter() {
-        println!("{key}: |{val}|");
-    }
-
-}
-
-#[tauri::command]
 fn get_assessors() -> Vec<structs::AssessorListing> {
     db::get_assessor_options()
 }
@@ -55,9 +44,12 @@ fn get_companies() -> Vec<structs::ReferralCompanyListing> {
 #[tauri::command]
 async fn request_document(data: String) {
 
-    let map = request_builder::build_request(data);
+    let map = match request_builder::build_request(data) {
+        Ok(json) => json,
+        _ => "ERROR".to_string()
+    };
 
-    let _ = send_request(map).await;
+    // let _ = send_request(map).await;
 
 }
 

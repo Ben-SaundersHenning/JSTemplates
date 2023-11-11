@@ -74,10 +74,19 @@ namespace DocumentGenerationAPI.Controllers
                 document.Dispose();
                 byte[] test = stream.ToArray();
                 _outputs.Clear();
+                
                 return new FileContentResult(test, "application/octet-stream");
                 
             }
         } 
+       
+        //TODO: pronouns should be mapped here, based on the gender 
+        //he she lower
+        //he she upper 
+        //male female 
+        //his her 
+        //him her
+        //mr ms
         
         private string ReplaceFunction(string key)
         {

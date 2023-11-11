@@ -3,15 +3,133 @@
 //its being done this way as practice with Rust.
 
 use serde_json::Value;
-use std::collections::HashMap;
 use chrono::NaiveDate;
 use crate::db;
-use crate::structs::{Assessor, Request, ReferralCompany};
+use crate::structs::{Claimant, Assessor, Address, Gender, Pronouns, Request, ReferralCompany, Assessment};
 
 
+pub fn build_request(data: String) -> Result<String, serde_json::Error> {
+
+    /* What values need to be filled into or formatted here?
+     *
+     * - claimant age 
+     * - claimant youth 
+     * - asmtSpecificis in the future
+     * - trim questions in the future
+     *
+     */
+
+    let mut request: Request<Value> = serde_json::from_str(&data).unwrap();
+
+    let mut referral_company: ReferralCompany = db::get_referral_company(request.referral_company).unwrap();
+    build_long_address(&mut referral_company.address);
+
+    let assessor: Assessor = db::get_assessor(request.assessor).unwrap();
+
+    request.date_of_assessment = format_date(&request.date_of_assessment);
+    request.claimant.date_of_loss = format_date(&request.claimant.date_of_loss);
+    request.claimant.date_of_birth = format_date(&request.claimant.date_of_birth);
+    build_long_address(&mut request.claimant.address);
+    request.claimant.address.province = get_province_or_territory(&request.claimant.address.province_ab);
+    // calculate_age(&mut request.claimant);
+
+    //these cant be constants because of they have to be Strings (because
+    //of the serialization), but they cant be &str, because thats not possible
+    //with const
+    match request.claimant.gender.pronouns.p_0.as_str() {
+        "male" => { request.claimant.gender =
+            Gender {
+                title: String::from("Mr"),
+                pronouns: Pronouns {
+                    p_0: String::from("male"),
+                    p_1: String::from("he"),
+                    p_2: String::from("his"),
+                    p_3: String::from("himself")
+                }
+            };
+        },
+        "female" => { request.claimant.gender =
+            Gender {
+                title: String::from("Ms"),
+                pronouns: Pronouns {
+                    p_0: String::from("female"),
+                    p_1: String::from("she"),
+                    p_2: String::from("her"),
+                    p_3: String::from("herself")
+                }
+            };
+        },
+        _ => { request.claimant.gender =
+            Gender {
+                title: String::from("Mx"),
+                pronouns: Pronouns {
+                    p_0: String::from("{other}"),
+                    p_1: String::from("they"),
+                    p_2: String::from("their"),
+                    p_3: String::from("themself")
+                }
+            };
+        }
+    };
+
+    let assesment = Assessment {
+        asmt_type: request.asmt_type,
+        adjuster: request.adjuster,
+        insurance_company: request.insurance_company,
+        claim_number: request.claim_number,
+        date_of_assessment: request.date_of_assessment,
+        seiden_file_number: request.seiden_file_number,
+        referral_company,
+        assessor,
+        claimant: request.claimant,
+        asmt_specifics: request.asmt_specifics,
+        questions: request.questions
+    };
+
+    serde_json::to_string(&assesment)
+
+}
+
+fn build_long_address(address: &mut Address) {
+    address.address_long = format!("{}, {} {}, {}",
+        address.address,
+        address.city,
+        address.province_ab,
+        address.postal_code);
+}
+
+fn get_province_or_territory(province_or_territory: &str) -> String {
+
+    match province_or_territory {
+        "AB" => "Alberta".to_string(),
+        "BC" => "British Columbia".to_string(),
+        "MB" => "Manitoba".to_string(),
+        "NB" => "New Brunswick".to_string(),
+        "NL" => "Newfoundland and Labrador".to_string(),
+        "NS" => "Nova Scotia".to_string(),
+        "ON" => "Ontaio".to_string(),
+        "PEI" => "Prince Edward Island".to_string(),
+        "QC" => "Quebec".to_string(),
+        "SK" => "Saskatchewan".to_string(),
+        "YT" => "Yukon".to_string(),
+        "NU" => "Nunavut".to_string(),
+        "NT" => "Northwest Territories".to_string(),
+        _ => "NULL_PROVINCE".to_string()
+    }
+
+}
+
+// fn calculate_age(claimant: &mut Claimant) {
+//     let mut age: i8 = 0;
+//
+//     let dob = chrono::NaiveDate::from_str(claimant.date_of_birth, 
+//
+// }
+
+/*
 pub fn build_request(data: String) -> HashMap<&'static str, String> {
 
-    let request: Request = serde_json::from_str(&data).unwrap();
+    let request: Request<String> = serde_json::from_str(&data).unwrap();
 
     let referral_company: ReferralCompany = db::get_referral_company(request.referral_company).unwrap();
 
@@ -20,7 +138,7 @@ pub fn build_request(data: String) -> HashMap<&'static str, String> {
 
     let mut map: HashMap<&str, String> = HashMap::from([
         ("ADJUSTER", request.adjuster),
-        ("INSURANCE COMPANY", request.ins_company),
+        ("INSURANCE COMPANY", request.insurance_company),
         ("CLIENT FIRST", request.claimant.first_name),
         ("CLIENT LAST", request.claimant.last_name),
         ("CLIENT AGE", request.claimant.age),
@@ -96,6 +214,7 @@ pub fn build_request(data: String) -> HashMap<&'static str, String> {
     map
 
 }
+*/
 
 //Intended to format a date, so that it can be parsed into a 
 //dotnet DateTime object.
