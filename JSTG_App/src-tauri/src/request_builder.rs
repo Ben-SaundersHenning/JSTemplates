@@ -101,7 +101,7 @@ pub fn build_request(data: String) -> HashMap<&'static str, String> {
 
 //Intended to format a date, so that it can be parsed into a 
 //dotnet DateTime object.
-pub fn format_date(input: &str) -> String {
+fn format_date(input: &str) -> String {
 
     //try to parse from a date like "2023-11-01"
     let date = NaiveDate::parse_from_str(input, "%Y-%m-%d");
