@@ -151,9 +151,13 @@ async fn send_request(map: HashMap<&str, String>) -> Result<(), Box<dyn std::err
                 get_path("OpenSuse", "Assessments")
             };
 
-            let today = chrono::Utc::now();
-            let year: String = today.year().to_string();
-            let month: String = match today.month() {
+            let date = match NaiveDate::parse_from_str(map.get("DOA").unwrap(), "%Y-%m-%d") {
+                Ok(d) => d, //return formatted date
+                _ => Utc::now().naive_local().date() //try second format
+            };
+
+            let year: String = date.year().to_string();
+            let month: String = match date.month() {
                 1 => "January".to_string(),
                 2 => "February".to_string(),
                 3 => "March".to_string(),
