@@ -11,8 +11,6 @@ use crate::structs::{Assessor, Request, ReferralCompany};
 
 pub fn build_request(data: String) -> HashMap<&'static str, String> {
 
-    let _v: Value = serde_json::from_str(&data).unwrap();
-
     let request: Request = serde_json::from_str(&data).unwrap();
 
     let referral_company: ReferralCompany = db::get_referral_company(request.referral_company).unwrap();

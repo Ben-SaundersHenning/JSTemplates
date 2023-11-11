@@ -127,6 +127,7 @@
     let referralCompanies = new Array();
 
     //TODO: these should be retrieived dynamically.
+    //from the API, not the DB.
     let asmTypes = [
         "AC.docx",
         "AC MRB.docx",
@@ -140,28 +141,31 @@
         "NEB.docx"
     ]
 
-    // TO THIS OBJ, NEED TO ADD:
-    //
-    // dol, doa, dob, in formattable datetimes
-    // client address
-    // client city
-    // client province
-    // client provinceAB
-    // client postal code
-
     let asmtData = {
         "asmtType": "",
         "assessor": {
             "registationId": "",
+            "salutation": "",
             "firstName": "",
             "lastName": "",
+            "email": "",
+            "qualificationsParagraph": ""
         },
         "adjuster": "",
-        "insCompany": "",
+        "insuranceCompany": "",
         "claimNumber": "",
         "referralCompany": {
             "uniqueId": "",
             "commonName": "",
+            "name": "",
+            "address": "",
+            "city": "",
+            "province": "",
+            "provinceAb": "",
+            "postalCode": "",
+            "phone": "",
+            "fax": "",
+            "email": ""
         },
         "dateOfAssessment": "",
         "seidenFileNumber": "",
@@ -169,23 +173,26 @@
             "salutation": "",
             "firstName": "",
             "lastName": "",
-
-            "gender": "",
-            "male-female": "",
-            "he-she": "",
-            "his-her": "",
-            "himself-herself": "",
-
-            "youth": "",
+            "gender": {
+                "male-female": "",
+                "he-she": "",
+                "his-her": "",
+                "himself-herself": "",
+            },
             "dateOfBirth": "",
             "age": "",
+            "youth": "",
             "dateOfLoss": "",
-            "addressLong": "",
-            "country": "",
+            "address": "",
+            "city": "",
             "province": "",
-            "street": "",
-            "streetNum": "",
-            "postalCode": ""
+            "provinceAb": "",
+            "postalCode": "",
+            "country": "",
+            "addressLong": "",
+        },
+        "asmtSpecifics": {
+            //data inserted from child component.
         },
         "questions": {
         }
