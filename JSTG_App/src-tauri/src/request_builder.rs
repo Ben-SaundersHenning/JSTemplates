@@ -3,17 +3,15 @@
 //its being done this way as practice with Rust.
 
 use serde_json::Value;
-use chrono::NaiveDate;
+use chrono::{NaiveDate, Datelike};
 use crate::db;
-use crate::structs::{Claimant, Assessor, Address, Gender, Pronouns, Request, ReferralCompany, Assessment};
+use crate::structs::{Claimant, Assessor, Address, Gender, Request, ReferralCompany, Assessment};
 
 
 pub fn build_request(data: String) -> Result<String, serde_json::Error> {
 
     /* What values need to be filled into or formatted here?
      *
-     * - claimant age 
-     * - claimant youth 
      * - asmtSpecificis in the future
      * - trim questions in the future
      *
@@ -29,48 +27,10 @@ pub fn build_request(data: String) -> Result<String, serde_json::Error> {
     request.date_of_assessment = format_date(&request.date_of_assessment);
     request.claimant.date_of_loss = format_date(&request.claimant.date_of_loss);
     request.claimant.date_of_birth = format_date(&request.claimant.date_of_birth);
-    build_long_address(&mut request.claimant.address);
     request.claimant.address.province = get_province_or_territory(&request.claimant.address.province_ab);
-    // calculate_age(&mut request.claimant);
-
-    //these cant be constants because of they have to be Strings (because
-    //of the serialization), but they cant be &str, because thats not possible
-    //with const
-    match request.claimant.gender.pronouns.p_0.as_str() {
-        "male" => { request.claimant.gender =
-            Gender {
-                title: String::from("Mr"),
-                pronouns: Pronouns {
-                    p_0: String::from("male"),
-                    p_1: String::from("he"),
-                    p_2: String::from("his"),
-                    p_3: String::from("himself")
-                }
-            };
-        },
-        "female" => { request.claimant.gender =
-            Gender {
-                title: String::from("Ms"),
-                pronouns: Pronouns {
-                    p_0: String::from("female"),
-                    p_1: String::from("she"),
-                    p_2: String::from("her"),
-                    p_3: String::from("herself")
-                }
-            };
-        },
-        _ => { request.claimant.gender =
-            Gender {
-                title: String::from("Mx"),
-                pronouns: Pronouns {
-                    p_0: String::from("{other}"),
-                    p_1: String::from("they"),
-                    p_2: String::from("their"),
-                    p_3: String::from("themself")
-                }
-            };
-        }
-    };
+    build_long_address(&mut request.claimant.address);
+    calculate_age(&mut request.claimant);
+    set_gender_values(&mut request.claimant.gender);
 
     let assesment = Assessment {
         asmt_type: request.asmt_type,
@@ -121,18 +81,66 @@ fn get_province_or_territory(province_or_territory: &str) -> String {
 
 fn calculate_age(claimant: &mut Claimant) -> bool {
 
-    let mut age: i8 = 0;
+    let mut age: i32;
 
-    let dob = chrono::NaiveDate::parse_from_str(&claimant.date_of_birth, "%F");
+    let _dob = chrono::NaiveDate::parse_from_str(&claimant.date_of_birth, "%F");
 
-    match dob {
+    let dob = match _dob {
         Ok(val) => {
-            //try to calculate age here.
-            return true;
+            val
         },
         _ => {return false;}
     };
 
+    let now = chrono::Local::now();
+
+    //assume the b-day has passed this year
+    age = now.year() - dob.year();
+
+    if now.month() < dob.month() { //b-day cant have passed
+        age = age - 1;
+    } else if now.month() == dob.month() { //b-day may have passed
+        if now.day() < dob.day() { //b-day cant have passed
+            age = age - 1;
+        }
+    }
+
+    claimant.age = age.to_string();
+
+    if age < 18 {
+        claimant.youth = String::from("true");
+    }
+
+    true
+
+}
+
+fn set_gender_values(gender: &mut Gender) {
+
+    //need the vals to be String type, so const clones wont work.
+    match gender.pronouns.p0.as_str() {
+        "male" => {
+            gender.title = String::from("Mr");
+            gender.pronouns.p0 = String::from("male");
+            gender.pronouns.p0 = String::from("he");
+            gender.pronouns.p0 = String::from("his");
+            gender.pronouns.p0 = String::from("himself");
+        },
+        "female" => {
+            gender.title = String::from("Ms");
+            gender.pronouns.p0 = String::from("female");
+            gender.pronouns.p0 = String::from("she");
+            gender.pronouns.p0 = String::from("her");
+            gender.pronouns.p0 = String::from("herself");
+        },
+        _ => {
+            gender.title = String::from("Mx");
+            gender.pronouns.p0 = String::from("{other}");
+            gender.pronouns.p0 = String::from("they");
+            gender.pronouns.p0 = String::from("their");
+            gender.pronouns.p0 = String::from("themself");
+        }
+    };
 
 }
 

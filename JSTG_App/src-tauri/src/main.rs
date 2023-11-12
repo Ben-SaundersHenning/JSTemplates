@@ -49,6 +49,8 @@ async fn request_document(data: String) {
         _ => "ERROR".to_string()
     };
 
+    println!("{}", map);
+
     // let _ = send_request(map).await;
 
 }

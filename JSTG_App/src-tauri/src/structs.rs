@@ -106,8 +106,8 @@ pub struct Gender {
 #[derive(Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct Pronouns {
-    pub p_0: String, //male-female-other
-    pub p_1: String, //he-she-they
-    pub p_2: String, //his-her-their
-    pub p_3: String //himself-herself-themself
+    pub p0: String, //male-female-other
+    pub p1: String, //he-she-they
+    pub p2: String, //his-her-their
+    pub p3: String //himself-herself-themself
 }

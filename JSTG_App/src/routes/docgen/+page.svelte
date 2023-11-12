@@ -17,7 +17,7 @@
     <br>
 
     <label for="claimGender">Claimaint Gender:</label>
-    <select id="claimGender" bind:value={asmtData.claimant.gender} required>
+    <select id="claimGender" bind:value={asmtData.claimant.gender.pronouns.p0} required>
     {#each genders as gender}
         <option value={gender}>{gender}</option>
     {/each}
@@ -28,18 +28,24 @@
     <input type="text" id="claimDOB" bind:value={asmtData.claimant.dateOfBirth} required/>
     <br>
 
-    <!-- TODO: age could be calculated automatically -->
-    <label for="claimAge">Claimaint Age:</label>
-    <input class="textbox" id="claimAge" type="text" bind:value={asmtData.claimant.age} required/>
-    <br>
-
     <label for="claimDOL">claimant DOL:</label>
     <input type="text" id="claimDOL" bind:value={asmtData.claimant.dateOfLoss} required/>
     <br>
 
-    <!-- TODO: need to retrieve the individual parts of this address -->
-    <label for="claimAddress">Claimaint Address:</label>
-    <input class="textbox" id="claimAddress" type="text" bind:value={asmtData.claimant.addressLong} required/>
+    <label for="claimAddress">Claimaint Address (street):</label>
+    <input class="textbox" id="claimAddress" type="text" bind:value={asmtData.claimant.address.address} required/>
+    <br>
+
+    <label for="claimCity">Claimaint City:</label>
+    <input class="textbox" id="claimCity" type="text" bind:value={asmtData.claimant.address.city} required/>
+    <br>
+
+    <label for="claimProvince">Claimaint Province:</label>
+    <input class="textbox" id="claimProvince" type="text" bind:value={asmtData.claimant.address.provinceAb} required/>
+    <br>
+
+    <label for="claimPostalCode">Claimaint Postal Code:</label>
+    <input class="textbox" id="claimPostalCode" type="text" bind:value={asmtData.claimant.address.postalCode} required/>
     <br>
 
     <label for="adjuster">Adjuster:</label>
@@ -47,7 +53,7 @@
     <br>
 
     <label for="insuranceComp">Insurance Company:</label>
-    <input class="textbox" id="insuranceComp" type="text" bind:value={asmtData.insCompany} required/>
+    <input class="textbox" id="insuranceComp" type="text" bind:value={asmtData.insuranceCompany} required/>
     <br>
 
     <label for="claimNO">Claim Number:</label>
@@ -180,21 +186,21 @@
             "gender": {
                 "title": "",
                 "pronouns": {
-                    "p_0": "",
-                    "p_1": "",
-                    "p_2": "",
-                    "p_3": "",
+                    "p0": "",
+                    "p1": "",
+                    "p2": "",
+                    "p3": "",
                 }
             },
             "dateOfBirth": "",
             "age": "",
-            "youth": "",
+            "youth": "false",
             "dateOfLoss": "",
             "address": {
                 "address": "",
                 "city": "",
                 "province": "",
-                "provinceAb": "",
+                "provinceAb": "ON",
                 "postalCode": "",
                 "country": "",
                 "addressLong": "",

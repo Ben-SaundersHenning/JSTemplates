@@ -34,7 +34,7 @@ pub fn get_assessor_options() -> Vec<AssessorListing> {
 pub fn get_assessor(assessor: AssessorListing) -> Option<Assessor> {
 
     let connection = sqlite::open(DB_PATH).unwrap();
-    let query = "SELECT FirstName, LastName, Salutation, Email, QualificationsParagraph FROM [Assessors]
+    let query = "SELECT FirstName, LastName, Title, Email, QualificationsParagraph FROM [Assessors]
                  WHERE RegistrationID = ?;";
     let mut statement = connection.prepare(query).unwrap();
     statement.bind((1, assessor.registration_id.as_str())).unwrap();
