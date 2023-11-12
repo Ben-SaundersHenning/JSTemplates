@@ -8,7 +8,7 @@ use crate::db;
 use crate::structs::{Claimant, Assessor, Address, Gender, Request, ReferralCompany, Assessment};
 
 
-pub fn build_request(data: String) -> Result<String, serde_json::Error> {
+pub fn build_request(data: String) -> Result<Assessment<Value>, serde_json::Error> {
 
     /* What values need to be filled into or formatted here?
      *
@@ -46,7 +46,7 @@ pub fn build_request(data: String) -> Result<String, serde_json::Error> {
         questions: request.questions
     };
 
-    serde_json::to_string(&assesment)
+    Ok(assesment)
 
 }
 

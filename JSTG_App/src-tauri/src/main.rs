@@ -1,7 +1,6 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::collections::HashMap;
 use std::fs::File;
 use std::fs::create_dir_all;
 use std::io::Write;
@@ -44,94 +43,26 @@ fn get_companies() -> Vec<structs::ReferralCompanyListing> {
 #[tauri::command]
 async fn request_document(data: String) {
 
-    let map = match request_builder::build_request(data) {
-        Ok(json) => json,
-        _ => "ERROR".to_string()
+    match request_builder::build_request(data) {
+        Ok(asmt) => {
+            let _ = send_request(asmt).await;
+        },
+        _ => {}
     };
-
-    println!("{}", map);
-
-    // let _ = send_request(map).await;
 
 }
 
-async fn send_request(map: HashMap<&str, String>) -> Result<(), Box<dyn std::error::Error>> {
+async fn send_request(asmt_data: structs::Assessment<serde_json::Value>) -> Result<(), Box<dyn std::error::Error>> {
+
+    let request = serde_json::to_string(&asmt_data).unwrap();
 
     let client = reqwest::Client::new();
     let res = client.post("http://localhost:5056/api/DocumentRequest/DocRequest")
-        .json(&map)
+        .json(&request)
         .header("responseType", "blob")
         .header("content-type", "application/json")
         .send()
         .await?;
-
-    let asmt_type = map.get("TEMPLATE").unwrap().replace(".docx", "");
-
-    if asmt_type.contains("AC") {
-        let client = reqwest::Client::new();
-        let res_f1 = client.post("http://localhost:5056/api/DocumentRequest/F1Request")
-            .json(&map)
-            .header("responseType", "blob")
-            .header("content-type", "application/json")
-            .send()
-            .await?;
-
-        match res_f1.status() {
-            reqwest::StatusCode::OK => {
-                println!("F1 Response OK");
-                let body = res_f1.bytes().await?;
-
-                //for development only
-                let mut path: String = if cfg!(windows) {
-                    get_path("Windows", "Assessments")
-                } else {
-                    get_path("OpenSuse", "Assessments")
-                };
-
-                let date = match NaiveDate::parse_from_str(map.get("DOA").unwrap(), "%Y-%m-%d") {
-                    Ok(d) => d, //return formatted date
-                    _ => Utc::now().naive_local().date() //try second format
-                };
-
-                let year: String = date.year().to_string();
-                let month: String = match date.month() {
-                    1 => "January".to_string(),
-                    2 => "February".to_string(),
-                    3 => "March".to_string(),
-                    4 => "April".to_string(),
-                    5 => "May".to_string(),
-                    6 => "June".to_string(),
-                    7 => "July".to_string(),
-                    8 => "August".to_string(),
-                    9 => "September".to_string(),
-                    10 => "October".to_string(),
-                    11 => "November".to_string(),
-                    12 => "December".to_string(),
-                    _ => "Unknown".to_string(),
-                };
-
-                let ref_name = map.get("REFCOMP COMMONNAME").unwrap();
-                let client_first_name = map.get("CLIENT FIRST").unwrap();
-                let client_last_name = map.get("CLIENT LAST").unwrap();
-                let assessor_first = map.get("ASSESSOR FIRST").unwrap();
-                let assessor_initials = map.get("IMAGE").unwrap().replace(".png", "");
-
-                path.push_str(format!("{year}/{month}/{assessor_first}/{client_first_name} {client_last_name}/").as_str());
-
-                match create_dir_all(path.as_str()) {
-                    Ok(_x) => path.push_str(format!("{ref_name}_F1_{client_first_name} {client_last_name}_{assessor_initials}.docx").as_str()),
-                    _ => path.push_str("REPLACED_F1.docx"),
-                }
-
-                let mut file: File = File::create(path).unwrap();
-                let _ = file.write_all(&body);
-
-            }
-            status => {
-                println!("F1 StatusCode is not okay {status}");
-            }
-        }
-    }
 
     match res.status() {
         reqwest::StatusCode::OK => {
@@ -145,7 +76,7 @@ async fn send_request(map: HashMap<&str, String>) -> Result<(), Box<dyn std::err
                 get_path("OpenSuse", "Assessments")
             };
 
-            let date = match NaiveDate::parse_from_str(map.get("DOA").unwrap(), "%Y-%m-%d") {
+            let date = match NaiveDate::parse_from_str(&asmt_data.date_of_assessment, "%Y-%m-%d") {
                 Ok(d) => d, //return formatted date
                 _ => Utc::now().naive_local().date() //try second format
             };
@@ -167,11 +98,13 @@ async fn send_request(map: HashMap<&str, String>) -> Result<(), Box<dyn std::err
                 _ => "Unknown".to_string(),
             };
 
-            let ref_name = map.get("REFCOMP COMMONNAME").unwrap();
-            let client_first_name = map.get("CLIENT FIRST").unwrap();
-            let client_last_name = map.get("CLIENT LAST").unwrap();
-            let assessor_first = map.get("ASSESSOR FIRST").unwrap();
-            let assessor_initials = map.get("IMAGE").unwrap().replace(".png", "");
+            let ref_name = &asmt_data.referral_company.common_name;
+            let client_first_name = &asmt_data.claimant.first_name;
+            let client_last_name = &asmt_data.claimant.last_name;
+            let assessor_first = &asmt_data.assessor.first_name;
+            let assessor_last = &asmt_data.assessor.last_name;
+            let assessor_initials = format!("{}{}", assessor_first.chars().next().unwrap(), assessor_last.chars().next().unwrap());
+            let asmt_type = &asmt_data.asmt_type.replace(".docx", "");
 
             path.push_str(format!("{year}/{month}/{assessor_first}/{client_first_name} {client_last_name}/").as_str());
 

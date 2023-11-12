@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using DocProcessor;
+using DocumentFormat.OpenXml.Office2013.PowerPoint.Roaming;
+using Newtonsoft.Json.Linq;
+using NuGet.Protocol;
 using Document = DocProcessor.Document;
 
 namespace DocumentGenerationAPI.Controllers
@@ -10,36 +13,56 @@ namespace DocumentGenerationAPI.Controllers
     {
         
         private Dictionary<string, string> _outputs = new Dictionary<String,String>();
+        
+        private JObject Obj { get; set; }
+        
+        private IConfiguration Config { get; set; }
 
-        public DocumentRequestController()
+        public DocumentRequestController(IConfiguration config)
         {
+            Config = config;
+            Obj = default!;
         }
-
+        
         [HttpPost("DocRequest")]
-        public IActionResult DocRequest([FromBody] Dictionary<string, string> data)
+        public IActionResult DocRequest([FromBody] string data)
         {
 
-            foreach(KeyValuePair<string, string> entry in data)
-            {
-               
-                _outputs[entry.Key] = entry.Value;
-                
-            }
+            Obj = JObject.Parse(data);
             
+            Console.WriteLine($"OBJ = {Obj.ToString()}");
+
             using (MemoryStream stream = new MemoryStream())
             {
 
-                Document document = new Document($"{_outputs["TEMPLATE PATH"]}{_outputs["TEMPLATE"]}",
-                    DocumentType.ExistingDocument);
-               
-                //image replace has to be done first, since the tag matches the text replacement tags.
-                Image image = new Image($"{_outputs["IMAGE PATH"]}{_outputs["IMAGE"]}");
-                document.ReplaceTextWithImage("<PICTURE>", image);
-                
-                document.SearchAndReplaceTextByRegex(@"<([\w _-]{3,})>", ReplaceFunction);
+                string docPath = Config["Templates"];
+                string? type = (string)Obj.SelectToken("asmtType");
+                if (type != null)
+                {
+                    docPath = docPath + type;
+                }
 
-                document.SaveAsStream(stream);
-                document.Dispose();
+                // Document document = new Document(docPath,
+                //         DocumentType.ExistingDocument);
+
+                string imgPath = Config["Images"];
+
+                string? last = (string)Obj.SelectToken("assessor.lastName");
+                // if (first != null && last != null)
+                // {
+                //     imgPath = imgPath + first[0] + last[0] + ".png";
+                // }
+                
+                Console.WriteLine("IMGPATH = {0}", imgPath);
+
+            //image replace has to be done first, since the tag matches the text replacement tags.
+            // Image image = new Image(imgPath); //TEMP
+            //     document.ReplaceTextWithImage("<PICTURE>", image);
+            //     
+            //     document.SearchAndReplaceTextByRegex(@"<([\w _-]{3,})>", ReplaceFunction);
+            //
+            //     document.SaveAsStream(stream);
+            //     document.Dispose();
                 byte[] test = stream.ToArray();
                 _outputs.Clear();
                 return new FileContentResult(test, "application/octet-stream");
@@ -78,16 +101,30 @@ namespace DocumentGenerationAPI.Controllers
                 return new FileContentResult(test, "application/octet-stream");
                 
             }
-        } 
+        }
+
+        private string ReplaceFunctionJ(string path)
+        {
+            JToken? value = Obj.SelectToken(path);
+
+            if (value != null)
+            {
+                String val = value.ToString();
+                if (val.StartsWith("DO")) //date of
+                {
+                    bool success = DateTime.TryParse(val, out DateTime result);
+                    if (success)
+                    {
+                        return $"{result:MMMM dd, yyyy}";
+                    }
+                }
+                return val;
+            }
+
+            return "NULL: " + path;
+
+        }
        
-        //TODO: pronouns should be mapped here, based on the gender 
-        //he she lower
-        //he she upper 
-        //male female 
-        //his her 
-        //him her
-        //mr ms
-        
         private string ReplaceFunction(string key)
         {
             if(_outputs.TryGetValue(key, out var val))
