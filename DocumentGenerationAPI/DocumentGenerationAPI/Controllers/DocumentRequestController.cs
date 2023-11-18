@@ -1,5 +1,9 @@
+using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Mvc;
 using DocProcessor;
+using DocumentFormat.OpenXml.Office2013.PowerPoint.Roaming;
+using Newtonsoft.Json.Linq;
+using NuGet.Protocol;
 using Document = DocProcessor.Document;
 
 namespace DocumentGenerationAPI.Controllers
@@ -10,80 +14,104 @@ namespace DocumentGenerationAPI.Controllers
     {
         
         private Dictionary<string, string> _outputs = new Dictionary<String,String>();
+        
+        private JObject Obj { get; set; }
+        
+        private IConfiguration Config { get; }
 
-        public DocumentRequestController()
+        public DocumentRequestController(IConfiguration config)
         {
+            Config = config;
+            Obj = default!;
         }
-
+        
         [HttpPost("DocRequest")]
-        public IActionResult DocRequest([FromBody] Dictionary<string, string> data)
+        public IActionResult DocRequest([FromBody] string data)
         {
 
-            foreach(KeyValuePair<string, string> entry in data)
-            {
-               
-                _outputs[entry.Key] = entry.Value;
-                
-            }
+            Obj = JObject.Parse(data);
             
-            using (MemoryStream stream = new MemoryStream())
-            {
+            byte[] result = GenerateDocument(Obj, ReplaceFunction, false);
+            
+            return new FileContentResult(result, "application/octet-stream");
+            
+        }
 
-                Document document = new Document($"{_outputs["TEMPLATE PATH"]}{_outputs["TEMPLATE"]}",
-                    DocumentType.ExistingDocument);
-               
-                //image replace has to be done first, since the tag matches the text replacement tags.
-                Image image = new Image($"{_outputs["IMAGE PATH"]}{_outputs["IMAGE"]}");
-                document.ReplaceTextWithImage("<PICTURE>", image);
-                
-                document.SearchAndReplaceTextByRegex(@"<([\w _-]{3,})>", ReplaceFunction);
+       [HttpPost("F1Request")]
+        public IActionResult Form1([FromBody] string data)
+        {
 
-                document.SaveAsStream(stream);
-                document.Dispose();
-                byte[] test = stream.ToArray();
-                _outputs.Clear();
-                return new FileContentResult(test, "application/octet-stream");
-                
-            }
+            Obj = JObject.Parse(data);
+
+            byte[] result = GenerateDocument(Obj, ReplaceFunctionF1, true);
+            
+            return new FileContentResult(result, "application/octet-stream");
+            
         }
         
-       [HttpPost("F1Request")]
-        public IActionResult Form1([FromBody] Dictionary<string, string> data)
+        private byte[] GenerateDocument(JObject data, Func<string, string> GetReplacement, bool isF1)
         {
-
-            foreach(KeyValuePair<string, string> entry in data)
+            using MemoryStream stream = new MemoryStream();
+            
+            string docPath;
+            string imgPath;
+            
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-               
-                _outputs[entry.Key] = entry.Value;
-                
+                docPath = Config["Templates_Windows"];
+                imgPath = Config["Images_Windows"];
+            }
+            else
+            {
+                docPath = Config["Templates_OpenSuse"];
+                imgPath = Config["Images_OpenSuse"];
             }
             
-            using (MemoryStream stream = new MemoryStream())
+            string? type;
+            if (isF1)
             {
+                type = "F1.docx";
+            }
+            else
+            {
+                type = (string)Obj.SelectToken("asmtType");
+            }
+            if (type != null)
+            {
+                docPath = docPath + type;
+            }
 
-                Document document = new Document($"{_outputs["TEMPLATE PATH"]}/F1.docx",
+            Document document = new Document(docPath,
                     DocumentType.ExistingDocument);
-                
-                //image replace has to be done first, since the tag matches the text replacement tags.
-                Image image = new Image($"{_outputs["IMAGE PATH"]}{_outputs["IMAGE"]}");
-                document.ReplaceTextWithImage("<PICTURE>", image);
-                
-                document.SearchAndReplaceTextByRegex(@"<([\w _-]{3,})>", ReplaceFunctionF1);
 
+
+            string? last = (string)Obj.SelectToken("assessor.lastName");
+            string? first = (string)Obj.SelectToken("assessor.firstName");
+            if (first != null && last != null)
+            {
+                imgPath = imgPath + first[0] + last[0] + ".png";
+            }
+                
+            //image replace has to be done first, since the tag matches the text replacement tags.
+            Image image = new Image(imgPath); //TEMP
+                document.ReplaceTextWithImage("<assessor.signature>", image);
+                
+                document.SearchAndReplaceTextByRegex(@"<([\w ._-]{3,})>", GetReplacement);
+           
                 document.SaveAsStream(stream);
                 document.Dispose();
-                byte[] test = stream.ToArray();
-                _outputs.Clear();
-                return new FileContentResult(test, "application/octet-stream");
-                
-            }
-        } 
-        
-        private string ReplaceFunction(string key)
+            _outputs.Clear();
+            return stream.ToArray();
+        }
+
+        private string ReplaceFunction(string path)
         {
-            if(_outputs.TryGetValue(key, out var val))
+            JToken? value = Obj.SelectToken(path);
+
+            if (value != null)
             {
-                if (key.StartsWith("DO")) //date of
+                String val = value.ToString();
+                if (path.Contains("date"))
                 {
                     bool success = DateTime.TryParse(val, out DateTime result);
                     if (success)
@@ -91,17 +119,22 @@ namespace DocumentGenerationAPI.Controllers
                         return $"{result:MMMM dd, yyyy}";
                     }
                 }
+                
                 return val;
             }
 
-            return "NULL: " + key;
+            return "NULL: " + path;
+
         }
-        
-        private string ReplaceFunctionF1(string key)
+       
+        private string ReplaceFunctionF1(string path)
         {
-            if(_outputs.TryGetValue(key, out var val))
+            JToken? value = Obj.SelectToken(path);
+
+            if (value != null)
             {
-                if (key.StartsWith("DO")) //date of
+                String val = value.ToString();
+                if (path.Contains("date"))
                 {
                     bool success = DateTime.TryParse(val, out DateTime result);
                     if (success)
@@ -109,10 +142,11 @@ namespace DocumentGenerationAPI.Controllers
                         return $"{result:yyyy-MM-dd}";
                     } 
                 }
+                
                 return val;
             }
 
-            return "NULL: " + key;
+            return "NULL: " + path;
         }
         
     }
