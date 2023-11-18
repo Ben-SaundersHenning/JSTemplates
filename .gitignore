@@ -18,5 +18,6 @@ DocumentGenerationAPI/DocProcessor/bin/
 DocumentGenerationAPI/DocProcessor/obj/
 DocumentGenerationAPI/DocumentGenerationAPI/bin/
 DocumentGenerationAPI/DocumentGenerationAPI/obj/
-DocumentGenerationAPI/TestRunner/
+DocumentGenerationAPI/TestRunner/bin/
+DocumentGenerationAPI/TestRunner/obj/
 DocumentGenerationAPI/TESTING_FILES/
