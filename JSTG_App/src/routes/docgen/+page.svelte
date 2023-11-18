@@ -17,7 +17,7 @@
     <br>
 
     <label for="claimGender">Claimaint Gender:</label>
-    <select id="claimGender" bind:value={asmtData.claimant.gender.pronouns.p0} required>
+    <select id="claimGender" bind:value={asmtData.claimant.gender.pronouns.p0Lower} required>
     {#each genders as gender}
         <option value={gender}>{gender}</option>
     {/each}
@@ -143,7 +143,6 @@
         "CAT AC MRB.docx",
         "CAT CAT GOSE.docx",
         "CAT GOSE.docx",
-        "CAT MRB_accidentally AC.docx",
         "MRB.docx",
         "NEB.docx"
     ]
@@ -186,10 +185,14 @@
             "gender": {
                 "title": "",
                 "pronouns": {
-                    "p0": "",
-                    "p1": "",
-                    "p2": "",
-                    "p3": "",
+                    "p0Lower": "",
+                    "p1Lower": "",
+                    "p2Lower": "",
+                    "p3Lower": "",
+                    "p0Upper": "",
+                    "p1Upper": "",
+                    "p2Upper": "",
+                    "p3Upper": "",
                 }
             },
             "dateOfBirth": "",
@@ -202,7 +205,7 @@
                 "province": "",
                 "provinceAb": "ON",
                 "postalCode": "",
-                "country": "",
+                "country": "Canada",
                 "addressLong": "",
             },
         },

@@ -118,27 +118,39 @@ fn calculate_age(claimant: &mut Claimant) -> bool {
 fn set_gender_values(gender: &mut Gender) {
 
     //need the vals to be String type, so const clones wont work.
-    match gender.pronouns.p0.as_str() {
+    match gender.pronouns.p0_lower.as_str() {
         "male" => {
             gender.title = String::from("Mr");
-            gender.pronouns.p0 = String::from("male");
-            gender.pronouns.p0 = String::from("he");
-            gender.pronouns.p0 = String::from("his");
-            gender.pronouns.p0 = String::from("himself");
+            gender.pronouns.p0_lower = String::from("male");
+            gender.pronouns.p1_lower = String::from("he");
+            gender.pronouns.p2_lower = String::from("his");
+            gender.pronouns.p3_lower = String::from("himself");
+            gender.pronouns.p0_upper = String::from("Male");
+            gender.pronouns.p1_upper = String::from("He");
+            gender.pronouns.p2_upper = String::from("His");
+            gender.pronouns.p3_upper = String::from("Himself");
         },
         "female" => {
             gender.title = String::from("Ms");
-            gender.pronouns.p0 = String::from("female");
-            gender.pronouns.p0 = String::from("she");
-            gender.pronouns.p0 = String::from("her");
-            gender.pronouns.p0 = String::from("herself");
+            gender.pronouns.p0_lower = String::from("female");
+            gender.pronouns.p1_lower = String::from("she");
+            gender.pronouns.p2_lower = String::from("her");
+            gender.pronouns.p3_lower = String::from("herself");
+            gender.pronouns.p0_upper = String::from("Female");
+            gender.pronouns.p1_upper = String::from("She");
+            gender.pronouns.p2_upper = String::from("Her");
+            gender.pronouns.p3_upper = String::from("Herself");
         },
         _ => {
             gender.title = String::from("Mx");
-            gender.pronouns.p0 = String::from("{other}");
-            gender.pronouns.p0 = String::from("they");
-            gender.pronouns.p0 = String::from("their");
-            gender.pronouns.p0 = String::from("themself");
+            gender.pronouns.p0_lower = String::from("{other}");
+            gender.pronouns.p1_lower = String::from("they");
+            gender.pronouns.p2_lower = String::from("their");
+            gender.pronouns.p3_lower = String::from("themself");
+            gender.pronouns.p0_upper = String::from("{Other}");
+            gender.pronouns.p1_upper = String::from("They");
+            gender.pronouns.p2_upper = String::from("Their");
+            gender.pronouns.p3_upper = String::from("Themself");
         }
     };
 
