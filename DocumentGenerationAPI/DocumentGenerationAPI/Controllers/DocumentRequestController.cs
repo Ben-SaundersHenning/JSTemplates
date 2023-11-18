@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Mvc;
 using DocProcessor;
 using DocumentFormat.OpenXml.Office2013.PowerPoint.Roaming;
@@ -51,7 +52,21 @@ namespace DocumentGenerationAPI.Controllers
         private byte[] GenerateDocument(JObject data, Func<string, string> GetReplacement, bool isF1)
         {
             using MemoryStream stream = new MemoryStream();
-            string docPath = Config["Templates"];
+            
+            string docPath;
+            string imgPath;
+            
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                docPath = Config["Templates_Windows"];
+                imgPath = Config["Images_Windows"];
+            }
+            else
+            {
+                docPath = Config["Templates_OpenSuse"];
+                imgPath = Config["Images_OpenSuse"];
+            }
+            
             string? type;
             if (isF1)
             {
@@ -69,7 +84,6 @@ namespace DocumentGenerationAPI.Controllers
             Document document = new Document(docPath,
                     DocumentType.ExistingDocument);
 
-            string imgPath = Config["Images"];
 
             string? last = (string)Obj.SelectToken("assessor.lastName");
             string? first = (string)Obj.SelectToken("assessor.firstName");
