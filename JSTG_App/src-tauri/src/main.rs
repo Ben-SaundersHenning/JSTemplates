@@ -45,19 +45,19 @@ async fn request_document(data: String) {
 
     match request_builder::build_request(data) {
         Ok(asmt) => {
-            let _ = send_request(asmt).await;
+            send_request(asmt).await;
         },
         _ => {}
     };
 
 }
 
-async fn send_request(asmt_data: structs::Assessment<serde_json::Value>) -> Result<(), Box<dyn std::error::Error>> {
+async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f1: bool, endpoint: &str) -> Result<(), Box<dyn std::error::Error>> {
 
     let request = serde_json::to_string(&asmt_data).unwrap();
 
     let client = reqwest::Client::new();
-    let res = client.post("http://localhost:5056/api/DocumentRequest/DocRequest")
+    let res = client.post(endpoint)
         .json(&request)
         .header("responseType", "blob")
         .header("content-type", "application/json")
@@ -104,7 +104,11 @@ async fn send_request(asmt_data: structs::Assessment<serde_json::Value>) -> Resu
             let assessor_first = &asmt_data.assessor.first_name;
             let assessor_last = &asmt_data.assessor.last_name;
             let assessor_initials = format!("{}{}", assessor_first.chars().next().unwrap(), assessor_last.chars().next().unwrap());
-            let asmt_type = &asmt_data.asmt_type.replace(".docx", "");
+            let _asmt_type = &asmt_data.asmt_type.replace(".docx", "");
+            let asmt_type: &str = match is_f1 {
+                true => "F1",
+                false => _asmt_type
+            };
 
             path.push_str(format!("{year}/{month}/{assessor_first}/{client_first_name} {client_last_name}/").as_str());
 
@@ -123,5 +127,15 @@ async fn send_request(asmt_data: structs::Assessment<serde_json::Value>) -> Resu
     }
 
     Ok(())
+
+}
+
+async fn send_request(asmt_data: structs::Assessment<serde_json::Value>) {
+
+    if asmt_data.asmt_type.contains("AC") {
+        let _ = submit_request(&asmt_data, true, "http://localhost:5056/api/DocumentRequest/F1Request").await;
+    }
+
+    let _ = submit_request(&asmt_data, false, "http://localhost:5056/api/DocumentRequest/DocRequest").await;
 
 }

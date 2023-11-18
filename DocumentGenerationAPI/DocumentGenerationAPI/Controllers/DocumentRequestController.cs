@@ -32,7 +32,7 @@ namespace DocumentGenerationAPI.Controllers
             
             Console.WriteLine("OBJ = {0}", Obj.ToString());
 
-            byte[] result = GenerateDocument(Obj, ReplaceFunction);
+            byte[] result = GenerateDocument(Obj, ReplaceFunction, false);
             
             return new FileContentResult(result, "application/octet-stream");
             
@@ -44,17 +44,25 @@ namespace DocumentGenerationAPI.Controllers
 
             Obj = JObject.Parse(data);
 
-            byte[] result = GenerateDocument(Obj, ReplaceFunctionF1);
+            byte[] result = GenerateDocument(Obj, ReplaceFunctionF1, true);
             
             return new FileContentResult(result, "application/octet-stream");
             
         }
         
-        private byte[] GenerateDocument(JObject data, Func<string, string> GetReplacement)
+        private byte[] GenerateDocument(JObject data, Func<string, string> GetReplacement, bool isF1)
         {
             using MemoryStream stream = new MemoryStream();
             string docPath = Config["Templates"];
-            string? type = (string)Obj.SelectToken("asmtType");
+            string? type;
+            if (isF1)
+            {
+                type = "F1.docx";
+            }
+            else
+            {
+                type = (string)Obj.SelectToken("asmtType");
+            }
             if (type != null)
             {
                 docPath = docPath + type;
