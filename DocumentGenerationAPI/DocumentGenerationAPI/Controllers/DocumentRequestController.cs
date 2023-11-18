@@ -30,8 +30,6 @@ namespace DocumentGenerationAPI.Controllers
 
             Obj = JObject.Parse(data);
             
-            Console.WriteLine("OBJ = {0}", Obj.ToString());
-
             byte[] result = GenerateDocument(Obj, ReplaceFunction, false);
             
             return new FileContentResult(result, "application/octet-stream");
