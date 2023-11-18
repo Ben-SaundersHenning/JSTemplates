@@ -1,6 +1,6 @@
 use sqlite::State;
 use std::string::String;
-use crate::structs::{Assessor, AssessorListing, ReferralCompanyListing, ReferralCompany};
+use crate::structs::{Assessor, AssessorListing, Address, ReferralCompanyListing, ReferralCompany};
 
 const DB_PATH: &str = if cfg!(windows) {
     "B:\\projects\\JSTG\\JSTG.sqlite3"
@@ -50,7 +50,7 @@ pub fn get_assessor(assessor: AssessorListing) -> Option<Assessor> {
                 Ok(val) => val,
                 _ => "NULL".to_string()
             },
-            salutation: match statement.read::<String, _>("Title") {
+            title: match statement.read::<String, _>("Title") {
                 Ok(val) => val,
                 _ => "NULL".to_string()
             },
@@ -105,27 +105,32 @@ pub fn get_referral_company(referral_company: ReferralCompanyListing) -> Option<
 
     while let Ok(State::Row) = statement.next() {
         let company = ReferralCompany {
+            unique_id: referral_company.unique_id,
             name: statement.read::<String, _>("Name").unwrap(),
             common_name: referral_company.common_name,
-            address: match statement.read::<String, _>("Address") {
-                Ok(val) => val,
-                _ => "NULL".to_string()
-            },
-            city: match statement.read::<String, _>("City") {
-                Ok(val) => val,
-                _ => "NULL".to_string()
-            },
-            province: match statement.read::<String, _>("Province") {
-                Ok(val) => val,
-                _ => "NULL".to_string()
-            },
-            province_ab: match statement.read::<String, _>("ProvinceAb") {
-                Ok(val) => val,
-                _ => "NULL".to_string()
-            },
-            postal_code: match statement.read::<String, _>("PostalCode") {
-                Ok(val) => val,
-                _ => "NULL".to_string()
+            address: Address {
+                address: match statement.read::<String, _>("Address") {
+                    Ok(val) => val,
+                    _ => "NULL".to_string()
+                },
+                city: match statement.read::<String, _>("City") {
+                    Ok(val) => val,
+                    _ => "NULL".to_string()
+                },
+                province: match statement.read::<String, _>("Province") {
+                    Ok(val) => val,
+                    _ => "NULL".to_string()
+                },
+                province_ab: match statement.read::<String, _>("ProvinceAb") {
+                    Ok(val) => val,
+                    _ => "NULL".to_string()
+                },
+                postal_code: match statement.read::<String, _>("PostalCode") {
+                    Ok(val) => val,
+                    _ => "NULL".to_string()
+                },
+                country: "Canada".to_string(),
+                address_long: "".to_string() //needs to be built
             },
             phone: match statement.read::<String, _>("Phone") {
                 Ok(val) => val,

@@ -17,7 +17,7 @@
     <br>
 
     <label for="claimGender">Claimaint Gender:</label>
-    <select id="claimGender" bind:value={asmtData.claimant.gender} required>
+    <select id="claimGender" bind:value={asmtData.claimant.gender.pronouns.p0Lower} required>
     {#each genders as gender}
         <option value={gender}>{gender}</option>
     {/each}
@@ -28,18 +28,24 @@
     <input type="text" id="claimDOB" bind:value={asmtData.claimant.dateOfBirth} required/>
     <br>
 
-    <!-- TODO: age could be calculated automatically -->
-    <label for="claimAge">Claimaint Age:</label>
-    <input class="textbox" id="claimAge" type="text" bind:value={asmtData.claimant.age} required/>
-    <br>
-
     <label for="claimDOL">claimant DOL:</label>
     <input type="text" id="claimDOL" bind:value={asmtData.claimant.dateOfLoss} required/>
     <br>
 
-    <!-- TODO: need to retrieve the individual parts of this address -->
-    <label for="claimAddress">Claimaint Address:</label>
-    <input class="textbox" id="claimAddress" type="text" bind:value={asmtData.claimant.addressLong} required/>
+    <label for="claimAddress">Claimaint Address (street):</label>
+    <input class="textbox" id="claimAddress" type="text" bind:value={asmtData.claimant.address.address} required/>
+    <br>
+
+    <label for="claimCity">Claimaint City:</label>
+    <input class="textbox" id="claimCity" type="text" bind:value={asmtData.claimant.address.city} required/>
+    <br>
+
+    <label for="claimProvince">Claimaint Province:</label>
+    <input class="textbox" id="claimProvince" type="text" bind:value={asmtData.claimant.address.provinceAb} required/>
+    <br>
+
+    <label for="claimPostalCode">Claimaint Postal Code:</label>
+    <input class="textbox" id="claimPostalCode" type="text" bind:value={asmtData.claimant.address.postalCode} required/>
     <br>
 
     <label for="adjuster">Adjuster:</label>
@@ -47,7 +53,7 @@
     <br>
 
     <label for="insuranceComp">Insurance Company:</label>
-    <input class="textbox" id="insuranceComp" type="text" bind:value={asmtData.insCompany} required/>
+    <input class="textbox" id="insuranceComp" type="text" bind:value={asmtData.insuranceCompany} required/>
     <br>
 
     <label for="claimNO">Claim Number:</label>
@@ -119,7 +125,8 @@
 
     let genders = [
         "male",
-        "female"
+        "female",
+        "other"
     ]
 
     let assessors = new Array();
@@ -127,6 +134,7 @@
     let referralCompanies = new Array();
 
     //TODO: these should be retrieived dynamically.
+    //from the API, not the DB.
     let asmTypes = [
         "AC.docx",
         "AC MRB.docx",
@@ -135,60 +143,77 @@
         "CAT AC MRB.docx",
         "CAT CAT GOSE.docx",
         "CAT GOSE.docx",
-        "CAT MRB_accidentally AC.docx",
         "MRB.docx",
         "NEB.docx"
     ]
-
-    // TO THIS OBJ, NEED TO ADD:
-    //
-    // dol, doa, dob, in formattable datetimes
-    // client address
-    // client city
-    // client province
-    // client provinceAB
-    // client postal code
 
     let asmtData = {
         "asmtType": "",
         "assessor": {
             "registationId": "",
+            "title": "",
             "firstName": "",
             "lastName": "",
+            "email": "",
+            "qualificationsParagraph": ""
         },
         "adjuster": "",
-        "insCompany": "",
+        "insuranceCompany": "",
         "claimNumber": "",
         "referralCompany": {
             "uniqueId": "",
             "commonName": "",
+            "name": "",
+            "address": {
+                "address": "",
+                "city": "",
+                "province": "",
+                "provinceAb": "",
+                "postalCode": "",
+                "country": "",
+                "addressLong": "",
+            },
+            "phone": "",
+            "fax": "",
+            "email": ""
         },
         "dateOfAssessment": "",
         "seidenFileNumber": "",
         "claimant": {
-            "salutation": "",
             "firstName": "",
             "lastName": "",
-
-            "gender": "",
-            "male-female": "",
-            "he-she": "",
-            "his-her": "",
-            "himself-herself": "",
-
-            "youth": "",
+            "gender": {
+                "title": "",
+                "pronouns": {
+                    "p0Lower": "",
+                    "p1Lower": "",
+                    "p2Lower": "",
+                    "p3Lower": "",
+                    "p0Upper": "",
+                    "p1Upper": "",
+                    "p2Upper": "",
+                    "p3Upper": "",
+                }
+            },
             "dateOfBirth": "",
             "age": "",
+            "youth": "false",
             "dateOfLoss": "",
-            "addressLong": "",
-            "country": "",
-            "province": "",
-            "street": "",
-            "streetNum": "",
-            "postalCode": ""
+            "address": {
+                "address": "",
+                "city": "",
+                "province": "",
+                "provinceAb": "ON",
+                "postalCode": "",
+                "country": "Canada",
+                "addressLong": "",
+            },
         },
-        "questions": {
-        }
+        "asmtSpecifics": {
+            //data inserted from child component.
+        },
+        "questions": [
+        ]
     }
 
 </script>

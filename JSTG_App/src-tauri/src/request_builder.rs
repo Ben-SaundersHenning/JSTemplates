@@ -3,17 +3,163 @@
 //its being done this way as practice with Rust.
 
 use serde_json::Value;
-use std::collections::HashMap;
-use chrono::NaiveDate;
+use chrono::{NaiveDate, Datelike};
 use crate::db;
-use crate::structs::{Assessor, Request, ReferralCompany};
+use crate::structs::{Claimant, Assessor, Address, Gender, Request, ReferralCompany, Assessment};
 
 
+pub fn build_request(data: String) -> Result<Assessment<Value>, serde_json::Error> {
+
+    /* What values need to be filled into or formatted here?
+     *
+     * - asmtSpecificis in the future
+     * - trim questions in the future
+     *
+     */
+
+    let mut request: Request<Value> = serde_json::from_str(&data).unwrap();
+
+    let mut referral_company: ReferralCompany = db::get_referral_company(request.referral_company).unwrap();
+    build_long_address(&mut referral_company.address);
+
+    let assessor: Assessor = db::get_assessor(request.assessor).unwrap();
+
+    request.date_of_assessment = format_date(&request.date_of_assessment);
+    request.claimant.date_of_loss = format_date(&request.claimant.date_of_loss);
+    request.claimant.date_of_birth = format_date(&request.claimant.date_of_birth);
+    request.claimant.address.province = get_province_or_territory(&request.claimant.address.province_ab);
+    build_long_address(&mut request.claimant.address);
+    calculate_age(&mut request.claimant);
+    set_gender_values(&mut request.claimant.gender);
+
+    let assesment = Assessment {
+        asmt_type: request.asmt_type,
+        adjuster: request.adjuster,
+        insurance_company: request.insurance_company,
+        claim_number: request.claim_number,
+        date_of_assessment: request.date_of_assessment,
+        seiden_file_number: request.seiden_file_number,
+        referral_company,
+        assessor,
+        claimant: request.claimant,
+        asmt_specifics: request.asmt_specifics,
+        questions: request.questions
+    };
+
+    Ok(assesment)
+
+}
+
+fn build_long_address(address: &mut Address) {
+    address.address_long = format!("{}, {} {}, {}",
+        address.address,
+        address.city,
+        address.province_ab,
+        address.postal_code);
+}
+
+fn get_province_or_territory(province_or_territory: &str) -> String {
+
+    match province_or_territory {
+        "AB" => "Alberta".to_string(),
+        "BC" => "British Columbia".to_string(),
+        "MB" => "Manitoba".to_string(),
+        "NB" => "New Brunswick".to_string(),
+        "NL" => "Newfoundland and Labrador".to_string(),
+        "NS" => "Nova Scotia".to_string(),
+        "ON" => "Ontaio".to_string(),
+        "PEI" => "Prince Edward Island".to_string(),
+        "QC" => "Quebec".to_string(),
+        "SK" => "Saskatchewan".to_string(),
+        "YT" => "Yukon".to_string(),
+        "NU" => "Nunavut".to_string(),
+        "NT" => "Northwest Territories".to_string(),
+        _ => "NULL_PROVINCE".to_string()
+    }
+
+}
+
+fn calculate_age(claimant: &mut Claimant) -> bool {
+
+    let mut age: i32;
+
+    let _dob = chrono::NaiveDate::parse_from_str(&claimant.date_of_birth, "%F");
+
+    let dob = match _dob {
+        Ok(val) => {
+            val
+        },
+        _ => {return false;}
+    };
+
+    let now = chrono::Local::now();
+
+    //assume the b-day has passed this year
+    age = now.year() - dob.year();
+
+    if now.month() < dob.month() { //b-day cant have passed
+        age = age - 1;
+    } else if now.month() == dob.month() { //b-day may have passed
+        if now.day() < dob.day() { //b-day cant have passed
+            age = age - 1;
+        }
+    }
+
+    claimant.age = age.to_string();
+
+    if age < 18 {
+        claimant.youth = String::from("true");
+    }
+
+    true
+
+}
+
+fn set_gender_values(gender: &mut Gender) {
+
+    //need the vals to be String type, so const clones wont work.
+    match gender.pronouns.p0_lower.as_str() {
+        "male" => {
+            gender.title = String::from("Mr");
+            gender.pronouns.p0_lower = String::from("male");
+            gender.pronouns.p1_lower = String::from("he");
+            gender.pronouns.p2_lower = String::from("his");
+            gender.pronouns.p3_lower = String::from("himself");
+            gender.pronouns.p0_upper = String::from("Male");
+            gender.pronouns.p1_upper = String::from("He");
+            gender.pronouns.p2_upper = String::from("His");
+            gender.pronouns.p3_upper = String::from("Himself");
+        },
+        "female" => {
+            gender.title = String::from("Ms");
+            gender.pronouns.p0_lower = String::from("female");
+            gender.pronouns.p1_lower = String::from("she");
+            gender.pronouns.p2_lower = String::from("her");
+            gender.pronouns.p3_lower = String::from("herself");
+            gender.pronouns.p0_upper = String::from("Female");
+            gender.pronouns.p1_upper = String::from("She");
+            gender.pronouns.p2_upper = String::from("Her");
+            gender.pronouns.p3_upper = String::from("Herself");
+        },
+        _ => {
+            gender.title = String::from("Mx");
+            gender.pronouns.p0_lower = String::from("{other}");
+            gender.pronouns.p1_lower = String::from("they");
+            gender.pronouns.p2_lower = String::from("their");
+            gender.pronouns.p3_lower = String::from("themself");
+            gender.pronouns.p0_upper = String::from("{Other}");
+            gender.pronouns.p1_upper = String::from("They");
+            gender.pronouns.p2_upper = String::from("Their");
+            gender.pronouns.p3_upper = String::from("Themself");
+        }
+    };
+
+}
+
+/*
 pub fn build_request(data: String) -> HashMap<&'static str, String> {
 
-    let _v: Value = serde_json::from_str(&data).unwrap();
-
-    let request: Request = serde_json::from_str(&data).unwrap();
+    let request: Request<String> = serde_json::from_str(&data).unwrap();
 
     let referral_company: ReferralCompany = db::get_referral_company(request.referral_company).unwrap();
 
@@ -22,7 +168,7 @@ pub fn build_request(data: String) -> HashMap<&'static str, String> {
 
     let mut map: HashMap<&str, String> = HashMap::from([
         ("ADJUSTER", request.adjuster),
-        ("INSURANCE COMPANY", request.ins_company),
+        ("INSURANCE COMPANY", request.insurance_company),
         ("CLIENT FIRST", request.claimant.first_name),
         ("CLIENT LAST", request.claimant.last_name),
         ("CLIENT AGE", request.claimant.age),
@@ -98,6 +244,7 @@ pub fn build_request(data: String) -> HashMap<&'static str, String> {
     map
 
 }
+*/
 
 //Intended to format a date, so that it can be parsed into a 
 //dotnet DateTime object.
