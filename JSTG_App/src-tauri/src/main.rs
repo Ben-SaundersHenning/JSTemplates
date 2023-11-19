@@ -14,7 +14,7 @@ mod structs;
 fn main() {
 
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![double, greet, request_document, get_assessors, get_path, get_companies])
+    .invoke_handler(tauri::generate_handler![double, greet, request_document, get_assessors, get_path, get_companies, print_request])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 
@@ -38,6 +38,11 @@ fn get_assessors() -> Vec<structs::AssessorListing> {
 #[tauri::command]
 fn get_companies() -> Vec<structs::ReferralCompanyListing> {
     db::get_referral_company_options()
+}
+
+#[tauri::command]
+fn print_request(data: String) {
+    println!("{data}");
 }
 
 #[tauri::command]

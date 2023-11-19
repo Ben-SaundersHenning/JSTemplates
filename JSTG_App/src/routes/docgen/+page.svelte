@@ -82,6 +82,8 @@
 
     <button type="submit">Press me to get file</button>
 
+    <button on:click={printObj}>Press to print obj to console</button>
+
     <p>{status}</p>
 
 
@@ -90,21 +92,21 @@
     <hr/>
 
     {#if asmtData.asmtType == "AC.docx"}
-        <AC/>
+        <AC bind:acData={asmtData.asmtSpecifics.ac}/>
     {/if}
 
 </form>
 
-<script>
+<script lang="ts">
 
     import {invoke} from '@tauri-apps/api/tauri'
     import {onMount} from 'svelte'
     import AC from './components/ac.svelte'
 
     onMount(() => {
-        invoke('get_assessors').then((assessorOpts) => assessors = assessorOpts);
+        invoke('get_assessors').then((assessorOpts) => assessors = assessorOpts as any[]);
         assessors = assessors;
-        invoke('get_companies').then((comps) => referralCompanies = comps);
+        invoke('get_companies').then((comps) => referralCompanies = comps as any[]);
         referralCompanies = referralCompanies;
     });
 
@@ -121,6 +123,11 @@
         }
     }
 
+    function printObj() {
+        const send = JSON.stringify(asmtData);
+        invoke('print_request', {data: send});
+    }
+
     let status = "Not sent"
 
     let genders = [
@@ -129,9 +136,9 @@
         "other"
     ]
 
-    let assessors = new Array();
+    let assessors: any[] = new Array();
 
-    let referralCompanies = new Array();
+    let referralCompanies: any[] = new Array();
 
     //TODO: these should be retrieived dynamically.
     //from the API, not the DB.
@@ -209,8 +216,7 @@
                 "addressLong": "",
             },
         },
-        "asmtSpecifics": {
-            //data inserted from child component.
+        "asmtSpecifics": <any>{
         },
         "questions": [
         ]

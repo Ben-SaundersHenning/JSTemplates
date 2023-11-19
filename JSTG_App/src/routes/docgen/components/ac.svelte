@@ -10,7 +10,8 @@
     onMount(() => {
     });
 
-    let acData = {
+    // export let acData = {}
+    export let acData = {
         "firstAssessment": true,
         "currentMonthlyAllowance": "",
         "hourlyRates": { 
@@ -20,5 +21,8 @@
         },
         "dateOfLastAssessment": ""
     }
+
+    acData.firstAssessment = false;
+    acData.currentMonthlyAllowance = "1045";
 
 </script>
