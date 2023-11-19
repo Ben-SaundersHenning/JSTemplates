@@ -82,8 +82,6 @@
 
     <button type="submit">Press me to get file</button>
 
-    <button on:click={printObj}>Press to print obj to console</button>
-
     <p>{status}</p>
 
 
@@ -123,11 +121,6 @@
         }
     }
 
-    function printObj() {
-        const send = JSON.stringify(asmtData);
-        invoke('print_request', {data: send});
-    }
-
     let status = "Not sent"
 
     let genders = [
@@ -148,8 +141,8 @@
         "CAT.docx",
         "CAT AC.docx",
         "CAT AC MRB.docx",
-        "CAT CAT GOSE.docx",
-        "CAT GOSE.docx",
+        "CAT CAT_GOSE.docx",
+        "CAT_GOSE.docx",
         "MRB.docx",
         "NEB.docx"
     ]

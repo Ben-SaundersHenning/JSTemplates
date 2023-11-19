@@ -43,8 +43,8 @@ List<string> templates = new()
     "CAT",
     "CAT AC",
     "CAT AC MRB",
-    "CAT CAT GOSE",
-    "CAT GOSE",
+    "CAT CAT_GOSE",
+    "CAT_GOSE",
     "F1",
     "MRB",
     "NEB"

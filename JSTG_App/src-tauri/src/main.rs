@@ -6,6 +6,7 @@ use std::fs::create_dir_all;
 use std::io::Write;
 use chrono::{NaiveDate, Datelike, Utc};
 use db::get_path;
+use request_builder::build_request;
 
 mod db;
 mod request_builder;
@@ -14,20 +15,10 @@ mod structs;
 fn main() {
 
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![double, greet, request_document, get_assessors, get_path, get_companies, print_request])
+    .invoke_handler(tauri::generate_handler![request_document, get_assessors, get_path, get_companies, print_request])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 
-}
-
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}!", name)
-}
-
-#[tauri::command]
-fn double(count: i32) -> i32 {
-    count * 2
 }
 
 #[tauri::command]
@@ -42,13 +33,17 @@ fn get_companies() -> Vec<structs::ReferralCompanyListing> {
 
 #[tauri::command]
 fn print_request(data: String) {
-    println!("{data}");
+    println!("ENTERING PRINT REQUEST");
+    println!("CALLING BUILD REQUEST");
+    let _ = build_request(data);
+    println!("OUT OF BUILD REQUEST CALL");
+    println!("EXITING PRINT REQUEST\n\n");
 }
 
 #[tauri::command]
 async fn request_document(data: String) {
 
-    match request_builder::build_request(data) {
+    match build_request(data) {
         Ok(asmt) => {
             send_request(asmt).await;
         },
