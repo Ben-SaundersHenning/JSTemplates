@@ -6,7 +6,6 @@ use std::fs::create_dir_all;
 use std::io::Write;
 use chrono::{NaiveDate, Datelike, Utc};
 use request_builder::build_request;
-use serde::de::Error;
 
 mod db;
 mod request_builder;
@@ -65,7 +64,7 @@ fn print_request(data: String) {
 #[tauri::command]
 async fn request_document(data: String) {
 
-    match build_request(data) {
+    match build_request(data).await {
         Ok(asmt) => {
             send_request(asmt).await;
         },

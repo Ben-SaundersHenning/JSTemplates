@@ -5,16 +5,16 @@
 use serde_json::Value;
 use chrono::{NaiveDate, Datelike};
 use crate::db;
-use crate::structs::{Claimant, Assessor, Address, Gender, Request, ReferralCompany, Assessment, Ac};
+use crate::structs::{Claimant, Assessor, Address, Gender, Request, ReferralCompany, Assessment};
 
-const DATE0: &str = "2008-03-31";
-const DATE1: &str = "2010-09-01";
-const DATE2: &str = "2014-06-01";
-const DATE3: &str = "2015-10-01";
-const DATE4: &str = "2016-10-01";
-const DATE5: &str = "2017-10-01";
-const DATE6: &str = "2018-01-01";
-const DATE7: &str = "2018-04-14";
+// const DATE0: &str = "2008-03-31";
+// const DATE1: &str = "2010-09-01";
+// const DATE2: &str = "2014-06-01";
+// const DATE3: &str = "2015-10-01";
+// const DATE4: &str = "2016-10-01";
+// const DATE5: &str = "2017-10-01";
+// const DATE6: &str = "2018-01-01";
+// const DATE7: &str = "2018-04-14";
 
 // fn build_ac(data: &Value) {
 //
@@ -135,14 +135,18 @@ pub async fn build_request(data: String) -> Result<Assessment<Value>, serde_json
 
     let mut request: Request<Value> = serde_json::from_str(&data).unwrap();
 
+
     let mut referral_company: ReferralCompany = match db::get_referral_company(request.referral_company).await {
-        Ok(val) => val,
-        _ => 
+        Ok(val) => val.unwrap(),
+        _ => {panic!()}
     };
 
     build_long_address(&mut referral_company.address);
 
-    let assessor: Assessor = db::get_assessor(request.assessor).unwrap();
+    let assessor: Assessor = match db::get_assessor(request.assessor).await {
+        Ok(val) => val.unwrap(),
+        _ => {panic!()}
+    };
 
     request.date_of_assessment = format_date(&request.date_of_assessment);
     request.claimant.date_of_loss = format_date(&request.claimant.date_of_loss);

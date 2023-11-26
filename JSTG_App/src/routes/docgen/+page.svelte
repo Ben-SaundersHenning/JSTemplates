@@ -106,7 +106,8 @@
         assessors = assessors;
         invoke('get_companies').then((comps) => referralCompanies = comps as any[]);
         referralCompanies = referralCompanies;
-        invoke('get_assessment_types').then((types) => asmtTypes = types as any[]);
+        invoke('get_assessment_types').then((types) => asmtTypes = types as any[])
+        .catch((e) => status = e);
         asmtTypes = asmtTypes;
     });
 

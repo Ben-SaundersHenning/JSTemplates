@@ -1,17 +1,18 @@
 use sqlx::{postgres::PgConnection, Connection};
 use std::string::String;
+use std::error::Error;
 use crate::structs::{Assessor, AssessorListing, ReferralCompanyListing, ReferralCompany, AssessmentType, Path};
 
-const DB_PATH: &str = if cfg!(windows) {
-    "B:\\projects\\JSTG\\JSTG.sqlite3"
-} 
-else {
-    "/home/ben/projects/JSTG/JSTG.sqlite3"
-};
+// const DB_PATH: &str = if cfg!(windows) {
+//     "B:\\projects\\JSTG\\JSTG.sqlite3"
+// } 
+// else {
+//     "/home/ben/projects/JSTG/JSTG.sqlite3"
+// };
 
-pub async fn get_assessment_types() -> Result<Vec<AssessmentType>, sqlx::Error> {
+pub async fn get_assessment_types() -> Result<Vec<AssessmentType>, Box<dyn Error>> {
 
-    let mut conn = PgConnection::connect("jdbc:postgresql://jsotqln01:5432/jsot").await?;
+    let mut conn = PgConnection::connect("REPLACEWITHCONNSTRING").await?;
     let query = "SELECT name, common_name FROM \"assessment_types\";";
 
     let types = sqlx::query_as::<_, AssessmentType>(query)
@@ -21,11 +22,11 @@ pub async fn get_assessment_types() -> Result<Vec<AssessmentType>, sqlx::Error> 
 
 }
 
-pub async fn get_assessor_options() -> Result<Vec<AssessorListing>, sqlx::Error> {
+pub async fn get_assessor_options() -> Result<Vec<AssessorListing>, Box<dyn Error>> {
 
-    let mut conn = PgConnection::connect("jdbc:postgresql://jsotqln01:5432/jsot").await?;
-    let query = "SELECT RegistrationID, FirstName, LastName FROM [Assessors]
-                 ORDER BY FirstName ASC;";
+    let mut conn = PgConnection::connect("REPLACEWITHCONNSTRING").await?;
+    let query = "SELECT registration_id, first_name, last_name FROM \"assessors\"
+                 ORDER BY first_name ASC;";
 
     let assessors = sqlx::query_as::<_, AssessorListing>(query)
         .fetch_all(&mut conn).await?;
@@ -50,11 +51,11 @@ pub async fn get_assessor_options() -> Result<Vec<AssessorListing>, sqlx::Error>
 
 }
 
-pub async fn get_assessor(assessor: AssessorListing) -> Result<Option<Assessor>, sqlx::Error> {
+pub async fn get_assessor(assessor: AssessorListing) -> Result<Option<Assessor>, Box<dyn Error>> {
 
-    let mut conn = PgConnection::connect("jdbc:postgresql://jsotqln01:5432/jsot").await?;
-    let query = "SELECT FirstName, LastName, Title, Email, QualificationsParagraph FROM [Assessors]
-                 WHERE RegistrationID = ?;";
+    let mut conn = PgConnection::connect("REPLACEWITHCONNSTRING").await?;
+    let query = "SELECT first_name, last_name, title, email, qualification_paragrpah FROM \"assessors\"
+                WHERE registration_id = ?;";
 
     let assessor = sqlx::query_as::<_, Assessor>(query)
         .bind(assessor.registration_id)
@@ -101,11 +102,11 @@ pub async fn get_assessor(assessor: AssessorListing) -> Result<Option<Assessor>,
 
 }
 
-pub async fn get_referral_company_options() -> Result<Vec<ReferralCompanyListing>, sqlx::Error> {
+pub async fn get_referral_company_options() -> Result<Vec<ReferralCompanyListing>, Box<dyn Error>> {
 
-    let mut conn = PgConnection::connect("jdbc:postgresql://jsotqln01:5432/jsot").await?;
-    let query = "SELECT ReferralCompanyID, CommonName FROM [ReferralCompanies]
-                 ORDER BY CommonName ASC;";
+    let mut conn = PgConnection::connect("REPLACEWITHCONNSTRING").await?;
+    let query = "SELECT id, common_name FROM \"referral_companies\"
+                 ORDER BY common_name ASC;";
 
     let companies = sqlx::query_as::<_, ReferralCompanyListing>(query)
         .fetch_all(&mut conn).await?;
@@ -131,11 +132,11 @@ pub async fn get_referral_company_options() -> Result<Vec<ReferralCompanyListing
 
 }
 
-pub async fn get_referral_company(referral_company: ReferralCompanyListing) -> Result<Option<ReferralCompany>, sqlx::Error> {
+pub async fn get_referral_company(referral_company: ReferralCompanyListing) -> Result<Option<ReferralCompany>, Box<dyn Error>> {
 
-    let mut conn = PgConnection::connect("jdbc:postgresql://jsotqln01:5432/jsot").await?;
-    let query = "SELECT Name, Address, City, Province, ProvinceAb, PostalCode, Phone, Fax, Email FROM [ReferralCompanies]
-                 WHERE ReferralCompanyID = ?;";
+    let mut conn = PgConnection::connect("REPLACEWITHCONNSTRING").await?;
+    let query = "SELECT name, address, city, province, province_abbreviated, phone, fax, email FROM \"referral_companies\"
+                 WHERE id = ?;";
 
     let company = sqlx::query_as::<_, ReferralCompany>(query)
         .bind(referral_company.unique_id)
@@ -176,7 +177,7 @@ pub async fn get_referral_company(referral_company: ReferralCompanyListing) -> R
     //                 _ => "NULL".to_string()
     //             },
     //             country: "Canada".to_string(),
-    //             address_long: "".to_string() //needs to be built
+    //             address_long: ".to_string() //needs to be built
     //         },
     //         phone: match statement.read::<String, _>("Phone") {
     //             Ok(val) => val,
@@ -202,13 +203,13 @@ pub async fn get_referral_company(referral_company: ReferralCompanyListing) -> R
 
 //func to help retrieve absolute paths
 //on different machines during development.
-pub async fn get_path(system: &str, dir: &str) -> Result<String, sqlx::Error> {
+pub async fn get_path(system: &str, dir: &str) -> Result<String, Box<dyn Error>> {
 
-    let mut conn = PgConnection::connect("jdbc:postgresql://jsotqln01:5432/jsot").await?;
+    let mut conn = PgConnection::connect("REPLACEWITHCONNSTRING").await?;
     let query = "
-        SELECT Path FROM [Paths]
-        WHERE OperatingSystem = ?
-        AND Directory = ?";
+        SELECT path FROM \"paths\"
+        WHERE operating_system = ?
+        AND directory = ?";
 
     let path = sqlx::query_as::<_, Path>(query)
         .bind(system)
