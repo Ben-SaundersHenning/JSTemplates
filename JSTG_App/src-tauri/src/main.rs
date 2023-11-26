@@ -5,8 +5,8 @@ use std::fs::File;
 use std::fs::create_dir_all;
 use std::io::Write;
 use chrono::{NaiveDate, Datelike, Utc};
-use db::get_path;
 use request_builder::build_request;
+use serde::de::Error;
 
 mod db;
 mod request_builder;
@@ -15,20 +15,42 @@ mod structs;
 fn main() {
 
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![request_document, get_assessors, get_path, get_companies, print_request])
+    .invoke_handler(tauri::generate_handler![request_document, get_assessors, get_path, get_assessment_types, get_companies, print_request])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 
 }
 
 #[tauri::command]
-fn get_assessors() -> Vec<structs::AssessorListing> {
-    db::get_assessor_options()
+async fn get_assessors() -> Result<Vec<structs::AssessorListing>, String> {
+    match db::get_assessor_options().await {
+        Ok(val) => Ok(val),
+        _ => Err("ERROR".to_string())
+    }
 }
 
 #[tauri::command]
-fn get_companies() -> Vec<structs::ReferralCompanyListing> {
-    db::get_referral_company_options()
+async fn get_companies() -> Result<Vec<structs::ReferralCompanyListing>, String> {
+    match db::get_referral_company_options().await {
+        Ok(val) => Ok(val),
+        _ => Err("ERROR".to_string())
+    }
+}
+
+#[tauri::command]
+async fn get_assessment_types() -> Result<Vec<structs::AssessmentType>, String> {
+    match db::get_assessment_types().await {
+        Ok(val) => Ok(val),
+        _ => Err("ERROR".to_string())
+    }
+}
+
+#[tauri::command]
+async fn get_path(system: &str, dir: &str) -> Result<String, String> {
+    match db::get_path(system, dir).await {
+        Ok(val) => Ok(val),
+        _ => Err("ERROR".to_string())
+    }
 }
 
 #[tauri::command]
@@ -71,9 +93,9 @@ async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f
 
             //for development only
             let mut path: String = if cfg!(windows) {
-                get_path("Windows", "Assessments")
+                get_path("Windows", "Assessments").await?
             } else {
-                get_path("OpenSuse", "Assessments")
+                get_path("OpenSuse", "Assessments").await?
             };
 
             let date = match NaiveDate::parse_from_str(&asmt_data.date_of_assessment, "%Y-%m-%d") {

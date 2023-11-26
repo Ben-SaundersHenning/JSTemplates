@@ -124,7 +124,7 @@ const DATE7: &str = "2018-04-14";
 //
 // }
 
-pub fn build_request(data: String) -> Result<Assessment<Value>, serde_json::Error> {
+pub async fn build_request(data: String) -> Result<Assessment<Value>, serde_json::Error> {
 
     /* What values need to be filled into or formatted here?
      * - asmtSpecificis in the future
@@ -135,7 +135,11 @@ pub fn build_request(data: String) -> Result<Assessment<Value>, serde_json::Erro
 
     let mut request: Request<Value> = serde_json::from_str(&data).unwrap();
 
-    let mut referral_company: ReferralCompany = db::get_referral_company(request.referral_company).unwrap();
+    let mut referral_company: ReferralCompany = match db::get_referral_company(request.referral_company).await {
+        Ok(val) => val,
+        _ => 
+    };
+
     build_long_address(&mut referral_company.address);
 
     let assessor: Assessor = db::get_assessor(request.assessor).unwrap();

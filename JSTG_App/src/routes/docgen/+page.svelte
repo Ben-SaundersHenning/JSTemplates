@@ -73,9 +73,9 @@
     <br>
 
     <label for="type">Assessment Type:</label>
-    <select id="type" bind:value={asmtData.asmtType} required>
-    {#each asmTypes as type}
-        <option value={type}>{type}</option>
+    <select id="type" bind:value={asmtData.asmtType} required multiple>
+    {#each asmtTypes as type}
+        <option value={type}>{type.commonName}</option>
     {/each}
     </select>
     <br>
@@ -106,6 +106,8 @@
         assessors = assessors;
         invoke('get_companies').then((comps) => referralCompanies = comps as any[]);
         referralCompanies = referralCompanies;
+        invoke('get_assessment_types').then((types) => asmtTypes = types as any[]);
+        asmtTypes = asmtTypes;
     });
 
     async function submitPost() {
@@ -133,19 +135,7 @@
 
     let referralCompanies: any[] = new Array();
 
-    //TODO: these should be retrieived dynamically.
-    //from the API, not the DB.
-    let asmTypes = [
-        "AC.docx",
-        "AC MRB.docx",
-        "CAT.docx",
-        "CAT AC.docx",
-        "CAT AC MRB.docx",
-        "CAT CAT_GOSE.docx",
-        "CAT_GOSE.docx",
-        "MRB.docx",
-        "NEB.docx"
-    ]
+    let asmtTypes: any[] = new Array();
 
     let asmtData = {
         "asmtType": "",
