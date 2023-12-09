@@ -14,7 +14,7 @@ mod structs;
 fn main() {
 
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![request_document, get_assessors, get_path, get_assessment_types, get_companies, print_request])
+    .invoke_handler(tauri::generate_handler![request_document, get_assessors, get_path, get_document_options, get_companies, print_request])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 
@@ -37,8 +37,8 @@ async fn get_companies() -> Result<Vec<structs::ReferralCompanyListing>, String>
 }
 
 #[tauri::command]
-async fn get_assessment_types() -> Result<Vec<structs::AssessmentType>, String> {
-    match db::get_assessment_types().await {
+async fn get_document_options() -> Result<Vec<structs::Document>, String> {
+    match db::get_document_options().await {
         Ok(val) => Ok(val),
         _ => Err("ERROR".to_string())
     }
@@ -53,12 +53,14 @@ async fn get_path(system: &str, dir: &str) -> Result<String, String> {
 }
 
 #[tauri::command]
-fn print_request(data: String) {
-    println!("ENTERING PRINT REQUEST");
-    println!("CALLING BUILD REQUEST");
-    let _ = build_request(data);
-    println!("OUT OF BUILD REQUEST CALL");
-    println!("EXITING PRINT REQUEST\n\n");
+async fn print_request(data: String) {
+    match build_request(data).await {
+        Ok(asmt) => {
+            let request = serde_json::to_string(&asmt).unwrap();
+            println!("REQUEST:\n\n{0}\n\n", request);
+        },
+        _ => {}
+    };
 }
 
 #[tauri::command]

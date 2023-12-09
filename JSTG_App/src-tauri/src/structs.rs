@@ -2,14 +2,13 @@ use serde::{Serialize, Deserialize};
 
 
 #[derive(Serialize, Deserialize, sqlx::FromRow)]
-#[serde(rename_all = "camelCase")]
-pub struct AssessmentType {
-    pub name: String,
-    pub common_name: String
+pub struct Document {
+    pub id: i32,
+    pub common_name: String,
+    pub file: String
 }
 
 #[derive(Serialize, Deserialize, sqlx::FromRow)]
-#[serde(rename_all = "camelCase")]
 pub struct AssessorListing {
     pub registration_id: String,
     pub first_name: String,
@@ -17,25 +16,22 @@ pub struct AssessorListing {
 }
 
 #[derive(Serialize, Deserialize, sqlx::FromRow)]
-#[serde(rename_all = "camelCase")]
 pub struct Assessor {
     pub registration_id: String,
     pub title: String,
     pub first_name: String,
     pub last_name: String,
     pub email: String,
-    pub qualifications: String
+    pub qualifications_paragraph: String
 }
 
 #[derive(Serialize, Deserialize, sqlx::FromRow)]
-#[serde(rename_all = "camelCase")]
 pub struct ReferralCompanyListing {
-    pub unique_id: i64,
+    pub id: i32,
     pub common_name: String,
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct Request<T> {
     pub asmt_type: String,
     pub adjuster: String,
@@ -51,7 +47,6 @@ pub struct Request<T> {
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct Assessment<T> {
     pub asmt_type: String,
     pub adjuster: String,
@@ -67,7 +62,6 @@ pub struct Assessment<T> {
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct Claimant {
     pub first_name: String,
     pub last_name: String,
@@ -80,33 +74,28 @@ pub struct Claimant {
 }
 
 #[derive(Serialize, Deserialize, sqlx::FromRow)]
-#[serde(rename_all = "camelCase")]
 pub struct ReferralCompany {
-    pub unique_id: i64,
     pub name: String,
     pub common_name: String,
-    #[sqlx(flatten)]
-    pub address: Address,
     pub phone: String,
     pub fax: String,
-    pub email: String
+    pub email: String,
+    #[sqlx(flatten)]
+    pub address: Address,
 }
 
 #[derive(Serialize, Deserialize, Default, sqlx::FromRow)]
-#[serde(rename_all = "camelCase")]
 pub struct Address {
     pub address: String,
     pub city: String,
     pub province: String,
-    pub province_ab: String,
+    pub province_abbreviated: String,
     pub postal_code: String,
     pub country: String,
     pub address_long: String
-
 }
 
 #[derive(Serialize, Deserialize, Default)]
-#[serde(rename_all = "camelCase")]
 pub struct Gender {
     pub title: String,
     pub pronouns: Pronouns
@@ -119,7 +108,6 @@ pub struct Path {
 
 //The upper and lowers are a temporary solution.
 #[derive(Serialize, Deserialize, Default)]
-#[serde(rename_all = "camelCase")]
 pub struct Pronouns {
     pub p0_lower: String, //male-female-other
     pub p0_upper: String, //male-female-other
@@ -132,7 +120,6 @@ pub struct Pronouns {
 }
 
 #[derive(Serialize, Deserialize, Default)]
-#[serde(rename_all = "camelCase")]
 pub struct Ac {
     pub first_assessment: bool,
     pub date_of_last_assessment: String,
@@ -141,7 +128,7 @@ pub struct Ac {
 }
 
 #[derive(Serialize, Deserialize, Default)]
-#[serde(rename_all = "camelCase")]
+// #[serde(rename_all = "camelCase")]
 pub struct Specifics {
     pub ac: Ac
 }

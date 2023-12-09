@@ -131,27 +131,33 @@ pub async fn build_request(data: String) -> Result<Assessment<Value>, serde_json
      * - trim questions in the future
      */
 
-    println!("IN BUILD REQUEST");
-
     let mut request: Request<Value> = serde_json::from_str(&data).unwrap();
 
 
-    let mut referral_company: ReferralCompany = match db::get_referral_company(request.referral_company).await {
-        Ok(val) => val.unwrap(),
-        _ => {panic!()}
+    // let mut referral_company: ReferralCompany = match db::get_referral_company(request.referral_company).await {
+    //     Ok(val) => val,
+    //     Err(e) => {panic!("{0}", e)}
+    // };
+   
+    let mut referral_company = match db::get_referral_company(request.referral_company).await {
+        // Ok(val) => val,
+        // Err(e) => {println!("ERROR: {0}", e.to_string()); panic!("{0}", e.to_string());}
+        Some(val) => val,
+        None => {panic!();}
     };
+    // let mut referral_company: ReferralCompany = db::get_referral_company(request.referral_company).await;
 
     build_long_address(&mut referral_company.address);
 
-    let assessor: Assessor = match db::get_assessor(request.assessor).await {
-        Ok(val) => val.unwrap(),
-        _ => {panic!()}
+    let assessor = match db::get_assessor(request.assessor).await {
+        Some(val) => val,
+        None => {panic!()}
     };
 
     request.date_of_assessment = format_date(&request.date_of_assessment);
     request.claimant.date_of_loss = format_date(&request.claimant.date_of_loss);
     request.claimant.date_of_birth = format_date(&request.claimant.date_of_birth);
-    request.claimant.address.province = get_province_or_territory(&request.claimant.address.province_ab);
+    request.claimant.address.province = get_province_or_territory(&request.claimant.address.province_abbreviated);
     build_long_address(&mut request.claimant.address);
     calculate_age(&mut request.claimant);
     set_gender_values(&mut request.claimant.gender);
@@ -173,8 +179,6 @@ pub async fn build_request(data: String) -> Result<Assessment<Value>, serde_json
         questions: request.questions
     };
 
-    println!("RETURNING FROM BUILD REQUEST");
-
     Ok(assesment)
 
 }
@@ -183,7 +187,7 @@ fn build_long_address(address: &mut Address) {
     address.address_long = format!("{}, {} {}, {}",
         address.address,
         address.city,
-        address.province_ab,
+        address.province_abbreviated,
         address.postal_code);
 }
 
