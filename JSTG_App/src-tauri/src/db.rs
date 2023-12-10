@@ -1,16 +1,19 @@
-use sqlx::{postgres::PgConnection, Connection, Row};
-use std::string::String;
 use std::error::Error;
-use crate::structs::{Assessor, AssessorListing, ReferralCompanyListing, ReferralCompany, Document, Path, Address};
 use std::env;
-// JSTG_DEV_DB
+use crate::structs::{Document, AssessorListing, Assessor, ReferralCompanyListing, ReferralCompany, Path};
+use sqlx::{PgConnection, Connection};
 
 const DB_CONN_STR: &str = "JSTG_DB_POSTGRESQL";
 
-pub async fn get_document_options() -> Result<Vec<Document>, Box<dyn Error>> {
+pub async fn get_document_options() -> Result<Vec<Document>, Box<dyn Error + Send + Sync>> {
 
     let mut conn = PgConnection::connect(&env::var(DB_CONN_STR).unwrap()).await?;
-    let query = "SELECT id, common_name, file FROM \"documents\";";
+
+    let query = "SELECT id,
+                        common_name,
+                        file
+                FROM \"documents\"
+                ORDER BY common_name ASC;";
 
     let documents = sqlx::query_as::<_, Document>(query)
         .fetch_all(&mut conn).await?;
@@ -19,10 +22,14 @@ pub async fn get_document_options() -> Result<Vec<Document>, Box<dyn Error>> {
 
 }
 
-pub async fn get_assessor_options() -> Result<Vec<AssessorListing>, Box<dyn Error>> {
+pub async fn get_assessor_options() -> Result<Vec<AssessorListing>, Box<dyn Error + Send + Sync>> {
 
     let mut conn = PgConnection::connect(&env::var(DB_CONN_STR).unwrap()).await?;
-    let query = "SELECT registration_id, first_name, last_name FROM \"assessors\"
+
+    let query = "SELECT registration_id,
+                        first_name,
+                        last_name
+                 FROM \"assessors\"
                  ORDER BY first_name ASC;";
 
     let assessors = sqlx::query_as::<_, AssessorListing>(query)
@@ -32,36 +39,34 @@ pub async fn get_assessor_options() -> Result<Vec<AssessorListing>, Box<dyn Erro
 
 }
 
-pub async fn get_assessor(assessor: AssessorListing) -> Option<Assessor> {
+pub async fn get_assessor(assessor: AssessorListing) -> Result<Option<Assessor>, Box<dyn Error + Send + Sync>> {
 
-    let mut conn = PgConnection::connect(&env::var(DB_CONN_STR).unwrap()).await.unwrap();
-    let query = "SELECT first_name, last_name, title, email, qualification_paragrpah FROM \"assessors\"
-                WHERE registration_id = ?;";
+    let mut conn = PgConnection::connect(&env::var(DB_CONN_STR).unwrap()).await?;
 
-    // match sqlx::query_as::<_, Assessor>(query)
-    //     .bind(assessor.registration_id)
-    //     .fetch_optional(&mut conn).await {
-    //     Ok(val) => return val,
-    //     Err(e) => {println!("ERROR: {0}", e.to_string()); return None;}
-    //     };
+    let query = "SELECT registration_id,
+                        title,
+                        first_name,
+                        last_name,
+                        email,
+                        qualifications_paragraph
+                 FROM \"assessors\"
+                 WHERE registration_id = $1";
 
-    match sqlx::query_as!(Assessor, "
-                          SELECT registration_id, first_name, last_name, title, email, qualifications_paragraph
-                          FROM \"assessors\"
-                          WHERE registration_id = $1", assessor.registration_id)
-        .fetch_optional(&mut conn).await {
-        Ok(val) => return val,
-        Err(e) => {println!("ERROR: {0}", e.to_string()); return None;}
-        };
+    let assessor = sqlx::query_as::<_, Assessor>(query)
+        .bind(assessor.registration_id)
+        .fetch_optional(&mut conn).await?;
 
-    // Ok(assessor)
+    Ok(assessor)
 
 }
 
-pub async fn get_referral_company_options() -> Result<Vec<ReferralCompanyListing>, Box<dyn Error>> {
+pub async fn get_referral_company_options() -> Result<Vec<ReferralCompanyListing>, Box<dyn Error + Send + Sync>> {
 
     let mut conn = PgConnection::connect(&env::var(DB_CONN_STR).unwrap()).await?;
-    let query = "SELECT id, common_name FROM \"referral_companies\"
+
+    let query = "SELECT id,
+                        common_name
+                 FROM \"referral_companies\"
                  ORDER BY common_name ASC;";
 
     let companies = sqlx::query_as::<_, ReferralCompanyListing>(query)
@@ -71,101 +76,41 @@ pub async fn get_referral_company_options() -> Result<Vec<ReferralCompanyListing
 
 }
 
-// pub async fn get_referral_company(referral_company: ReferralCompanyListing) -> Result<ReferralCompany, Box<dyn Error>> {
-pub async fn get_referral_company(referral_company: ReferralCompanyListing) -> Option<ReferralCompany> {
+pub async fn get_referral_company(referral_company: ReferralCompanyListing) -> Result<Option<ReferralCompany>, Box<dyn Error + Send + Sync>> {
 
-    println!("In method");
+    let mut conn = PgConnection::connect(&env::var(DB_CONN_STR).unwrap()).await?;
+    let query = "SELECT name,
+                        common_name,
+                        phone,
+                        fax,
+                        email,
+                        address,
+                        postal_code,
+                        city,
+                        province,
+                        province_abbreviated,
+                        country,
+                        '' AS address_long
+                 FROM \"referral_companies\"
+                 WHERE \"id\" = $1;";
 
-    println!("ID = {0}", referral_company.id);
+    let company = sqlx::query_as::<_, ReferralCompany>(query)
+        .bind(referral_company.id)
+        .fetch_optional(&mut conn).await?;
 
-    let mut conn = PgConnection::connect(&env::var(DB_CONN_STR).unwrap()).await.unwrap();
-    let query = "SELECT name, common_name, phone, fax, email, address, city, province, province_abbreviated, postal_code
-                FROM referral_companies
-                WHERE id = ?";
-
-    let row = match sqlx::query!("SELECT name, common_name, phone, fax, email,
-                           address, city, province, province_abbreviated, postal_code
-                           FROM \"referral_companies\"
-                           WHERE \"id\" = $1;", referral_company.id)
-        .fetch_optional(&mut conn).await {
-        Ok(val) => val,
-        Err(e) => {println!("{0}", e.to_string()); panic!("{0}", e.to_string());}
-        };
-
-    println!("after the query");
-    match row {
-        Some(data) => {
-            let company = ReferralCompany {
-                name: data.name,
-                common_name: data.common_name,
-                phone: data.phone,
-                fax: data.fax,
-                email: data.email,
-                address: Address {
-                    address: data.address,
-                    city: data.city,
-                    province: data.province,
-                    province_abbreviated: data.province_abbreviated,
-                    postal_code: data.postal_code,
-                    country: "Canada".to_string(),
-                    address_long: "".to_string()
-                }
-            };
-
-            println!("Company has been created");
-            println!("Comapny name: {0}", company.name);
-            return Some(company);
-        },
-        None => {println!("Row had nothing");}
-    };
-
-    // let row = match sqlx::query(query)
-    //     .bind(referral_company.id)
-    //     .fetch_optional(&mut conn).await {
-    //     Ok(val) => val,
-    //     Err(e) => {println!("{0}", e.to_string()); panic!("{0}", e.to_string());}
-    //     };
-
-    // println!("have row");
-    //
-    // match row {
-    //     Some(data) => {
-    //         return Ok(ReferralCompany {
-    //             name: data.try_get("name")?,
-    //             common_name: data.try_get("common_name")?,
-    //             phone: data.try_get("phone")?,
-    //             fax: data.try_get("fax")?,
-    //             email: data.try_get("email")?,
-    //             address: Address {
-    //                 address: data.try_get("address")?,
-    //                 city: data.try_get("city")?,
-    //                 province: data.try_get("province")?,
-    //                 province_abbreviated: data.try_get("province_abbreviated")?,
-    //                 postal_code: data.try_get("postal_code")?,
-    //                 country: "Canada".to_string(),
-    //                 address_long: "".to_string()
-    //             }
-    //         });
-    //     },
-    //     None => {}
-    // };
-
-    println!("returning err");
-
-    // Err("error")?
-    None
+    Ok(company)
 
 }
 
 //func to help retrieve absolute paths
 //on different machines during development.
-pub async fn get_path(system: &str, dir: &str) -> Result<String, Box<dyn Error>> {
+pub async fn get_path(system: &str, dir: &str) -> Result<String, Box<dyn Error + Send + Sync>> {
 
     let mut conn = PgConnection::connect(&env::var(DB_CONN_STR).unwrap()).await?;
     let query = "
         SELECT path FROM \"paths\"
-        WHERE operating_system = ?
-        AND directory = ?";
+        WHERE operating_system = $1
+        AND directory = $2;";
 
     let path = sqlx::query_as::<_, Path>(query)
         .bind(system)

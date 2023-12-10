@@ -6,6 +6,7 @@ use std::fs::create_dir_all;
 use std::io::Write;
 use chrono::{NaiveDate, Datelike, Utc};
 use request_builder::build_request;
+use std::error::Error;
 
 mod db;
 mod request_builder;
@@ -14,7 +15,7 @@ mod structs;
 fn main() {
 
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![request_document, get_assessors, get_path, get_document_options, get_companies, print_request])
+    .invoke_handler(tauri::generate_handler![request_document, get_assessors, get_path, get_document_options, get_referral_company_options, print_request])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 
@@ -24,15 +25,15 @@ fn main() {
 async fn get_assessors() -> Result<Vec<structs::AssessorListing>, String> {
     match db::get_assessor_options().await {
         Ok(val) => Ok(val),
-        _ => Err("ERROR".to_string())
+        _ => Err("Unable to retrieve assessor options.".to_string())
     }
 }
 
 #[tauri::command]
-async fn get_companies() -> Result<Vec<structs::ReferralCompanyListing>, String> {
+async fn get_referral_company_options() -> Result<Vec<structs::ReferralCompanyListing>, String> {
     match db::get_referral_company_options().await {
         Ok(val) => Ok(val),
-        _ => Err("ERROR".to_string())
+        _ => Err("Unable to retrieve referral company options.".to_string())
     }
 }
 
@@ -40,7 +41,7 @@ async fn get_companies() -> Result<Vec<structs::ReferralCompanyListing>, String>
 async fn get_document_options() -> Result<Vec<structs::Document>, String> {
     match db::get_document_options().await {
         Ok(val) => Ok(val),
-        _ => Err("ERROR".to_string())
+        _ => Err("Unable to retrieive the available templates.".to_string())
     }
 }
 
@@ -48,10 +49,11 @@ async fn get_document_options() -> Result<Vec<structs::Document>, String> {
 async fn get_path(system: &str, dir: &str) -> Result<String, String> {
     match db::get_path(system, dir).await {
         Ok(val) => Ok(val),
-        _ => Err("ERROR".to_string())
+        _ => Err("Error: unable to find path.".to_string())
     }
 }
 
+//test method
 #[tauri::command]
 async fn print_request(data: String) {
     match build_request(data).await {
@@ -75,7 +77,7 @@ async fn request_document(data: String) {
 
 }
 
-async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f1: bool, endpoint: &str) -> Result<(), Box<dyn std::error::Error>> {
+async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f1: bool, endpoint: &str) -> Result<(), Box<dyn Error>> {
 
     let request = serde_json::to_string(&asmt_data).unwrap();
 

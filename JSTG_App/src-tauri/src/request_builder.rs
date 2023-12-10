@@ -2,6 +2,8 @@
 //key-value pairs that the API needs to generate a document. Note that
 //its being done this way as practice with Rust.
 
+use std::error::Error;
+
 use serde_json::Value;
 use chrono::{NaiveDate, Datelike};
 use crate::db;
@@ -124,34 +126,21 @@ use crate::structs::{Claimant, Assessor, Address, Gender, Request, ReferralCompa
 //
 // }
 
-pub async fn build_request(data: String) -> Result<Assessment<Value>, serde_json::Error> {
-
-    /* What values need to be filled into or formatted here?
-     * - asmtSpecificis in the future
-     * - trim questions in the future
-     */
+pub async fn build_request(data: String) -> Result<Assessment<Value>, Box<dyn Error + Send + Sync>> {
 
     let mut request: Request<Value> = serde_json::from_str(&data).unwrap();
 
-
-    // let mut referral_company: ReferralCompany = match db::get_referral_company(request.referral_company).await {
-    //     Ok(val) => val,
-    //     Err(e) => {panic!("{0}", e)}
-    // };
-   
-    let mut referral_company = match db::get_referral_company(request.referral_company).await {
-        // Ok(val) => val,
-        // Err(e) => {println!("ERROR: {0}", e.to_string()); panic!("{0}", e.to_string());}
-        Some(val) => val,
-        None => {panic!();}
+    let mut referral_company: ReferralCompany = match db::get_referral_company(request.referral_company).await {
+        Ok(val) => val.unwrap(),
+        Err(_e) => {return Err("Unable to retrieve the referral company")?;}
     };
-    // let mut referral_company: ReferralCompany = db::get_referral_company(request.referral_company).await;
 
+    // build_long_address(&mut referral_company.address);
     build_long_address(&mut referral_company.address);
 
-    let assessor = match db::get_assessor(request.assessor).await {
-        Some(val) => val,
-        None => {panic!()}
+    let assessor: Assessor = match db::get_assessor(request.assessor).await {
+        Ok(val) => val.unwrap(),
+        Err(_e) => {return Err("Unable to retrieve the assessor")?;}
     };
 
     request.date_of_assessment = format_date(&request.date_of_assessment);

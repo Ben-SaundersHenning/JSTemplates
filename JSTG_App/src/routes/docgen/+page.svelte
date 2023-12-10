@@ -106,7 +106,7 @@
     onMount(() => {
         invoke('get_assessors').then((assessor_opts) => assessors = assessor_opts as any[]);
         assessors = assessors;
-        invoke('get_companies').then((comps) => referral_companies = comps as any[]);
+        invoke('get_referral_company_options').then((comps) => referral_companies = comps as any[]);
         referral_companies = referral_companies;
         invoke('get_document_options').then((types) => asmt_types = types as any[])
         .catch((e) => status = e);
