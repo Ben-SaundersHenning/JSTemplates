@@ -1,23 +1,23 @@
 <form on:submit={submitPost}>
 
     <label for="assessor">Assessor:</label>
-    <select id="assessor" bind:value={asmtData.assessor} required>
+    <select id="assessor" bind:value={asmt_data.assessor} required>
     {#each assessors as assessor}
-        <option value={assessor}>{assessor.firstName} {assessor.lastName}</option>
+        <option value={assessor}>{assessor.first_name} {assessor.last_name}</option>
     {/each}
     </select>
     <br>
 
     <label for="claimFirst">Claimaint First Name:</label>
-    <input class="textbox" id="claimFirst" type="text" bind:value={asmtData.claimant.firstName} required/>
+    <input class="textbox" id="claimFirst" type="text" bind:value={asmt_data.claimant.first_name} required/>
     <br>
 
     <label for="claimLast">Claimaint Last Name:</label>
-    <input class="textbox" id="claimLast" type="text" bind:value={asmtData.claimant.lastName} required/>
+    <input class="textbox" id="claimLast" type="text" bind:value={asmt_data.claimant.last_name} required/>
     <br>
 
     <label for="claimGender">Claimaint Gender:</label>
-    <select id="claimGender" bind:value={asmtData.claimant.gender.pronouns.p0Lower} required>
+    <select id="claimGender" bind:value={asmt_data.claimant.gender.pronouns.p0_lower} required>
     {#each genders as gender}
         <option value={gender}>{gender}</option>
     {/each}
@@ -25,57 +25,57 @@
     <br>
 
     <label for="claimDOB">claimant DOB:</label>
-    <input type="text" id="claimDOB" bind:value={asmtData.claimant.dateOfBirth} required/>
+    <input type="text" id="claimDOB" bind:value={asmt_data.claimant.date_of_birth} required/>
     <br>
 
     <label for="claimDOL">claimant DOL:</label>
-    <input type="text" id="claimDOL" bind:value={asmtData.claimant.dateOfLoss} required/>
+    <input type="text" id="claimDOL" bind:value={asmt_data.claimant.date_of_loss} required/>
     <br>
 
     <label for="claimAddress">Claimaint Address (street):</label>
-    <input class="textbox" id="claimAddress" type="text" bind:value={asmtData.claimant.address.address} required/>
+    <input class="textbox" id="claimAddress" type="text" bind:value={asmt_data.claimant.address.address} required/>
     <br>
 
     <label for="claimCity">Claimaint City:</label>
-    <input class="textbox" id="claimCity" type="text" bind:value={asmtData.claimant.address.city} required/>
+    <input class="textbox" id="claimCity" type="text" bind:value={asmt_data.claimant.address.city} required/>
     <br>
 
     <label for="claimProvince">Claimaint Province:</label>
-    <input class="textbox" id="claimProvince" type="text" bind:value={asmtData.claimant.address.provinceAb} required/>
+    <input class="textbox" id="claimProvince" type="text" bind:value={asmt_data.claimant.address.province_abbreviated} required/>
     <br>
 
     <label for="claimPostalCode">Claimaint Postal Code:</label>
-    <input class="textbox" id="claimPostalCode" type="text" bind:value={asmtData.claimant.address.postalCode} required/>
+    <input class="textbox" id="claimPostalCode" type="text" bind:value={asmt_data.claimant.address.postal_code} required/>
     <br>
 
     <label for="adjuster">Adjuster:</label>
-    <input class="textbox" id="adjuster" type="text" bind:value={asmtData.adjuster}/>
+    <input class="textbox" id="adjuster" type="text" bind:value={asmt_data.adjuster}/>
     <br>
 
     <label for="insuranceComp">Insurance Company:</label>
-    <input class="textbox" id="insuranceComp" type="text" bind:value={asmtData.insuranceCompany} required/>
+    <input class="textbox" id="insuranceComp" type="text" bind:value={asmt_data.insurance_company} required/>
     <br>
 
     <label for="claimNO">Claim Number:</label>
-    <input class="textbox" id="claimNO" type="text" bind:value={asmtData.claimNumber} required/>
+    <input class="textbox" id="claimNO" type="text" bind:value={asmt_data.claim_number} required/>
     <br>
 
     <label for="doa">Date of assessment:</label>
-    <input class="textbox" id="doa" type="text" bind:value={asmtData.dateOfAssessment} required/>
+    <input class="textbox" id="doa" type="text" bind:value={asmt_data.date_of_assessment} required/>
     <br>
 
     <label for="refComp">Referral Company:</label>
-    <select id="refComp" bind:value={asmtData.referralCompany} required>
-    {#each referralCompanies as company}
-        <option value={company}>{company.commonName}</option>
+    <select id="refComp" bind:value={asmt_data.referral_company} required>
+    {#each referral_companies as company}
+        <option value={company}>{company.common_name}</option>
     {/each}
     </select>
     <br>
 
     <label for="type">Assessment Type:</label>
-    <select id="type" bind:value={asmtData.asmtType} required>
-    {#each asmTypes as type}
-        <option value={type}>{type}</option>
+    <select id="type" bind:value={asmt_data.asmt_type} required>
+    {#each asmt_types as type}
+        <option value={type.file}>{type.common_name}</option>
     {/each}
     </select>
     <br>
@@ -89,29 +89,47 @@
 
     <hr/>
 
-    {#if asmtData.asmtType == "AC.docx"}
-        <AC/>
+    <button on:click={printRequest}>Print request</button>
+
+    {#if asmt_data.asmt_type == "AC"}
+        <AC bind:acData={asmt_data.asmt_specifics.ac}/>
     {/if}
 
 </form>
 
-<script>
+<script lang="ts">
 
     import {invoke} from '@tauri-apps/api/tauri'
     import {onMount} from 'svelte'
     import AC from './components/ac.svelte'
 
     onMount(() => {
-        invoke('get_assessors').then((assessorOpts) => assessors = assessorOpts);
+        invoke('get_assessors').then((assessor_opts) => assessors = assessor_opts as any[]);
         assessors = assessors;
-        invoke('get_companies').then((comps) => referralCompanies = comps);
-        referralCompanies = referralCompanies;
+        invoke('get_referral_company_options').then((comps) => referral_companies = comps as any[]);
+        referral_companies = referral_companies;
+        invoke('get_document_options').then((types) => asmt_types = types as any[])
+        .catch((e) => status = e);
+        asmt_types = asmt_types;
     });
+
+    async function printRequest() {
+        try {
+
+            const send = JSON.stringify(asmt_data);
+
+            invoke('print_request', {data: send});
+            status="Saved."; //only works for 1 document
+
+        } catch (exceptionVar){
+            status="Error!";
+        }
+    }
 
     async function submitPost() {
         try {
 
-            const send = JSON.stringify(asmtData);
+            const send = JSON.stringify(asmt_data);
 
             invoke('request_document', {data: send});
             status="Saved."; //only works for 1 document
@@ -129,88 +147,75 @@
         "other"
     ]
 
-    let assessors = new Array();
+    let assessors: any[] = new Array();
 
-    let referralCompanies = new Array();
+    let referral_companies: any[] = new Array();
 
-    //TODO: these should be retrieived dynamically.
-    //from the API, not the DB.
-    let asmTypes = [
-        "AC.docx",
-        "AC MRB.docx",
-        "CAT.docx",
-        "CAT AC.docx",
-        "CAT AC MRB.docx",
-        "CAT CAT GOSE.docx",
-        "CAT GOSE.docx",
-        "MRB.docx",
-        "NEB.docx"
-    ]
+    let asmt_types: any[] = new Array();
 
-    let asmtData = {
-        "asmtType": "",
+    let asmt_data = {
+        "asmt_type": "",
         "assessor": {
-            "registationId": "",
+            "registration_id": "",
             "title": "",
-            "firstName": "",
-            "lastName": "",
+            "first_name": "",
+            "last_name": "",
             "email": "",
-            "qualificationsParagraph": ""
+            "qualifications_paragraph": ""
         },
         "adjuster": "",
-        "insuranceCompany": "",
-        "claimNumber": "",
-        "referralCompany": {
-            "uniqueId": "",
-            "commonName": "",
+        "insurance_company": "",
+        "claim_number": "",
+        "referral_company": {
+            "id": "",
+            "common_name": "",
             "name": "",
             "address": {
                 "address": "",
                 "city": "",
                 "province": "",
-                "provinceAb": "",
-                "postalCode": "",
+                "province_abbreviated": "",
+                "postal_code": "",
                 "country": "",
-                "addressLong": "",
+                "address_long": "",
             },
             "phone": "",
             "fax": "",
             "email": ""
         },
-        "dateOfAssessment": "",
-        "seidenFileNumber": "",
+        "date_of_assessment": "",
+        "seiden_file_number": "",
         "claimant": {
-            "firstName": "",
-            "lastName": "",
+            "first_name": "",
+            "last_name": "",
             "gender": {
                 "title": "",
                 "pronouns": {
-                    "p0Lower": "",
-                    "p1Lower": "",
-                    "p2Lower": "",
-                    "p3Lower": "",
-                    "p0Upper": "",
-                    "p1Upper": "",
-                    "p2Upper": "",
-                    "p3Upper": "",
+                    "p0_lower": "",
+                    "p1_lower": "",
+                    "p2_lower": "",
+                    "p3_lower": "",
+                    "p0_upper": "",
+                    "p1_upper": "",
+                    "p2_upper": "",
+                    "p3_upper": "",
                 }
             },
-            "dateOfBirth": "",
+            "date_of_birth": "",
             "age": "",
             "youth": "false",
-            "dateOfLoss": "",
+            "date_of_loss": "",
             "address": {
                 "address": "",
                 "city": "",
                 "province": "",
-                "provinceAb": "ON",
-                "postalCode": "",
+                "province_abbreviated": "ON",
+                "postal_code": "",
                 "country": "Canada",
-                "addressLong": "",
+                "address_long": "",
             },
         },
-        "asmtSpecifics": {
-            //data inserted from child component.
+        "asmt_specifics": <any>{
         },
         "questions": [
         ]
