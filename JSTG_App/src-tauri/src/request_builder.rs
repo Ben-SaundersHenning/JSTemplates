@@ -101,30 +101,24 @@ use crate::structs::{Claimant, Assessor, Address, Gender, Request, ReferralCompa
 //They are only known by whats in the string parameter.
 //Another options could be to always send data with every possible value,
 //and trim down based on the string parameter.
-// fn build_specifics_data(data: &Value, specific_types: String) -> Value {
-//
-//     let mut cloned_data = data.clone();
-//
-//     let types = specific_types.trim().split(" ");
-//
-//     for asmt_type in types {
-//
-//         let val = cloned_data.get_mut(asmt_type).unwrap();
-//
-//         match asmt_type {
-//             "AC" => {build_ac(val);},
-//             "CAT" => {},
-//             "CAT_GOSE" => {},
-//             "MRB" => {},
-//             "NEB" => {},
-//             _ => {}
-//
-//         };
-//     }
-//
-//     cloned_data
-//
-// }
+fn build_types_data(_data: &mut Value, types: &Vec<String>) {
+
+    for asmt_type in types {
+
+        // let val = cloned_data.get_mut(asmt_type).unwrap();
+
+        match asmt_type.as_str() {
+            // "AC" => {build_ac(val);},
+            "CAT" => {},
+            "CAT_GOSE" => {},
+            "MRB" => {},
+            "NEB" => {},
+            _ => {}
+
+        };
+    }
+
+}
 
 pub async fn build_request(data: String) -> Result<Assessment<Value>, Box<dyn Error + Send + Sync>> {
 
@@ -135,7 +129,6 @@ pub async fn build_request(data: String) -> Result<Assessment<Value>, Box<dyn Er
         Err(_e) => {return Err("Unable to retrieve the referral company")?;}
     };
 
-    // build_long_address(&mut referral_company.address);
     build_long_address(&mut referral_company.address);
 
     let assessor: Assessor = match db::get_assessor(request.assessor).await {
@@ -151,11 +144,16 @@ pub async fn build_request(data: String) -> Result<Assessment<Value>, Box<dyn Er
     calculate_age(&mut request.claimant);
     set_gender_values(&mut request.claimant.gender);
 
-    // let types = request.asmt_type.replace(".docx", "");
-    // request.asmt_specifics = build_specifics_data(&request.asmt_specifics, types);
+    request.types = request.asmt_type.replace(".docx", "")
+                                     .split(' ')
+                                     .map(|s| s.to_string())
+                                     .collect();
+
+    build_types_data(&mut request.asmt_specifics, &request.types);
 
     let assesment = Assessment {
         asmt_type: request.asmt_type,
+        types: request.types,
         adjuster: request.adjuster,
         insurance_company: request.insurance_company,
         claim_number: request.claim_number,

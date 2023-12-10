@@ -154,70 +154,71 @@
     let asmt_types: any[] = new Array();
 
     let asmt_data = {
-        "asmt_type": "",
-        "assessor": {
-            "registration_id": "",
-            "title": "",
-            "first_name": "",
-            "last_name": "",
-            "email": "",
-            "qualifications_paragraph": ""
+        asmt_type: "",
+        types: [],
+        assessor: {
+            registration_id: "",
+            title: "",
+            first_name: "",
+            last_name: "",
+            email: "",
+            qualifications_paragraph: ""
         },
-        "adjuster": "",
-        "insurance_company": "",
-        "claim_number": "",
-        "referral_company": {
-            "id": "",
-            "common_name": "",
-            "name": "",
-            "address": {
-                "address": "",
-                "city": "",
-                "province": "",
-                "province_abbreviated": "",
-                "postal_code": "",
-                "country": "",
-                "address_long": "",
+        adjuster: "",
+        insurance_company: "",
+        claim_number: "",
+        referral_company: {
+            id: "",
+            common_name: "",
+            name: "",
+            address: {
+                address: "",
+                city: "",
+                province: "",
+                province_abbreviated: "",
+                postal_code: "",
+                country: "",
+                address_long: "",
             },
-            "phone": "",
-            "fax": "",
-            "email": ""
+            phone: "",
+            fax: "",
+            email: ""
         },
-        "date_of_assessment": "",
-        "seiden_file_number": "",
-        "claimant": {
-            "first_name": "",
-            "last_name": "",
-            "gender": {
-                "title": "",
-                "pronouns": {
-                    "p0_lower": "",
-                    "p1_lower": "",
-                    "p2_lower": "",
-                    "p3_lower": "",
-                    "p0_upper": "",
-                    "p1_upper": "",
-                    "p2_upper": "",
-                    "p3_upper": "",
+        date_of_assessment: "",
+        seiden_file_number: "",
+        claimant: {
+            first_name: "",
+            last_name: "",
+            gender: {
+                title: "",
+                pronouns: {
+                    p0_lower: "",
+                    p1_lower: "",
+                    p2_lower: "",
+                    p3_lower: "",
+                    p0_upper: "",
+                    p1_upper: "",
+                    p2_upper: "",
+                    p3_upper: "",
                 }
             },
-            "date_of_birth": "",
-            "age": "",
-            "youth": "false",
-            "date_of_loss": "",
-            "address": {
-                "address": "",
-                "city": "",
-                "province": "",
-                "province_abbreviated": "ON",
-                "postal_code": "",
-                "country": "Canada",
-                "address_long": "",
+            date_of_birth: "",
+            age: "",
+            youth: "false",
+            date_of_loss: "",
+            address: {
+                address: "",
+                city: "",
+                province: "",
+                province_abbreviated: "ON",
+                postal_code: "",
+                country: "Canada",
+                address_long: "",
             },
         },
-        "asmt_specifics": <any>{
+        asmt_specifics: <any>{
         },
-        "questions": [
+        questions: [
         ]
     }
 

@@ -34,6 +34,7 @@ pub struct ReferralCompanyListing {
 #[derive(Serialize, Deserialize)]
 pub struct Request<T> {
     pub asmt_type: String,
+    pub types: Vec<String>,
     pub adjuster: String,
     pub insurance_company: String,
     pub claim_number: String,
@@ -49,6 +50,7 @@ pub struct Request<T> {
 #[derive(Serialize, Deserialize)]
 pub struct Assessment<T> {
     pub asmt_type: String,
+    pub types: Vec<String>,
     pub adjuster: String,
     pub insurance_company: String,
     pub claim_number: String,
