@@ -121,7 +121,8 @@ pub struct Pronouns {
     pub p3_upper: String //himself-herself-themself
 }
 
-#[derive(Serialize, Deserialize, Default)]
+#[derive(Serialize, Deserialize, Default, Clone)]
+// #[serde(rename_all = "camelCase")]
 pub struct Ac {
     pub first_assessment: bool,
     pub date_of_last_assessment: String,
@@ -130,7 +131,6 @@ pub struct Ac {
 }
 
 #[derive(Serialize, Deserialize, Default)]
-// #[serde(rename_all = "camelCase")]
 pub struct Specifics {
     pub ac: Ac
 }

@@ -7,108 +7,117 @@ use std::error::Error;
 use serde_json::Value;
 use chrono::{NaiveDate, Datelike};
 use crate::db;
-use crate::structs::{Claimant, Assessor, Address, Gender, Request, ReferralCompany, Assessment};
+use crate::structs::{Claimant, Assessor, Address, Gender, Request, ReferralCompany, Assessment, Ac};
 
-// const DATE0: &str = "2008-03-31";
-// const DATE1: &str = "2010-09-01";
-// const DATE2: &str = "2014-06-01";
-// const DATE3: &str = "2015-10-01";
-// const DATE4: &str = "2016-10-01";
-// const DATE5: &str = "2017-10-01";
-// const DATE6: &str = "2018-01-01";
-// const DATE7: &str = "2018-04-14";
+const DATE0: &str = "2008-03-31";
+const DATE1: &str = "2010-09-01";
+const DATE2: &str = "2014-06-01";
+const DATE3: &str = "2015-10-01";
+const DATE4: &str = "2016-10-01";
+const DATE5: &str = "2017-10-01";
+const DATE6: &str = "2018-01-01";
+const DATE7: &str = "2018-04-14";
 
-// fn build_ac(data: &Value) {
-//
-//     let mut ac: Ac = serde_json::from_value(data.clone()).unwrap();
-//
-//     if ac.first_assessment {
-//         ac.current_monthly_allowance = String::from("");
-//         ac.hourly_rates.push(String::from(""));
-//         ac.hourly_rates.push(String::from(""));
-//         ac.hourly_rates.push(String::from(""));
-//         data = &serde_json::to_value(ac).unwrap();
-//     }
-//
-//     match parse_date(&ac.date_of_last_assessment) {
-//         Some(val) => {
-//             if val >= parse_date(DATE0).unwrap()
-//                 && val < parse_date(DATE1).unwrap() {
-//
-//                     ac.hourly_rates.push(String::from("$11.23"));
-//                     ac.hourly_rates.push(String::from("$8.75"));
-//                     ac.hourly_rates.push(String::from("$17.98"));
-//
-//             } else if val >= parse_date(DATE1).unwrap()
-//                 && val < parse_date(DATE2).unwrap() {
-//
-//                     ac.hourly_rates.push(String::from("$13.19"));
-//                     ac.hourly_rates.push(String::from("$10.25"));
-//                     ac.hourly_rates.push(String::from("$19.35"));
-//
-//             } else if val >= parse_date(DATE2).unwrap()
-//                 && val < parse_date(DATE3).unwrap() {
-//
-//                     ac.hourly_rates.push(String::from("$13.19"));
-//                     ac.hourly_rates.push(String::from("$11.00"));
-//                     ac.hourly_rates.push(String::from("$19.35"));
-//
-//             } else if val >= parse_date(DATE3).unwrap()
-//                 && val < parse_date(DATE4).unwrap() {
-//
-//                     ac.hourly_rates.push(String::from("$13.19"));
-//                     ac.hourly_rates.push(String::from("$11.25"));
-//                     ac.hourly_rates.push(String::from("$19.35"));
-//
-//             } else if val >= parse_date(DATE4).unwrap()
-//                 && val < parse_date(DATE5).unwrap() {
-//
-//                     ac.hourly_rates.push(String::from("$14.90"));
-//                     ac.hourly_rates.push(String::from("$11.40"));
-//                     ac.hourly_rates.push(String::from("$21.11"));
-//
-//             } else if val >= parse_date(DATE5).unwrap()
-//                 && val < parse_date(DATE6).unwrap() {
-//
-//                     ac.hourly_rates.push(String::from("$14.90"));
-//                     ac.hourly_rates.push(String::from("$11.60"));
-//                     ac.hourly_rates.push(String::from("$21.11"));
-//
-//             } else if val >= parse_date(DATE6).unwrap()
-//                 && val < parse_date(DATE7).unwrap() {
-//
-//                     ac.hourly_rates.push(String::from("$14.90"));
-//                     ac.hourly_rates.push(String::from("$14.00"));
-//                     ac.hourly_rates.push(String::from("$21.11"));
-//
-//             } else {
-//
-//                     ac.hourly_rates.push(String::from("$14.90"));
-//                     ac.hourly_rates.push(String::from("$14.00"));
-//                     ac.hourly_rates.push(String::from("$21.11"));
-//
-//             }
-//         },
-//         None => {}
-//     };
-//
-//     data = &serde_json::to_value(ac).unwrap();
-//
-// }
+fn build_ac(data: &Ac) -> Value {
+
+    let mut ac: Ac = data.clone();
+
+    ac.date_of_last_assessment = format_date(&ac.date_of_last_assessment);
+
+    if ac.first_assessment {
+        ac.current_monthly_allowance = String::from("");
+        ac.hourly_rates.push(String::from(""));
+        ac.hourly_rates.push(String::from(""));
+        ac.hourly_rates.push(String::from(""));
+        return serde_json::to_value(ac).unwrap();
+    }
+
+    match parse_date(&ac.date_of_last_assessment) {
+        Some(val) => {
+            if val >= parse_date(DATE0).unwrap()
+                && val < parse_date(DATE1).unwrap() {
+
+                    ac.hourly_rates.push(String::from("$11.23"));
+                    ac.hourly_rates.push(String::from("$8.75"));
+                    ac.hourly_rates.push(String::from("$17.98"));
+
+            } else if val >= parse_date(DATE1).unwrap()
+                && val < parse_date(DATE2).unwrap() {
+
+                    ac.hourly_rates.push(String::from("$13.19"));
+                    ac.hourly_rates.push(String::from("$10.25"));
+                    ac.hourly_rates.push(String::from("$19.35"));
+
+            } else if val >= parse_date(DATE2).unwrap()
+                && val < parse_date(DATE3).unwrap() {
+
+                    ac.hourly_rates.push(String::from("$13.19"));
+                    ac.hourly_rates.push(String::from("$11.00"));
+                    ac.hourly_rates.push(String::from("$19.35"));
+
+            } else if val >= parse_date(DATE3).unwrap()
+                && val < parse_date(DATE4).unwrap() {
+
+                    ac.hourly_rates.push(String::from("$13.19"));
+                    ac.hourly_rates.push(String::from("$11.25"));
+                    ac.hourly_rates.push(String::from("$19.35"));
+
+            } else if val >= parse_date(DATE4).unwrap()
+                && val < parse_date(DATE5).unwrap() {
+
+                    ac.hourly_rates.push(String::from("$14.90"));
+                    ac.hourly_rates.push(String::from("$11.40"));
+                    ac.hourly_rates.push(String::from("$21.11"));
+
+            } else if val >= parse_date(DATE5).unwrap()
+                && val < parse_date(DATE6).unwrap() {
+
+                    ac.hourly_rates.push(String::from("$14.90"));
+                    ac.hourly_rates.push(String::from("$11.60"));
+                    ac.hourly_rates.push(String::from("$21.11"));
+
+            } else if val >= parse_date(DATE6).unwrap()
+                && val < parse_date(DATE7).unwrap() {
+
+                    ac.hourly_rates.push(String::from("$14.90"));
+                    ac.hourly_rates.push(String::from("$14.00"));
+                    ac.hourly_rates.push(String::from("$21.11"));
+
+            } else {
+
+                    ac.hourly_rates.push(String::from("$14.90"));
+                    ac.hourly_rates.push(String::from("$14.00"));
+                    ac.hourly_rates.push(String::from("$21.11"));
+
+            }
+        },
+        None => {
+            ac.hourly_rates.push(String::from("$14.90"));
+            ac.hourly_rates.push(String::from("$14.00"));
+            ac.hourly_rates.push(String::from("$21.11"));
+        } //unable to parse date, use defaults.
+    };
+
+    return serde_json::to_value(ac).unwrap();
+
+}
 
 //Value may be the best option here because the data object is 
 //always completely dynamic - it's fields are never guaranteed.
 //They are only known by whats in the string parameter.
 //Another options could be to always send data with every possible value,
 //and trim down based on the string parameter.
-fn build_types_data(_data: &mut Value, types: &Vec<String>) {
+fn build_types_data(data: &Value, types: &Vec<String>) -> Value {
+
+    let mut val: Value = data.clone();
 
     for asmt_type in types {
 
-        // let val = cloned_data.get_mut(asmt_type).unwrap();
-
         match asmt_type.as_str() {
-            // "AC" => {build_ac(val);},
+            "AC" => {
+                let ac_clone: Ac = serde_json::from_value(data["ac"].clone()).unwrap();
+                val["ac"] = build_ac(&ac_clone);
+            },
             "CAT" => {},
             "CAT_GOSE" => {},
             "MRB" => {},
@@ -117,6 +126,8 @@ fn build_types_data(_data: &mut Value, types: &Vec<String>) {
 
         };
     }
+
+    val
 
 }
 
@@ -149,7 +160,7 @@ pub async fn build_request(data: String) -> Result<Assessment<Value>, Box<dyn Er
                                      .map(|s| s.to_string())
                                      .collect();
 
-    build_types_data(&mut request.asmt_specifics, &request.types);
+    request.asmt_specifics = build_types_data(&request.asmt_specifics, &request.types);
 
     let assesment = Assessment {
         asmt_type: request.asmt_type,
