@@ -103,9 +103,9 @@
         <MRB bind:mrbData={asmt_data.asmt_specifics.mrb}/>
     {/if}
 
-    {#if asmt_data.asmt_type.includes("NEB")}
-        <NEB bind:nebData={asmt_data.asmt_specifics.neb}/>
-    {/if}
+    <!-- {#if asmt_data.asmt_type.includes("NEB")} -->
+    <!--     <NEB bind:nebData={asmt_data.asmt_specifics.neb}/> -->
+    <!-- {/if} -->
 
 </form>
 
@@ -116,7 +116,7 @@
     import AC from './components/ac.svelte'
     import CAT from './components/cat.svelte'
     import MRB from './components/mrb.svelte'
-    import NEB from './components/neb.svelte'
+    // import NEB from './components/neb.svelte'
 
     onMount(() => {
         invoke('get_assessors').then((assessor_opts) => assessors = assessor_opts as any[]);

@@ -7,7 +7,7 @@ use std::error::Error;
 use serde_json::Value;
 use chrono::{NaiveDate, Datelike};
 use crate::db;
-use crate::structs::{Claimant, Assessor, Address, Gender, Request, ReferralCompany, Assessment, Ac};
+use crate::structs::{Claimant, Assessor, Address, Gender, Request, ReferralCompany, Assessment, Ac, Cat, Mrb};
 
 const DATE0: &str = "2008-03-31";
 const DATE1: &str = "2010-09-01";
@@ -102,6 +102,26 @@ fn build_ac(data: &Ac) -> Value {
 
 }
 
+fn build_cat(data: &Cat) -> Value {
+
+    let mut cat: Cat = data.clone();
+
+    cat.date = format_date(&cat.date);
+
+    return serde_json::to_value(cat).unwrap();
+
+}
+
+fn build_mrb(data: &Mrb) -> Value {
+
+    let mut mrb: Mrb = data.clone();
+
+    mrb.date = format_date(&mrb.date);
+
+    return serde_json::to_value(mrb).unwrap();
+
+}
+
 //Value may be the best option here because the data object is 
 //always completely dynamic - it's fields are never guaranteed.
 //They are only known by whats in the string parameter.
@@ -118,9 +138,15 @@ fn build_types_data(data: &Value, types: &Vec<String>) -> Value {
                 let ac_clone: Ac = serde_json::from_value(data["ac"].clone()).unwrap();
                 val["ac"] = build_ac(&ac_clone);
             },
-            "CAT" => {},
+            "CAT" => {
+                let cat_clone: Cat = serde_json::from_value(data["cat"].clone()).unwrap();
+                val["cat"] = build_cat(&cat_clone);
+            },
             "CAT_GOSE" => {},
-            "MRB" => {},
+            "MRB" => {
+                let mrb_clone: Mrb = serde_json::from_value(data["mrb"].clone()).unwrap();
+                val["mrb"] = build_mrb(&mrb_clone);
+            },
             "NEB" => {},
             _ => {}
 

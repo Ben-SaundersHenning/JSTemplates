@@ -130,6 +130,21 @@ pub struct Ac {
     pub hourly_rates: Vec<String>
 }
 
+#[derive(Serialize, Deserialize, Default, Clone)]
+// #[serde(rename_all = "camelCase")]
+pub struct Cat {
+    pub date: String,
+    pub assessor: String,
+}
+
+#[derive(Serialize, Deserialize, Default, Clone)]
+// #[serde(rename_all = "camelCase")]
+pub struct Mrb {
+    pub date: String,
+    pub assessor: String,
+    pub amount: String,
+}
+
 #[derive(Serialize, Deserialize, Default)]
 pub struct Specifics {
     pub ac: Ac

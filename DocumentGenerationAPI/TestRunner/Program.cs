@@ -3,6 +3,7 @@ using Document = DocProcessor.Document;
 using DocumentType = DocProcessor.DocumentType;
 
 Dictionary<string, string> paths = new();
+/*
 paths.Add("ASSESSOR SALUTATION", "<assessor.title>");
 paths.Add("ASSESSOR FIRST", "<assessor.firstName>");
 paths.Add("ASSESSOR LAST", "<assessor.lastName>");
@@ -35,6 +36,34 @@ paths.Add("REFCOMP PROVINCEAB", "<referralCompany.address.provinceAb>");
 paths.Add("REFCOMP FAX", "<referralCompany.fax>");
 paths.Add("REFCOMP POSTALCODE", "<referralCompany.address.postalCode>");
 paths.Add("REFCOMP EMAIL", "<referralCompany.email>");
+*/
+paths.Add("asmtType", "asmt_type");
+paths.Add("insuranceCompany", "insurance_company");
+paths.Add("claimNumber", "claim_number");
+paths.Add("dateOfAssessment", "date_of_assessment");
+paths.Add("seidenFileNumber", "seiden_file_number");
+paths.Add("referralCompany", "referral_company");
+paths.Add("commonName", "common_name");
+paths.Add("provinceAbbreviated", "province_abbreviated");
+paths.Add("provinceAb", "province_abbreviated");
+paths.Add("provinceAB", "province_abbreviated");
+paths.Add("postalCode", "postal_code");
+paths.Add("addressLong", "address_long");
+paths.Add("registrationID", "registration_id");
+paths.Add("registrationId", "registration_id");
+paths.Add("firstName", "first_name");
+paths.Add("lastName", "last_name");
+paths.Add("qualificationsParagraph", "qualifications_paragraph");
+paths.Add("dateOfBirth", "date_of_birth");
+paths.Add("dateOfLoss", "date_of_loss");
+paths.Add("p0Lower", "p0_lower");
+paths.Add("p1Lower", "p1_lower");
+paths.Add("p2Lower", "p2_lower");
+paths.Add("p3Lower", "p3_lower");
+paths.Add("p0Upper", "p0_upper");
+paths.Add("p1Upper", "p1_upper");
+paths.Add("p2Upper", "p2_upper");
+paths.Add("p3Upper", "p3_upper");
 
 List<string> templates = new()
 {
@@ -50,13 +79,21 @@ List<string> templates = new()
     "NEB"
 };
 
+List<string> keys = new List<string>(paths.Keys);
+
 string docPath = "/media/Windows/Users/Ben Saunders-Henning/AppData/Roaming/JSTemplates/templates_dev/";
+string newPath = "/media/Windows/Users/Ben Saunders-Henning/AppData/Roaming/JSTemplates/templates_new/";
 
 foreach (string template in templates)
 {
     string path = docPath + template; 
+    string savepath = newPath + template; 
     Document doc = new Document(path + ".docx", DocumentType.ExistingDocument);
-    doc.SaveAs(path + "_NEW.docx");
+    foreach (string key in keys)
+    {
+        doc.SearchAndReplaceText(key, paths[key]);
+    }
+    doc.SaveAs(savepath + ".docx");
     doc.Dispose();
 }
 

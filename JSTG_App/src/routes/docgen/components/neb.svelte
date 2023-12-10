@@ -5,7 +5,11 @@
     onMount(() => {
     });
 
-    export let nebData = {
-    }
+    // export let nebData = {
+    // }
 
 </script>
+
+<!-- Nothing was needed for NEB -->
+<!-- at the time of making. But component -->
+<!-- is here for future use. -->
