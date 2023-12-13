@@ -2,19 +2,14 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <LangVersion>12</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DocProcessor\DocProcessor.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="DocumentFormat.OpenXml">
-      <HintPath>..\..\..\..\.nuget\packages\documentformat.openxml\2.20.0\lib\net6.0\DocumentFormat.OpenXml.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>
