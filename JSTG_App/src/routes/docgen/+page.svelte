@@ -89,7 +89,7 @@
 
     <hr/>
 
-    <button on:click={printRequest}>Print request</button>
+    <!-- <button on:click={printRequest}>Print request</button> -->
 
     {#if asmt_data.asmt_type.includes("AC")}
         <AC bind:acData={asmt_data.asmt_specifics.ac}/>
@@ -128,18 +128,18 @@
         asmt_types = asmt_types;
     });
 
-    async function printRequest() {
-        try {
-
-            const send = JSON.stringify(asmt_data);
-
-            invoke('print_request', {data: send});
-            status="Saved."; //only works for 1 document
-
-        } catch (exceptionVar){
-            status="Error!";
-        }
-    }
+    // async function printRequest() {
+    //     try {
+    //
+    //         const send = JSON.stringify(asmt_data);
+    //
+    //         invoke('print_request', {data: send});
+    //         status="Saved."; //only works for 1 document
+    //
+    //     } catch (exceptionVar){
+    //         status="Error!";
+    //     }
+    // }
 
     async function submitPost() {
         try {

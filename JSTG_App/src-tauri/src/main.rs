@@ -15,7 +15,13 @@ mod structs;
 fn main() {
 
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![request_document, get_assessors, get_path, get_document_options, get_referral_company_options, print_request])
+    .invoke_handler(tauri::generate_handler![
+        request_document,
+        get_assessors,
+        get_path,
+        get_document_options,
+        get_referral_company_options
+    ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 
@@ -53,17 +59,17 @@ async fn get_path(system: &str, dir: &str) -> Result<String, String> {
     }
 }
 
-//test method
-#[tauri::command]
-async fn print_request(data: String) {
-    match build_request(data).await {
-        Ok(asmt) => {
-            let request = serde_json::to_string(&asmt).unwrap();
-            println!("REQUEST:\n\n{0}\n\n", request);
-        },
-        _ => {}
-    };
-}
+// //test method
+// #[tauri::command]
+// async fn print_request(data: String) {
+//     match build_request(data).await {
+//         Ok(asmt) => {
+//             let request = serde_json::to_string(&asmt).unwrap();
+//             println!("REQUEST:\n\n{0}\n\n", request);
+//         },
+//         _ => {}
+//     };
+// }
 
 #[tauri::command]
 async fn request_document(data: String) {
@@ -100,6 +106,7 @@ async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f
             } else {
                 get_path("OpenSuse", "Assessments").await?
             };
+
 
             let date = match NaiveDate::parse_from_str(&asmt_data.date_of_assessment, "%Y-%m-%d") {
                 Ok(d) => d, //return formatted date

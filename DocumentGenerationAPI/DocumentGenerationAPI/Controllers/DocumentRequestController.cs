@@ -1,9 +1,7 @@
 using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Mvc;
 using DocProcessor;
-using DocumentFormat.OpenXml.Office2013.PowerPoint.Roaming;
 using Newtonsoft.Json.Linq;
-using NuGet.Protocol;
 using Document = DocProcessor.Document;
 
 namespace DocumentGenerationAPI.Controllers
@@ -74,7 +72,7 @@ namespace DocumentGenerationAPI.Controllers
             }
             else
             {
-                type = (string)Obj.SelectToken("asmtType");
+                type = (string)Obj.SelectToken("asmt_type");
             }
             if (type != null)
             {
@@ -85,8 +83,8 @@ namespace DocumentGenerationAPI.Controllers
                     DocumentType.ExistingDocument);
 
 
-            string? last = (string)Obj.SelectToken("assessor.lastName");
-            string? first = (string)Obj.SelectToken("assessor.firstName");
+            string? last = (string)Obj.SelectToken("assessor.last_name");
+            string? first = (string)Obj.SelectToken("assessor.first_name");
             if (first != null && last != null)
             {
                 imgPath = imgPath + first[0] + last[0] + ".png";

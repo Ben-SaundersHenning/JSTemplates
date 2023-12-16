@@ -108,7 +108,7 @@ pub async fn get_path(system: &str, dir: &str) -> Result<String, Box<dyn Error +
 
     let mut conn = PgConnection::connect(&env::var(DB_CONN_STR).unwrap()).await?;
     let query = "
-        SELECT path FROM \"paths\"
+        SELECT path FROM \"paths_development\"
         WHERE operating_system = $1
         AND directory = $2;";
 
