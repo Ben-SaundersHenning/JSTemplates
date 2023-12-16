@@ -37,64 +37,64 @@ fn build_ac(data: &Ac) -> Value {
             if val >= parse_date(DATE0).unwrap()
                 && val < parse_date(DATE1).unwrap() {
 
-                    ac.hourly_rates.push(String::from("$11.23"));
-                    ac.hourly_rates.push(String::from("$8.75"));
-                    ac.hourly_rates.push(String::from("$17.98"));
+                    ac.hourly_rates.push(String::from("11.23"));
+                    ac.hourly_rates.push(String::from("8.75"));
+                    ac.hourly_rates.push(String::from("17.98"));
 
             } else if val >= parse_date(DATE1).unwrap()
                 && val < parse_date(DATE2).unwrap() {
 
-                    ac.hourly_rates.push(String::from("$13.19"));
-                    ac.hourly_rates.push(String::from("$10.25"));
-                    ac.hourly_rates.push(String::from("$19.35"));
+                    ac.hourly_rates.push(String::from("13.19"));
+                    ac.hourly_rates.push(String::from("10.25"));
+                    ac.hourly_rates.push(String::from("19.35"));
 
             } else if val >= parse_date(DATE2).unwrap()
                 && val < parse_date(DATE3).unwrap() {
 
-                    ac.hourly_rates.push(String::from("$13.19"));
-                    ac.hourly_rates.push(String::from("$11.00"));
-                    ac.hourly_rates.push(String::from("$19.35"));
+                    ac.hourly_rates.push(String::from("13.19"));
+                    ac.hourly_rates.push(String::from("11.00"));
+                    ac.hourly_rates.push(String::from("19.35"));
 
             } else if val >= parse_date(DATE3).unwrap()
                 && val < parse_date(DATE4).unwrap() {
 
-                    ac.hourly_rates.push(String::from("$13.19"));
-                    ac.hourly_rates.push(String::from("$11.25"));
-                    ac.hourly_rates.push(String::from("$19.35"));
+                    ac.hourly_rates.push(String::from("13.19"));
+                    ac.hourly_rates.push(String::from("11.25"));
+                    ac.hourly_rates.push(String::from("19.35"));
 
             } else if val >= parse_date(DATE4).unwrap()
                 && val < parse_date(DATE5).unwrap() {
 
-                    ac.hourly_rates.push(String::from("$14.90"));
-                    ac.hourly_rates.push(String::from("$11.40"));
-                    ac.hourly_rates.push(String::from("$21.11"));
+                    ac.hourly_rates.push(String::from("14.90"));
+                    ac.hourly_rates.push(String::from("11.40"));
+                    ac.hourly_rates.push(String::from("21.11"));
 
             } else if val >= parse_date(DATE5).unwrap()
                 && val < parse_date(DATE6).unwrap() {
 
-                    ac.hourly_rates.push(String::from("$14.90"));
-                    ac.hourly_rates.push(String::from("$11.60"));
-                    ac.hourly_rates.push(String::from("$21.11"));
+                    ac.hourly_rates.push(String::from("14.90"));
+                    ac.hourly_rates.push(String::from("11.60"));
+                    ac.hourly_rates.push(String::from("21.11"));
 
             } else if val >= parse_date(DATE6).unwrap()
                 && val < parse_date(DATE7).unwrap() {
 
-                    ac.hourly_rates.push(String::from("$14.90"));
-                    ac.hourly_rates.push(String::from("$14.00"));
-                    ac.hourly_rates.push(String::from("$21.11"));
+                    ac.hourly_rates.push(String::from("14.90"));
+                    ac.hourly_rates.push(String::from("14.00"));
+                    ac.hourly_rates.push(String::from("21.11"));
 
             } else {
 
-                    ac.hourly_rates.push(String::from("$14.90"));
-                    ac.hourly_rates.push(String::from("$14.00"));
-                    ac.hourly_rates.push(String::from("$21.11"));
+                    ac.hourly_rates.push(String::from("14.90"));
+                    ac.hourly_rates.push(String::from("14.00"));
+                    ac.hourly_rates.push(String::from("21.11"));
 
             }
         },
         None => {
-            ac.hourly_rates.push(String::from("$14.90"));
-            ac.hourly_rates.push(String::from("$14.00"));
-            ac.hourly_rates.push(String::from("$21.11"));
+            ac.hourly_rates.push(String::from("14.90"));
+            ac.hourly_rates.push(String::from("14.00"));
+            ac.hourly_rates.push(String::from("21.11"));
         } //unable to parse date, use defaults.
     };
 

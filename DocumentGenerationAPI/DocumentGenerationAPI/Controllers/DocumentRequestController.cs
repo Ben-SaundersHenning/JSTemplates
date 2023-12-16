@@ -94,7 +94,7 @@ namespace DocumentGenerationAPI.Controllers
             Image image = new Image(imgPath); //TEMP
                 document.ReplaceTextWithImage("<assessor.signature>", image);
                 
-                document.SearchAndReplaceTextByRegex(@"<([\w ._-]{3,})>", GetReplacement);
+                document.SearchAndReplaceTextByRegex(@"<([\w \[\]._-]{3,})>", GetReplacement);
            
                 document.SaveAsStream(stream);
                 document.Dispose();
