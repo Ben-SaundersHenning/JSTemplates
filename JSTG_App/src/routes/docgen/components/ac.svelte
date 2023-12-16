@@ -7,11 +7,11 @@
     <br>
 
     <label for="DOLA">Date of Last Assessment:</label>
-    <input type="text" id="DOLA" bind:value={acData.date_of_last_assessment} required/>
+    <input type="text" id="DOLA" bind:value={acData.date_of_last_assessment}/>
     <br>
 
     <label for="monthlyAllowance">Monthly Allowance:</label>
-    <input type="text" id="monthlyAllowance" bind:value={acData.current_monthly_allowance} required/>
+    <input type="text" id="monthlyAllowance" bind:value={acData.current_monthly_allowance}/>
     <br>
 
 </div>

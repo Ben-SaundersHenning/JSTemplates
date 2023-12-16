@@ -80,17 +80,6 @@
     </select>
     <br>
 
-    <button type="submit">Press me to get file</button>
-
-    <p>{status}</p>
-
-
-    <br>
-
-    <hr/>
-
-    <!-- <button on:click={printRequest}>Print request</button> -->
-
     {#if asmt_data.asmt_type.includes("AC")}
         <AC bind:acData={asmt_data.asmt_specifics.ac}/>
     {/if}
@@ -102,6 +91,12 @@
     {#if asmt_data.asmt_type.includes("MRB")}
         <MRB bind:mrbData={asmt_data.asmt_specifics.mrb}/>
     {/if}
+
+    <button type="submit">Press me to get file</button>
+
+    <p>{status}</p>
+
+    <!-- <button on:click={printRequest}>Print request</button> -->
 
     <!-- {#if asmt_data.asmt_type.includes("NEB")} -->
     <!--     <NEB bind:nebData={asmt_data.asmt_specifics.neb}/> -->
