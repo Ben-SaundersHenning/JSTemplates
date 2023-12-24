@@ -92,13 +92,38 @@ namespace DocumentGenerationAPI.Controllers
                 
             //image replace has to be done first, since the tag matches the text replacement tags.
             Image image = new Image(imgPath); //TEMP
-                document.ReplaceTextWithImage("<assessor.signature>", image);
-                
-                document.SearchAndReplaceTextByRegex(@"<([\w \[\]._-]{3,})>", GetReplacement);
+            document.ReplaceTextWithImage("<assessor.signature>", image);
+
+            //set the checkboxes
+            if (isF1)
+            {
+                string gender = (string)Obj.SelectToken("claimant.gender.pronouns.p0_lower");
+                if (gender == "male")
+                {
+                    document.EditLegacyCheckbox("gender_bool_m", true);
+                    document.EditLegacyCheckbox("gender_bool_f", false);
+                } else if (gender == "female")
+                {
+                    document.EditLegacyCheckbox("gender_bool_m", false);
+                    document.EditLegacyCheckbox("gender_bool_f", true);
+                } else
+                { 
+                    document.EditLegacyCheckbox("gender_bool_m", false);
+                    document.EditLegacyCheckbox("gender_bool_f", false);
+                }
+
+                bool first_asmt = (bool)Obj.SelectToken("asmt_specifics.ac.first_assessment");
+                if (first_asmt) {document.EditLegacyCheckbox("first_asmt_bool_t", true);}
+                else {document.EditLegacyCheckbox("first_asmt_bool_f", true);}
+            }
            
-                document.SaveAsStream(stream);
-                document.Dispose();
+            //reaplce the tags
+            document.SearchAndReplaceTextByRegex(@"<([\w \[\]._-]{3,})>", GetReplacement);
+       
+            document.SaveAsStream(stream);
+            document.Dispose();
             _outputs.Clear();
+            
             return stream.ToArray();
         }
 

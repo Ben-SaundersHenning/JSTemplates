@@ -63,6 +63,11 @@ public class Document: IDisposable
 
     private static void CreateTempCopyOfDocument(string docPath, string tempPath)
     {
+        if (File.Exists(tempPath))
+        {
+            File.Delete(tempPath);
+        }
+        
         File.Copy(docPath, tempPath);
     }
     
