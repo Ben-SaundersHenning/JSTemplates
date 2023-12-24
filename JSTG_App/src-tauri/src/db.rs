@@ -5,6 +5,24 @@ use sqlx::{PgConnection, Connection};
 
 const DB_CONN_STR: &str = "JSTG_DB_POSTGRESQL";
 
+async fn check_postgresql_connetion() -> bool {
+
+    match &env::var(DB_CONN_STR) {
+        Ok(val) => {
+
+            let conn = PgConnection::connect(val).await;
+
+            match conn {
+                Ok(pg_conn) => { pg_conn.close(); return true; },
+                Err(..) => { return false; }
+            };
+
+        },
+        Err(..) => { return false; }
+    };
+
+}
+
 pub async fn get_document_options() -> Result<Vec<Document>, Box<dyn Error + Send + Sync>> {
 
     let mut conn = PgConnection::connect(&env::var(DB_CONN_STR).unwrap()).await?;
@@ -17,6 +35,8 @@ pub async fn get_document_options() -> Result<Vec<Document>, Box<dyn Error + Sen
 
     let documents = sqlx::query_as::<_, Document>(query)
         .fetch_all(&mut conn).await?;
+
+    conn.close().await?;
 
     Ok(documents)
 
@@ -34,6 +54,8 @@ pub async fn get_assessor_options() -> Result<Vec<AssessorListing>, Box<dyn Erro
 
     let assessors = sqlx::query_as::<_, AssessorListing>(query)
         .fetch_all(&mut conn).await?;
+
+    conn.close().await?;
 
     Ok(assessors)
 
@@ -56,6 +78,8 @@ pub async fn get_assessor(assessor: AssessorListing) -> Result<Option<Assessor>,
         .bind(assessor.registration_id)
         .fetch_optional(&mut conn).await?;
 
+    conn.close().await?;
+
     Ok(assessor)
 
 }
@@ -71,6 +95,8 @@ pub async fn get_referral_company_options() -> Result<Vec<ReferralCompanyListing
 
     let companies = sqlx::query_as::<_, ReferralCompanyListing>(query)
         .fetch_all(&mut conn).await?;
+
+    conn.close().await?;
 
     Ok(companies)
 
@@ -98,6 +124,8 @@ pub async fn get_referral_company(referral_company: ReferralCompanyListing) -> R
         .bind(referral_company.id)
         .fetch_optional(&mut conn).await?;
 
+    conn.close().await?;
+
     Ok(company)
 
 }
@@ -116,6 +144,8 @@ pub async fn get_path(system: &str, dir: &str) -> Result<String, Box<dyn Error +
         .bind(system)
         .bind(dir)
         .fetch_one(&mut conn).await?;
+
+    conn.close().await?;
 
     Ok(path.path)
 
