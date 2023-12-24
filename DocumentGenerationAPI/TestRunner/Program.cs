@@ -1,42 +1,18 @@
-﻿using DocProcessor;
-using Document = DocProcessor.Document;
+﻿using Document = DocProcessor.Document;
 using DocumentType = DocProcessor.DocumentType;
 
-Dictionary<string, string> paths = new();
-/*
-paths.Add("ASSESSOR SALUTATION", "<assessor.title>");
-paths.Add("ASSESSOR FIRST", "<assessor.firstName>");
-paths.Add("ASSESSOR LAST", "<assessor.lastName>");
-paths.Add("ADJUSTER", "<adjuster>");
-paths.Add("INSURANCE COMPANY", "<insuranceCompany>");
-paths.Add("CLIENT SALUTATION", "<claimant.gender.title>");
-paths.Add("CLIENT FIRST", "<claimant.firstName>");
-paths.Add("CLIENT LAST", "<claimant.lastName>");
-paths.Add("DOB", "<claimant.dateOfBirth>");
-paths.Add("CLAIM NUMBER", "<claimNumber>");
-paths.Add("DOL", "<claimant.dateOfLoss>");
-paths.Add("DOA", "<dateOfAssessment>");
-paths.Add("CLIENT AGE", "<claimant.age>");
-paths.Add("MALE---FEMALE_Lower", "<claimant.gender.pronouns.p0>");
-paths.Add("MALE---FEMALE_LOWER", "<claimant.gender.pronouns.p0>");
-paths.Add("HE---SHE_Lower", "<claimant.gender.pronouns.p1_Lower>");
-paths.Add("HIM---HER_Lower", "<claimant.gender.pronouns.p3_Lower>");
-paths.Add("HE---SHE_Upper", "<claimant.gender.pronouns.p1_Upper>");
-paths.Add("HIS---HER_Lower", "<claimant.gender.pronouns.p2_Lower>");
-paths.Add("ASSESSOR QUALIFICATIONS", "<assessor.qualifications>");
-paths.Add("CLIENT ADDRESS", "<claimant.address.addressLong>");
-paths.Add("REFCOMP NAME", "<referralCompany.name>");
-paths.Add("PICTURE", "<assessor.signature>");
-paths.Add("ASSESSOR REGISTRATIONID", "<assessor.registrationId>");
+string path = "/home/ben/projects/word_documents/checkbox.docx";
+string savepath = "/home/ben/projects/word_documents/generated.docx";
 
-paths.Add("REFCOMP ADDRESS", "<referralCompany.address.address>");
-paths.Add("REFCOMP CITY", "<referralCompany.address.city>");
-paths.Add("REFCOMP PHONE", "<referralCompany.phone>");
-paths.Add("REFCOMP PROVINCEAB", "<referralCompany.address.provinceAb>");
-paths.Add("REFCOMP FAX", "<referralCompany.fax>");
-paths.Add("REFCOMP POSTALCODE", "<referralCompany.address.postalCode>");
-paths.Add("REFCOMP EMAIL", "<referralCompany.email>");
-*/
+Document doc = new Document(path, DocumentType.ExistingDocument);
+//doc.EditLegacyCheckbox("Check1", true);
+doc.EditLegacyCheckbox("Check2", true);
+doc.SaveAs(savepath);
+doc.Dispose();
+
+/*
+
+Dictionary<string, string> paths = new();
 paths.Add("asmtType", "asmt_type");
 paths.Add("insuranceCompany", "insurance_company");
 paths.Add("claimNumber", "claim_number");
@@ -108,3 +84,5 @@ string GetHelloStr(string match)
     return "NULL: " + match;
 
 }
+
+*/

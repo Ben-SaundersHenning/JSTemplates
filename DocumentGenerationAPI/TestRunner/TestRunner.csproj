@@ -9,6 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Reference Include="DocProcessor">
+      <HintPath>..\DocProcessor\bin\Debug\net8.0\DocProcessor.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DocProcessor\DocProcessor.csproj" />
   </ItemGroup>
 
