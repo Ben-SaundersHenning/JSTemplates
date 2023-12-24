@@ -310,6 +310,42 @@ public class Document: IDisposable
 
     }
 
+    /*
+    //NOT COMPLETE
+    public void ReplaceTextWithCheckbox(string Text, Checkbox checkbox)
+    {
+
+        SdtBlock sdt = new();
+        SdtProperties properties = new();
+        SdtContentCheckBox cb = new();
+
+        properties.AddChild(new Tag { Val = checkbox.Tag });
+        cb.Checked = new DocumentFormat.OpenXml.Office2010.Word.Checked
+        {
+            Val = checkbox.State ? OnOffValues.True : OnOffValues.False
+        };
+        
+        Paragraph? para = Body.Descendants<Paragraph>().FirstOrDefault(p => p.InnerText.Contains(Text));
+
+        if (para == null) return; //text doesn't exist in doc
+        
+        if (para.Descendants<Text>().Count() > 1)
+        {
+            IsolatePatternInParagraph(para, Text);
+        }
+
+        Text? t = para.Descendants<Text>().FirstOrDefault(t => t.Text.Contains(Text));
+
+        if (t == null) return;
+
+        sdt.AddChild(properties);
+        sdt.AddChild(cb);
+        
+        t.InsertAfterSelf();
+        t.Remove();
+    }
+    */
+    
     public void EditLegacyCheckbox(string tag, bool newState)
     {
         foreach (CheckBox cb in Body!.Descendants<CheckBox>())
