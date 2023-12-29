@@ -11,7 +11,7 @@ struct Setting {
 pub async fn get_save_dir() -> String {
 
     let mut path = std::env::current_dir().unwrap();
-    path.set_file_name("src-tauri/settings.json");
+    path.set_file_name("./settings.json");
     let config = fs::read_to_string(path.to_str().unwrap()).unwrap();
     let settings: Setting = serde_json::from_str(config.as_ref()).unwrap();
     settings.save_dir
