@@ -80,7 +80,7 @@
     </select>
     <br>
 
-    {#if asmt_data.asmt_type.includes("AC")}
+    {#if asmt_data.asmt_type.includes("AC") || asmt_data.asmt_type.includes("F1")}
         <AC bind:acData={asmt_data.asmt_specifics.ac}/>
     {/if}
 

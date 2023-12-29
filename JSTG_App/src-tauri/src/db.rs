@@ -5,23 +5,23 @@ use sqlx::{PgConnection, Connection};
 
 const DB_CONN_STR: &str = "JSTG_DB_POSTGRESQL";
 
-async fn check_postgresql_connetion() -> bool {
-
-    match &env::var(DB_CONN_STR) {
-        Ok(val) => {
-
-            let conn = PgConnection::connect(val).await;
-
-            match conn {
-                Ok(pg_conn) => { pg_conn.close(); return true; },
-                Err(..) => { return false; }
-            };
-
-        },
-        Err(..) => { return false; }
-    };
-
-}
+// async fn check_postgresql_connetion() -> bool {
+//
+//     match &env::var(DB_CONN_STR) {
+//         Ok(val) => {
+//
+//             let conn = PgConnection::connect(val).await;
+//
+//             match conn {
+//                 Ok(pg_conn) => { pg_conn.close(); return true; },
+//                 Err(..) => { return false; }
+//             };
+//
+//         },
+//         Err(..) => { return false; }
+//     };
+//
+// }
 
 pub async fn get_document_options() -> Result<Vec<Document>, Box<dyn Error + Send + Sync>> {
 

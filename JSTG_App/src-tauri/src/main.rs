@@ -164,10 +164,12 @@ async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f
 
 async fn send_request(asmt_data: structs::Assessment<serde_json::Value>) {
 
-    if asmt_data.asmt_type.contains("AC") {
+    if asmt_data.asmt_type.contains("AC") || asmt_data.asmt_type.contains("F1") {
         let _ = submit_request(&asmt_data, true, "http://localhost:5056/api/DocumentRequest/F1Request").await;
     }
 
-    let _ = submit_request(&asmt_data, false, "http://localhost:5056/api/DocumentRequest/DocRequest").await;
+    if !asmt_data.asmt_type.contains("F1") {
+        let _ = submit_request(&asmt_data, false, "http://localhost:5056/api/DocumentRequest/DocRequest").await;
+    }
 
 }

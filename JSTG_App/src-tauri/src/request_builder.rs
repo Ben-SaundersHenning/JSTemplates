@@ -24,14 +24,6 @@ fn build_ac(data: &Ac) -> Value {
 
     ac.date_of_last_assessment = format_date(&ac.date_of_last_assessment);
 
-    if ac.first_assessment {
-        ac.current_monthly_allowance = String::from("");
-        ac.hourly_rates.push(String::from(""));
-        ac.hourly_rates.push(String::from(""));
-        ac.hourly_rates.push(String::from(""));
-        return serde_json::to_value(ac).unwrap();
-    }
-
     match parse_date(&ac.date_of_last_assessment) {
         Some(val) => {
             if val >= parse_date(DATE0).unwrap()
@@ -98,6 +90,11 @@ fn build_ac(data: &Ac) -> Value {
         } //unable to parse date, use defaults.
     };
 
+    if ac.first_assessment {
+        ac.current_monthly_allowance = String::from("");
+        ac.date_of_last_assessment = String::from("");
+    }
+
     return serde_json::to_value(ac).unwrap();
 
 }
@@ -133,8 +130,15 @@ fn build_types_data(data: &Value, types: &Vec<String>) -> Value {
 
     for asmt_type in types {
 
+        //Note that this causes a repetition when the type
+        //includes AC - since any AC is an F1. This needs to
+        //be changed in the future.
         match asmt_type.as_str() {
             "AC" => {
+                let ac_clone: Ac = serde_json::from_value(data["ac"].clone()).unwrap();
+                val["ac"] = build_ac(&ac_clone);
+            },
+            "F1" => {
                 let ac_clone: Ac = serde_json::from_value(data["ac"].clone()).unwrap();
                 val["ac"] = build_ac(&ac_clone);
             },
