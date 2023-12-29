@@ -151,8 +151,6 @@ async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f
                 _ => path.push_str("REPLACED.docx"),
             }
 
-            println!("pushing to path: {0}", path);
-
             let mut file: File = File::create(path).unwrap();
             let _ = file.write_all(&body);
 
