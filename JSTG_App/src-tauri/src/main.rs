@@ -20,7 +20,7 @@ fn main() {
     let mut path = std::env::current_dir().unwrap();
     path.set_file_name("./log4rs.yaml");
     log4rs::init_file(path.to_str().unwrap(), Default::default()).unwrap();
-    info!(target: "app", "booting the application");
+    info!(target: "app", "Tauri App is opening.");
 
     tauri::Builder::default()
     .invoke_handler(tauri::generate_handler![
@@ -82,6 +82,8 @@ async fn get_path(system: &str, dir: &str) -> Result<String, String> {
 #[tauri::command]
 async fn request_document(data: String) {
 
+    info!(target: "app", "A document request has been received.");
+
     match build_request(data).await {
         Ok(asmt) => {
             send_request(asmt).await;
@@ -105,7 +107,7 @@ async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f
 
     match res.status() {
         reqwest::StatusCode::OK => {
-            println!("Response OK");
+            info!(target: "app", "Response OK from Document API");
             let body = res.bytes().await?;
 
             //for development only
@@ -158,12 +160,15 @@ async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f
                 _ => path.push_str("REPLACED.docx"),
             }
 
+            // info!(target: "app", format!("Saving a file to the path: {0}", path));
+            info!(target: "app", "Saving a file to the path: {0}", path);
+
             let mut file: File = File::create(path).unwrap();
             let _ = file.write_all(&body);
 
         }
-        status => {
-            println!("StatusCode is not okay {status}");
+        _status => {
+            info!(target: "app", "Response not OK from Document API");
         }
     }
 

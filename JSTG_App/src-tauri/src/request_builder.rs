@@ -164,7 +164,6 @@ fn build_types_data(data: &Value, types: &Vec<String>) -> Value {
 
 pub async fn build_request(data: String) -> Result<Assessment<Value>, Box<dyn Error + Send + Sync>> {
 
-    info!(target: "app", "in request builder, building the request");
     let mut request: Request<Value> = serde_json::from_str(&data).unwrap();
 
     let mut referral_company: ReferralCompany = match db::get_referral_company(request.referral_company).await {
@@ -208,6 +207,8 @@ pub async fn build_request(data: String) -> Result<Assessment<Value>, Box<dyn Er
         asmt_specifics: request.asmt_specifics,
         questions: request.questions
     };
+
+    info!(target: "app", "The request has been built succesfully.");
 
     Ok(assesment)
 
