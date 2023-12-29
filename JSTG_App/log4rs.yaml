@@ -1,0 +1,22 @@
+appenders:
+  stdout:
+    kind: console
+
+  requests:
+    kind: file
+    path: "log/app.log"
+    encoder:
+      pattern: "{d(%Y-%m-%d %H:%M:%S)} | {({l}):5.5} | {f}:{L} — {m}{n}"
+
+root:
+  level: warn
+  appenders:
+    - stdout
+
+loggers:
+
+  app:
+    level: debug
+    appenders:
+      - requests
+    additive: false

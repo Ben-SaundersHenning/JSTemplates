@@ -8,6 +8,7 @@ use serde_json::Value;
 use chrono::{NaiveDate, Datelike};
 use crate::db;
 use crate::structs::{Claimant, Assessor, Address, Gender, Request, ReferralCompany, Assessment, Ac, Cat, Mrb};
+use log::info;
 
 const DATE0: &str = "2008-03-31";
 const DATE1: &str = "2010-09-01";
@@ -163,6 +164,7 @@ fn build_types_data(data: &Value, types: &Vec<String>) -> Value {
 
 pub async fn build_request(data: String) -> Result<Assessment<Value>, Box<dyn Error + Send + Sync>> {
 
+    info!(target: "app", "in request builder, building the request");
     let mut request: Request<Value> = serde_json::from_str(&data).unwrap();
 
     let mut referral_company: ReferralCompany = match db::get_referral_company(request.referral_company).await {

@@ -7,6 +7,8 @@ use std::io::Write;
 use chrono::{NaiveDate, Datelike, Utc};
 use request_builder::build_request;
 use std::error::Error;
+use log4rs;
+use log::info;
 
 mod db;
 mod settings;
@@ -15,7 +17,12 @@ mod structs;
 
 fn main() {
 
-  tauri::Builder::default()
+    let mut path = std::env::current_dir().unwrap();
+    path.set_file_name("./log4rs.yaml");
+    log4rs::init_file(path.to_str().unwrap(), Default::default()).unwrap();
+    info!(target: "app", "booting the application");
+
+    tauri::Builder::default()
     .invoke_handler(tauri::generate_handler![
         request_document,
         get_assessors,

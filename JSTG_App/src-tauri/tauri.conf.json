@@ -38,9 +38,9 @@
                 "signingIdentity": null
             },
             "publisher": "Ben Saunders-Henning",
-            "resources": [
-                "./settings.json"
-            ],
+            "resources": {
+                "../settings.json": "."
+            },
             "shortDescription": "Application to request JSTG Documents.",
             "targets": "all",
             "windows": {
