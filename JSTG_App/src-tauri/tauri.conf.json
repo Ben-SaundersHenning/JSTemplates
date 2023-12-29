@@ -39,7 +39,6 @@
             },
             "publisher": "Ben Saunders-Henning",
             "resources": [
-                "/media/storage/projects/JSTG/JSTG_App/src-tauri/settings.json",
                 "./settings.json"
             ],
             "shortDescription": "Application to request JSTG Documents.",
