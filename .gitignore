@@ -1,4 +1,5 @@
 DocumentGenerationAPI/jsonSchema.json
+log/
 .idea/
 GenerationAPI/.idea/
 GenerationAPI/JSOTdb
