@@ -9,6 +9,7 @@ use request_builder::build_request;
 use std::error::Error;
 
 mod db;
+mod settings;
 mod request_builder;
 mod structs;
 
@@ -101,12 +102,13 @@ async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f
             let body = res.bytes().await?;
 
             //for development only
-            let mut path: String = if cfg!(windows) {
-                get_path("Windows", "Assessments").await?
-            } else {
-                get_path("OpenSuse", "Assessments").await?
-            };
+            // let mut path: String = if cfg!(windows) {
+            //     get_path("Windows", "Assessments").await?
+            // } else {
+            //     get_path("OpenSuse", "Assessments").await?
+            // };
 
+            let mut path: String = settings::get_save_dir().await.to_string();
 
             let date = match NaiveDate::parse_from_str(&asmt_data.date_of_assessment, "%Y-%m-%d") {
                 Ok(d) => d, //return formatted date
@@ -148,6 +150,8 @@ async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f
                 Ok(_x) => path.push_str(format!("{ref_name}_{asmt_type}_{client_first_name} {client_last_name}_{assessor_initials}.docx").as_str()),
                 _ => path.push_str("REPLACED.docx"),
             }
+
+            println!("pushing to path: {0}", path);
 
             let mut file: File = File::create(path).unwrap();
             let _ = file.write_all(&body);
