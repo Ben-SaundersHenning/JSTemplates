@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::fs;
 use std::fs::File;
 use std::fs::create_dir_all;
 use std::io::Write;
@@ -10,6 +11,12 @@ use std::error::Error;
 use log4rs;
 use log::info;
 
+use log::LevelFilter;
+use log4rs::append::console::ConsoleAppender;
+use log4rs::append::file::FileAppender;
+use log4rs::encode::pattern::PatternEncoder;
+use log4rs::config::{Appender, Config, Logger, Root};
+
 mod db;
 mod settings;
 mod request_builder;
@@ -17,9 +24,25 @@ mod structs;
 
 fn main() {
 
-    let mut path = std::env::current_dir().unwrap();
-    path.set_file_name("./log4rs.yaml");
-    log4rs::init_file(path.to_str().unwrap(), Default::default()).unwrap();
+    let stdout = ConsoleAppender::builder().build();
+
+    let requests = FileAppender::builder()
+        .encoder(Box::new(PatternEncoder::new("{d(%Y-%m-%d %H:%M:%S)} | {({l}):5.5} | {f}:{L} — {m}{n}")))
+        .build("log/app.log")
+        .unwrap();
+
+    let config = Config::builder()
+        .appender(Appender::builder().build("stdout", Box::new(stdout)))
+        .appender(Appender::builder().build("requests", Box::new(requests)))
+        .logger(Logger::builder()
+            .appender("requests")
+            .additive(false)
+            .build("app", LevelFilter::Debug))
+        .build(Root::builder().appender("stdout").build(LevelFilter::Warn))
+        .unwrap();
+
+    let _ = log4rs::init_config(config).unwrap();
+
     info!(target: "app", "Tauri App is opening.");
 
     tauri::Builder::default()
