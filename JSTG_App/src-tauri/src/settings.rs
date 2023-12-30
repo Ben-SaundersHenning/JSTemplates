@@ -9,12 +9,9 @@ struct Setting {
 }
 
 pub async fn get_save_dir() -> String {
-
-    let mut path = std::env::current_dir().unwrap();
-    path.set_file_name("settings.json");
-    let config = fs::read_to_string(path.to_str().unwrap()).unwrap();
     info!(target: "app", "Reading the base save directory from the settings file: {0}", path.to_str().unwrap());
-    let settings: Setting = serde_json::from_str(config.as_ref()).unwrap();
+    let settings = app_handle.path_resolver().resolve_resource("../settings.json").expect("failed to load settings");
+    let config = fs::File::open(&settings).unwrap();
+    let settings: Setting = serde_json::from_reader(config).unwrap();
     settings.save_dir
-
 }

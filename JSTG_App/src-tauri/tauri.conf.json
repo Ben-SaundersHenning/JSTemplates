@@ -14,7 +14,7 @@
             "all": false,
             "fs": {
                 "scope": [
-                    "$resource/*"
+                    ["$RESOURCE/*"]
                 ]
             }
         },
@@ -43,10 +43,9 @@
                 "signingIdentity": null
             },
             "publisher": "Ben Saunders-Henning",
-            "resources": {
-                "../settings.json": ".",
-                "../log4rs.yaml": "."
-            },
+            "resources": [
+                "../settings.json"
+            ],
             "shortDescription": "Application to request JSTG Documents.",
             "targets": "all",
             "windows": {
