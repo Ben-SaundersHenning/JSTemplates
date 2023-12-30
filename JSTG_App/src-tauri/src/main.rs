@@ -1,7 +1,6 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::fs;
 use std::fs::File;
 use std::fs::create_dir_all;
 use std::io::Write;
@@ -103,20 +102,20 @@ async fn get_path(system: &str, dir: &str) -> Result<String, String> {
 // }
 
 #[tauri::command]
-async fn request_document(data: String) {
+async fn request_document(data: String, handle: tauri::AppHandle) {
 
     info!(target: "app", "A document request has been received.");
 
     match build_request(data).await {
         Ok(asmt) => {
-            send_request(asmt).await;
+            send_request(asmt, handle).await;
         },
         _ => {}
     };
 
 }
 
-async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f1: bool, endpoint: &str) -> Result<(), Box<dyn Error>> {
+async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f1: bool, endpoint: &str, handle: tauri::AppHandle) -> Result<(), Box<dyn Error>> {
 
     let request = serde_json::to_string(&asmt_data).unwrap();
 
@@ -140,7 +139,7 @@ async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f
             //     get_path("OpenSuse", "Assessments").await?
             // };
 
-            let mut path: String = settings::get_save_dir().await.to_string();
+            let mut path: String = settings::get_save_dir(handle).await.to_string();
 
             let date = match NaiveDate::parse_from_str(&asmt_data.date_of_assessment, "%Y-%m-%d") {
                 Ok(d) => d, //return formatted date
@@ -199,14 +198,14 @@ async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f
 
 }
 
-async fn send_request(asmt_data: structs::Assessment<serde_json::Value>) {
+async fn send_request(asmt_data: structs::Assessment<serde_json::Value>, handle: tauri::AppHandle) {
 
     if asmt_data.asmt_type.contains("AC") || asmt_data.asmt_type.contains("F1") {
-        let _ = submit_request(&asmt_data, true, "http://localhost:5056/api/DocumentRequest/F1Request").await;
+        let _ = submit_request(&asmt_data, true, "http://localhost:5056/api/DocumentRequest/F1Request", handle.clone()).await;
     }
 
     if !asmt_data.asmt_type.contains("F1") {
-        let _ = submit_request(&asmt_data, false, "http://localhost:5056/api/DocumentRequest/DocRequest").await;
+        let _ = submit_request(&asmt_data, false, "http://localhost:5056/api/DocumentRequest/DocRequest", handle.clone()).await;
     }
 
 }
