@@ -39,7 +39,8 @@
             },
             "publisher": "Ben Saunders-Henning",
             "resources": {
-                "../settings.json": "."
+                "../settings.json": ".",
+                "../log4rs.yaml": "."
             },
             "shortDescription": "Application to request JSTG Documents.",
             "targets": "all",
