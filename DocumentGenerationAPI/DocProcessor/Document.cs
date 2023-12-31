@@ -1,8 +1,10 @@
 ﻿using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Office2010.Word;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using A = DocumentFormat.OpenXml.Drawing;
+using Checked = DocumentFormat.OpenXml.Wordprocessing.Checked;
 using DW = DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
 
@@ -61,6 +63,11 @@ public class Document: IDisposable
 
     private static void CreateTempCopyOfDocument(string docPath, string tempPath)
     {
+        if (File.Exists(tempPath))
+        {
+            File.Delete(tempPath);
+        }
+        
         File.Copy(docPath, tempPath);
     }
     
@@ -306,6 +313,93 @@ public class Document: IDisposable
 
         } 
 
+    }
+
+    /*
+    //NOT COMPLETE
+    public void ReplaceTextWithCheckbox(string Text, Checkbox checkbox)
+    {
+
+        SdtBlock sdt = new();
+        SdtProperties properties = new();
+        SdtContentCheckBox cb = new();
+
+        properties.AddChild(new Tag { Val = checkbox.Tag });
+        cb.Checked = new DocumentFormat.OpenXml.Office2010.Word.Checked
+        {
+            Val = checkbox.State ? OnOffValues.True : OnOffValues.False
+        };
+        
+        Paragraph? para = Body.Descendants<Paragraph>().FirstOrDefault(p => p.InnerText.Contains(Text));
+
+        if (para == null) return; //text doesn't exist in doc
+        
+        if (para.Descendants<Text>().Count() > 1)
+        {
+            IsolatePatternInParagraph(para, Text);
+        }
+
+        Text? t = para.Descendants<Text>().FirstOrDefault(t => t.Text.Contains(Text));
+
+        if (t == null) return;
+
+        sdt.AddChild(properties);
+        sdt.AddChild(cb);
+        
+        t.InsertAfterSelf();
+        t.Remove();
+    }
+    */
+    
+    public void EditLegacyCheckbox(string tag, bool newState)
+    {
+        foreach (CheckBox cb in Body!.Descendants<CheckBox>())
+        {
+            FormFieldName cbName = cb.Parent.ChildElements.First<FormFieldName>();
+            if (cbName.Val.Value == tag)
+            {
+                
+                Checked state = cb.GetFirstChild<Checked>();
+                
+                if (state == null)
+                {
+                    state = new Checked();
+                    cb.AddChild(state);
+                }
+                
+                state.Val = new OnOffValue(newState);
+                
+            }
+        }
+    }
+
+    public void EditCheckbox(string tag, bool newState)
+    {
+        foreach (SdtContentCheckBox cb in Body!.Descendants<SdtContentCheckBox>())
+        {
+
+            SdtProperties properties = (SdtProperties)cb.Parent;
+            SdtRun parent = (SdtRun)properties.Parent;
+            Tag? checkboxTag = properties.Descendants<Tag>().FirstOrDefault();
+
+            if (checkboxTag != null && checkboxTag.Val == tag) //found correct checkbox
+            {
+                
+                cb.Checked!.Val = newState ? OnOffValues.True : OnOffValues.False;
+                
+                SdtContentRun content = parent.Descendants<SdtContentRun>().FirstOrDefault();
+                
+                if (content != null)
+                {
+                    Text text = content.Descendants<Text>().FirstOrDefault();
+                    if (text != null)
+                    {
+                        int unicodeChar = int.Parse(cb.CheckedState.Val.Value, System.Globalization.NumberStyles.HexNumber);
+                        text.Text = ((char)unicodeChar).ToString();
+                    }
+                }
+            }
+        }
     }
 
     private List<int> IndexPositionsInStrList(List<string> texts)

@@ -1,175 +1,152 @@
-use sqlite::State;
-use std::string::String;
-use crate::structs::{Assessor, AssessorListing, Address, ReferralCompanyListing, ReferralCompany};
+use std::error::Error;
+use std::env;
+use crate::structs::{Document, AssessorListing, Assessor, ReferralCompanyListing, ReferralCompany, Path};
+use sqlx::{PgConnection, Connection};
 
-const DB_PATH: &str = if cfg!(windows) {
-    "B:\\projects\\JSTG\\JSTG.sqlite3"
-} 
-else {
-    "/home/ben/projects/JSTG/JSTG.sqlite3"
-};
+const DB_CONN_STR: &str = "JSTG_DB_POSTGRESQL";
 
-pub fn get_assessor_options() -> Vec<AssessorListing> {
+// async fn check_postgresql_connetion() -> bool {
+//
+//     match &env::var(DB_CONN_STR) {
+//         Ok(val) => {
+//
+//             let conn = PgConnection::connect(val).await;
+//
+//             match conn {
+//                 Ok(pg_conn) => { pg_conn.close(); return true; },
+//                 Err(..) => { return false; }
+//             };
+//
+//         },
+//         Err(..) => { return false; }
+//     };
+//
+// }
 
-    let connection = sqlite::open(DB_PATH).unwrap();
-    let query = "SELECT RegistrationID, FirstName, LastName FROM [Assessors]
-                 ORDER BY FirstName ASC;";
-    let mut statement = connection.prepare(query).unwrap();
+pub async fn get_document_options() -> Result<Vec<Document>, Box<dyn Error + Send + Sync>> {
 
-    let mut assessors: Vec<AssessorListing> = Vec::new();
+    let mut conn = PgConnection::connect(&env::var(DB_CONN_STR).unwrap()).await?;
 
-    while let Ok(State::Row) = statement.next() {
-        let assessor = AssessorListing {
-            registration_id: statement.read::<String, _>("RegistrationID").unwrap(),
-            first_name: statement.read::<String, _>("FirstName").unwrap(),
-            last_name: statement.read::<String, _>("LastName").unwrap(),
-        };
-        assessors.push(assessor);
-    }
+    let query = "SELECT id,
+                        common_name,
+                        file
+                FROM \"documents\"
+                ORDER BY common_name ASC;";
 
-    assessors
+    let documents = sqlx::query_as::<_, Document>(query)
+        .fetch_all(&mut conn).await?;
 
-}
+    conn.close().await?;
 
-pub fn get_assessor(assessor: AssessorListing) -> Option<Assessor> {
-
-    let connection = sqlite::open(DB_PATH).unwrap();
-    let query = "SELECT FirstName, LastName, Title, Email, QualificationsParagraph FROM [Assessors]
-                 WHERE RegistrationID = ?;";
-    let mut statement = connection.prepare(query).unwrap();
-    statement.bind((1, assessor.registration_id.as_str())).unwrap();
-
-    while let Ok(State::Row) = statement.next() {
-        let assessor = Assessor {
-            registration_id: assessor.registration_id,
-            first_name: match statement.read::<String, _>("FirstName") {
-                Ok(val) => val,
-                _ => "NULL".to_string()
-            },
-            last_name: match statement.read::<String, _>("LastName") {
-                Ok(val) => val,
-                _ => "NULL".to_string()
-            },
-            title: match statement.read::<String, _>("Title") {
-                Ok(val) => val,
-                _ => "NULL".to_string()
-            },
-            email: match statement.read::<String, _>("Email") {
-                Ok(val) => val,
-                _ => "NULL".to_string()
-            },
-            qualifications: match statement.read::<String, _>("QualificationsParagraph") {
-                Ok(val) => val,
-                _ => "NULL".to_string()
-            },
-        };
-
-        return Some(assessor);
-
-    }
-
-    None
+    Ok(documents)
 
 }
 
-pub fn get_referral_company_options() -> Vec<ReferralCompanyListing> {
+pub async fn get_assessor_options() -> Result<Vec<AssessorListing>, Box<dyn Error + Send + Sync>> {
 
-    let connection = sqlite::open(DB_PATH).unwrap();
-    let query = "SELECT ReferralCompanyID, CommonName FROM [ReferralCompanies]
-                 ORDER BY CommonName ASC;";
-    let mut statement = connection.prepare(query).unwrap();
+    let mut conn = PgConnection::connect(&env::var(DB_CONN_STR).unwrap()).await?;
 
-    let mut companies: Vec<ReferralCompanyListing> = Vec::new();
+    let query = "SELECT registration_id,
+                        first_name,
+                        last_name
+                 FROM \"assessors\"
+                 ORDER BY first_name ASC;";
 
-    while let Ok(State::Row) = statement.next() {
-        let company = ReferralCompanyListing {
-            unique_id: statement.read::<i64, _>("ReferralCompanyID").unwrap(),
-            common_name: statement.read::<String, _>("CommonName").unwrap(),
-        };
+    let assessors = sqlx::query_as::<_, AssessorListing>(query)
+        .fetch_all(&mut conn).await?;
 
-        companies.push(company);
+    conn.close().await?;
 
-    }
-
-    companies
+    Ok(assessors)
 
 }
 
-pub fn get_referral_company(referral_company: ReferralCompanyListing) -> Option<ReferralCompany> {
+pub async fn get_assessor(assessor: AssessorListing) -> Result<Option<Assessor>, Box<dyn Error + Send + Sync>> {
 
-    let connection = sqlite::open(DB_PATH).unwrap();
-    let query = "SELECT Name, Address, City, Province, ProvinceAb, PostalCode, Phone, Fax, Email FROM [ReferralCompanies]
-                 WHERE ReferralCompanyID = ?;";
-    let mut statement = connection.prepare(query).unwrap();
-    statement.bind((1, referral_company.unique_id)).unwrap();
+    let mut conn = PgConnection::connect(&env::var(DB_CONN_STR).unwrap()).await?;
 
-    while let Ok(State::Row) = statement.next() {
-        let company = ReferralCompany {
-            unique_id: referral_company.unique_id,
-            name: statement.read::<String, _>("Name").unwrap(),
-            common_name: referral_company.common_name,
-            address: Address {
-                address: match statement.read::<String, _>("Address") {
-                    Ok(val) => val,
-                    _ => "NULL".to_string()
-                },
-                city: match statement.read::<String, _>("City") {
-                    Ok(val) => val,
-                    _ => "NULL".to_string()
-                },
-                province: match statement.read::<String, _>("Province") {
-                    Ok(val) => val,
-                    _ => "NULL".to_string()
-                },
-                province_ab: match statement.read::<String, _>("ProvinceAb") {
-                    Ok(val) => val,
-                    _ => "NULL".to_string()
-                },
-                postal_code: match statement.read::<String, _>("PostalCode") {
-                    Ok(val) => val,
-                    _ => "NULL".to_string()
-                },
-                country: "Canada".to_string(),
-                address_long: "".to_string() //needs to be built
-            },
-            phone: match statement.read::<String, _>("Phone") {
-                Ok(val) => val,
-                _ => "NULL".to_string()
-            },
-            fax: match statement.read::<String, _>("Fax") {
-                Ok(val) => val,
-                _ => "NULL".to_string()
-            },
-            email: match statement.read::<String, _>("Email") {
-                Ok(val) => val,
-                _ => "NULL".to_string()
-            },
-        };
+    let query = "SELECT registration_id,
+                        title,
+                        first_name,
+                        last_name,
+                        email,
+                        qualifications_paragraph
+                 FROM \"assessors\"
+                 WHERE registration_id = $1";
 
-        return Some(company);
+    let assessor = sqlx::query_as::<_, Assessor>(query)
+        .bind(assessor.registration_id)
+        .fetch_optional(&mut conn).await?;
 
-    }
+    conn.close().await?;
 
-    None
+    Ok(assessor)
+
+}
+
+pub async fn get_referral_company_options() -> Result<Vec<ReferralCompanyListing>, Box<dyn Error + Send + Sync>> {
+
+    let mut conn = PgConnection::connect(&env::var(DB_CONN_STR).unwrap()).await?;
+
+    let query = "SELECT id,
+                        common_name
+                 FROM \"referral_companies\"
+                 ORDER BY common_name ASC;";
+
+    let companies = sqlx::query_as::<_, ReferralCompanyListing>(query)
+        .fetch_all(&mut conn).await?;
+
+    conn.close().await?;
+
+    Ok(companies)
+
+}
+
+pub async fn get_referral_company(referral_company: ReferralCompanyListing) -> Result<Option<ReferralCompany>, Box<dyn Error + Send + Sync>> {
+
+    let mut conn = PgConnection::connect(&env::var(DB_CONN_STR).unwrap()).await?;
+    let query = "SELECT name,
+                        common_name,
+                        phone,
+                        fax,
+                        email,
+                        address,
+                        postal_code,
+                        city,
+                        province,
+                        province_abbreviated,
+                        country,
+                        '' AS address_long
+                 FROM \"referral_companies\"
+                 WHERE \"id\" = $1;";
+
+    let company = sqlx::query_as::<_, ReferralCompany>(query)
+        .bind(referral_company.id)
+        .fetch_optional(&mut conn).await?;
+
+    conn.close().await?;
+
+    Ok(company)
 
 }
 
 //func to help retrieve absolute paths
 //on different machines during development.
-#[tauri::command]
-pub fn get_path(system: &str, dir: &str) -> String {
-    let connection = sqlite::open(DB_PATH).unwrap();
+pub async fn get_path(system: &str, dir: &str) -> Result<String, Box<dyn Error + Send + Sync>> {
+
+    let mut conn = PgConnection::connect(&env::var(DB_CONN_STR).unwrap()).await?;
     let query = "
-        SELECT Path FROM [Paths]
-        WHERE OperatingSystem = :os
-        AND Directory = :dir";
-    let mut statement = connection.prepare(query).unwrap();
-    statement.bind((":os", system)).unwrap();
-    statement.bind((":dir", dir)).unwrap();
+        SELECT path FROM \"paths_development\"
+        WHERE operating_system = $1
+        AND directory = $2;";
 
-    while let Ok(State::Row) = statement.next() {
-        return statement.read::<String, _>("Path").unwrap();
-    }
+    let path = sqlx::query_as::<_, Path>(query)
+        .bind(system)
+        .bind(dir)
+        .fetch_one(&mut conn).await?;
 
-    "NA".to_string()
+    conn.close().await?;
+
+    Ok(path.path)
+
 }

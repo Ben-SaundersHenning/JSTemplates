@@ -5,54 +5,147 @@ use std::fs::File;
 use std::fs::create_dir_all;
 use std::io::Write;
 use chrono::{NaiveDate, Datelike, Utc};
-use db::get_path;
+use request_builder::build_request;
+use std::error::Error;
+use log4rs;
+use log::{info, error};
+use log::LevelFilter;
+use log4rs::append::console::ConsoleAppender;
+use log4rs::append::file::FileAppender;
+use log4rs::encode::pattern::PatternEncoder;
+use log4rs::config::{Appender, Config, Logger, Root};
+use once_cell::sync::OnceCell;
+use std::path::PathBuf;
 
 mod db;
+mod settings;
 mod request_builder;
 mod structs;
 
+static APP: OnceCell<tauri::AppHandle> = OnceCell::new();
+
 fn main() {
 
-  tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![double, greet, request_document, get_assessors, get_path, get_companies])
+    tauri::Builder::default()
+    .setup(|app| {
+
+        APP.set(app.handle()).expect("error initializing Tauri App");
+
+        let mut settings_file_path = app.handle().path_resolver()
+                                .app_config_dir()
+                                .unwrap()
+                                .into_os_string();
+
+        settings_file_path.push("/settings.json");
+
+        let path: PathBuf = PathBuf::from(settings_file_path);
+        let parent = path.parent().unwrap();
+        settings::create_settings_file(&path, &parent);
+
+        let stdout = ConsoleAppender::builder().build();
+
+        let log_file_path = app.handle().path_resolver()
+                                .app_log_dir()
+                                .unwrap()
+                                .into_os_string();
+
+        let requests = FileAppender::builder()
+            .encoder(Box::new(PatternEncoder::new("{d(%Y-%m-%d %H:%M:%S)} | {({l}):5.5} | {f}:{L} — {m}{n}")))
+            .build(log_file_path)
+            .unwrap();
+
+        let config = Config::builder()
+            .appender(Appender::builder().build("stdout", Box::new(stdout)))
+            .appender(Appender::builder().build("requests", Box::new(requests)))
+            .logger(Logger::builder()
+                .appender("requests")
+                .additive(false)
+                .build("app", LevelFilter::Debug))
+            .build(Root::builder().appender("stdout").build(LevelFilter::Warn))
+            .unwrap();
+
+        let _ = log4rs::init_config(config).unwrap();
+
+        info!(target: "app", "Tauri App is opening.");
+
+        Ok(())
+    })
+    .invoke_handler(tauri::generate_handler![
+        request_document,
+        get_assessors,
+        get_path,
+        get_document_options,
+        get_referral_company_options
+    ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 
 }
 
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}!", name)
+fn get_app_handle() -> tauri::AppHandle {
+    let app = APP.get().unwrap();
+    app.clone()
 }
 
 #[tauri::command]
-fn double(count: i32) -> i32 {
-    count * 2
+async fn get_assessors() -> Result<Vec<structs::AssessorListing>, String> {
+    match db::get_assessor_options().await {
+        Ok(val) => Ok(val),
+        _ => Err("Unable to retrieve assessor options.".to_string())
+    }
 }
 
 #[tauri::command]
-fn get_assessors() -> Vec<structs::AssessorListing> {
-    db::get_assessor_options()
+async fn get_referral_company_options() -> Result<Vec<structs::ReferralCompanyListing>, String> {
+    match db::get_referral_company_options().await {
+        Ok(val) => Ok(val),
+        _ => Err("Unable to retrieve referral company options.".to_string())
+    }
 }
 
 #[tauri::command]
-fn get_companies() -> Vec<structs::ReferralCompanyListing> {
-    db::get_referral_company_options()
+async fn get_document_options() -> Result<Vec<structs::Document>, String> {
+    match db::get_document_options().await {
+        Ok(val) => Ok(val),
+        _ => Err("Unable to retrieive the available templates.".to_string())
+    }
 }
+
+#[tauri::command]
+async fn get_path(system: &str, dir: &str) -> Result<String, String> {
+    match db::get_path(system, dir).await {
+        Ok(val) => Ok(val),
+        _ => Err("Error: unable to find path.".to_string())
+    }
+}
+
+// //test method
+// #[tauri::command]
+// async fn print_request(data: String) {
+//     match build_request(data).await {
+//         Ok(asmt) => {
+//             let request = serde_json::to_string(&asmt).unwrap();
+//             println!("REQUEST:\n\n{0}\n\n", request);
+//         },
+//         _ => {}
+//     };
+// }
 
 #[tauri::command]
 async fn request_document(data: String) {
 
-    match request_builder::build_request(data) {
+    info!(target: "app", "A document request has been received.");
+
+    match build_request(data).await {
         Ok(asmt) => {
             send_request(asmt).await;
         },
-        _ => {}
+        _ => { error!(target: "app", "The request was not built correctly. No request is being sent."); }
     };
 
 }
 
-async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f1: bool, endpoint: &str) -> Result<(), Box<dyn std::error::Error>> {
+async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f1: bool, endpoint: &str) -> Result<(), Box<dyn Error>> {
 
     let request = serde_json::to_string(&asmt_data).unwrap();
 
@@ -66,15 +159,17 @@ async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f
 
     match res.status() {
         reqwest::StatusCode::OK => {
-            println!("Response OK");
+            info!(target: "app", "Response OK from Document API");
             let body = res.bytes().await?;
 
-            //for development only
-            let mut path: String = if cfg!(windows) {
-                get_path("Windows", "Assessments")
-            } else {
-                get_path("OpenSuse", "Assessments")
-            };
+            // for development only
+            // let mut path: String = if cfg!(windows) {
+            //     get_path("Windows", "Assessments").await?
+            // } else {
+            //     get_path("OpenSuse", "Assessments").await?
+            // };
+
+            let mut path = settings::get_save_dir().await;
 
             let date = match NaiveDate::parse_from_str(&asmt_data.date_of_assessment, "%Y-%m-%d") {
                 Ok(d) => d, //return formatted date
@@ -117,12 +212,15 @@ async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f
                 _ => path.push_str("REPLACED.docx"),
             }
 
+            // info!(target: "app", format!("Saving a file to the path: {0}", path));
+            info!(target: "app", "Saving a file to the path: {0}", path);
+
             let mut file: File = File::create(path).unwrap();
             let _ = file.write_all(&body);
 
         }
-        status => {
-            println!("StatusCode is not okay {status}");
+        _status => {
+            info!(target: "app", "Response not OK from Document API");
         }
     }
 
@@ -132,10 +230,12 @@ async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f
 
 async fn send_request(asmt_data: structs::Assessment<serde_json::Value>) {
 
-    if asmt_data.asmt_type.contains("AC") {
+    if asmt_data.asmt_type.contains("AC") || asmt_data.asmt_type.contains("F1") {
         let _ = submit_request(&asmt_data, true, "http://localhost:5056/api/DocumentRequest/F1Request").await;
     }
 
-    let _ = submit_request(&asmt_data, false, "http://localhost:5056/api/DocumentRequest/DocRequest").await;
+    if !asmt_data.asmt_type.contains("F1") {
+        let _ = submit_request(&asmt_data, false, "http://localhost:5056/api/DocumentRequest/DocRequest").await;
+    }
 
 }
