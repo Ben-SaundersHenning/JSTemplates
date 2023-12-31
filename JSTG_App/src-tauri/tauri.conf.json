@@ -11,13 +11,7 @@
     },
     "tauri": {
         "allowlist": {
-            "all": false,
-            "fs": {
-                "scope": [
-                    "$RESOURCE/*",
-                    "$RESOURCE"
-                ]
-            }
+            "all": false
         },
         "bundle": {
             "active": true,
@@ -45,7 +39,6 @@
             },
             "publisher": "Ben Saunders-Henning",
             "resources": [
-                "../settings.json"
             ],
             "shortDescription": "Application to request JSTG Documents.",
             "targets": "all",
