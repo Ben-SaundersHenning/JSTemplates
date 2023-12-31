@@ -19,13 +19,10 @@ const DATE5: &str = "2017-10-01";
 const DATE6: &str = "2018-01-01";
 const DATE7: &str = "2018-04-14";
 
-fn build_ac(data: &Ac) -> Value {
+fn build_ac(data: &Ac, date_of_loss: &String) -> Value {
 
     let mut ac: Ac = data.clone();
-
-    ac.date_of_last_assessment = format_date(&ac.date_of_last_assessment);
-
-    match parse_date(&ac.date_of_last_assessment) {
+    match parse_date(&date_of_loss.as_str()) {
         Some(val) => {
             if val >= parse_date(DATE0).unwrap()
                 && val < parse_date(DATE1).unwrap() {
@@ -91,10 +88,13 @@ fn build_ac(data: &Ac) -> Value {
         } //unable to parse date, use defaults.
     };
 
+
     if ac.first_assessment {
         ac.current_monthly_allowance = String::from("");
         ac.date_of_last_assessment = String::from("");
     }
+
+    ac.date_of_last_assessment = format_date(&ac.date_of_last_assessment);
 
     return serde_json::to_value(ac).unwrap();
 
@@ -125,7 +125,7 @@ fn build_mrb(data: &Mrb) -> Value {
 //They are only known by whats in the string parameter.
 //Another options could be to always send data with every possible value,
 //and trim down based on the string parameter.
-fn build_types_data(data: &Value, types: &Vec<String>) -> Value {
+fn build_types_data(data: &Value, types: &Vec<String>, date_of_loss: &String) -> Value {
 
     let mut val: Value = data.clone();
 
@@ -137,11 +137,11 @@ fn build_types_data(data: &Value, types: &Vec<String>) -> Value {
         match asmt_type.as_str() {
             "AC" => {
                 let ac_clone: Ac = serde_json::from_value(data["ac"].clone()).unwrap();
-                val["ac"] = build_ac(&ac_clone);
+                val["ac"] = build_ac(&ac_clone, date_of_loss);
             },
             "F1" => {
                 let ac_clone: Ac = serde_json::from_value(data["ac"].clone()).unwrap();
-                val["ac"] = build_ac(&ac_clone);
+                val["ac"] = build_ac(&ac_clone, date_of_loss);
             },
             "CAT" => {
                 let cat_clone: Cat = serde_json::from_value(data["cat"].clone()).unwrap();
@@ -191,7 +191,7 @@ pub async fn build_request(data: String) -> Result<Assessment<Value>, Box<dyn Er
                                      .map(|s| s.to_string())
                                      .collect();
 
-    request.asmt_specifics = build_types_data(&request.asmt_specifics, &request.types);
+    request.asmt_specifics = build_types_data(&request.asmt_specifics, &request.types, &request.claimant.date_of_loss);
 
     let assesment = Assessment {
         asmt_type: request.asmt_type,
