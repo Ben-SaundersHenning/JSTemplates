@@ -22,6 +22,7 @@ const DATE7: &str = "2018-04-14";
 fn build_ac(data: &Ac, date_of_loss: &String) -> Value {
 
     let mut ac: Ac = data.clone();
+  
     match parse_date(&date_of_loss.as_str()) {
         Some(val) => {
             if val >= parse_date(DATE0).unwrap()
@@ -88,14 +89,13 @@ fn build_ac(data: &Ac, date_of_loss: &String) -> Value {
         } //unable to parse date, use defaults.
     };
 
-
+    ac.date_of_last_assessment = format_date(&ac.date_of_last_assessment);
+  
     if ac.first_assessment {
         ac.current_monthly_allowance = String::from("");
         ac.date_of_last_assessment = String::from("");
     }
-
-    ac.date_of_last_assessment = format_date(&ac.date_of_last_assessment);
-
+  
     return serde_json::to_value(ac).unwrap();
 
 }
