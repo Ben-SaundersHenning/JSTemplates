@@ -72,8 +72,6 @@ fn get_app_handle() -> tauri::AppHandle {
 
 #[tauri::command]
 async fn get_assessors() -> Result<Vec<structs::AssessorListing>, String> {
-    let dir = settings::get_save_dir().await;
-    info!(target: "app", "The save dir found is {0}", dir);
     match db::get_assessor_options().await {
         Ok(val) => Ok(val),
         _ => Err("Unable to retrieve assessor options.".to_string())
@@ -148,11 +146,13 @@ async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f
             let body = res.bytes().await?;
 
             // for development only
-            let mut path: String = if cfg!(windows) {
-                get_path("Windows", "Assessments").await?
-            } else {
-                get_path("OpenSuse", "Assessments").await?
-            };
+            // let mut path: String = if cfg!(windows) {
+            //     get_path("Windows", "Assessments").await?
+            // } else {
+            //     get_path("OpenSuse", "Assessments").await?
+            // };
+
+            let mut path = settings::get_save_dir().await;
 
             let date = match NaiveDate::parse_from_str(&asmt_data.date_of_assessment, "%Y-%m-%d") {
                 Ok(d) => d, //return formatted date
