@@ -14,7 +14,8 @@
             "all": false,
             "fs": {
                 "scope": [
-                    "$RESOURCE/*"
+                    "$RESOURCE/*",
+                    "$RESOURCE"
                 ]
             }
         },

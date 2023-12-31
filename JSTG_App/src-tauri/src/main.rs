@@ -8,7 +8,7 @@ use chrono::{NaiveDate, Datelike, Utc};
 use request_builder::build_request;
 use std::error::Error;
 use log4rs;
-use log::info;
+use log::{info, error};
 
 use log::LevelFilter;
 use log4rs::append::console::ConsoleAppender;
@@ -16,10 +16,14 @@ use log4rs::append::file::FileAppender;
 use log4rs::encode::pattern::PatternEncoder;
 use log4rs::config::{Appender, Config, Logger, Root};
 
+use once_cell::sync::OnceCell;
+
 mod db;
 mod settings;
 mod request_builder;
 mod structs;
+
+static APP: OnceCell<tauri::AppHandle> = OnceCell::new();
 
 fn main() {
 
@@ -45,6 +49,10 @@ fn main() {
     info!(target: "app", "Tauri App is opening.");
 
     tauri::Builder::default()
+    .setup(|app| {
+        APP.set(app.handle()).expect("error initializing Tauri App");
+        Ok(())
+    })
     .invoke_handler(tauri::generate_handler![
         request_document,
         get_assessors,
@@ -57,8 +65,15 @@ fn main() {
 
 }
 
+fn get_app_handle() -> tauri::AppHandle {
+    let app = APP.get().unwrap();
+    app.clone()
+}
+
 #[tauri::command]
 async fn get_assessors() -> Result<Vec<structs::AssessorListing>, String> {
+    let dir = settings::get_save_dir().await;
+    info!(target: "app", "The save dir found is {0}", dir);
     match db::get_assessor_options().await {
         Ok(val) => Ok(val),
         _ => Err("Unable to retrieve assessor options.".to_string())
@@ -102,20 +117,20 @@ async fn get_path(system: &str, dir: &str) -> Result<String, String> {
 // }
 
 #[tauri::command]
-async fn request_document(data: String, handle: tauri::AppHandle) {
+async fn request_document(data: String) {
 
     info!(target: "app", "A document request has been received.");
 
     match build_request(data).await {
         Ok(asmt) => {
-            send_request(asmt, handle).await;
+            send_request(asmt).await;
         },
-        _ => {}
+        _ => { error!(target: "app", "The request was not built correctly. No request is being sent."); }
     };
 
 }
 
-async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f1: bool, endpoint: &str, handle: tauri::AppHandle) -> Result<(), Box<dyn Error>> {
+async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f1: bool, endpoint: &str) -> Result<(), Box<dyn Error>> {
 
     let request = serde_json::to_string(&asmt_data).unwrap();
 
@@ -132,14 +147,12 @@ async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f
             info!(target: "app", "Response OK from Document API");
             let body = res.bytes().await?;
 
-            //for development only
-            // let mut path: String = if cfg!(windows) {
-            //     get_path("Windows", "Assessments").await?
-            // } else {
-            //     get_path("OpenSuse", "Assessments").await?
-            // };
-
-            let mut path: String = settings::get_save_dir(handle).await.to_string();
+            // for development only
+            let mut path: String = if cfg!(windows) {
+                get_path("Windows", "Assessments").await?
+            } else {
+                get_path("OpenSuse", "Assessments").await?
+            };
 
             let date = match NaiveDate::parse_from_str(&asmt_data.date_of_assessment, "%Y-%m-%d") {
                 Ok(d) => d, //return formatted date
@@ -198,14 +211,14 @@ async fn submit_request(asmt_data: &structs::Assessment<serde_json::Value>, is_f
 
 }
 
-async fn send_request(asmt_data: structs::Assessment<serde_json::Value>, handle: tauri::AppHandle) {
+async fn send_request(asmt_data: structs::Assessment<serde_json::Value>) {
 
     if asmt_data.asmt_type.contains("AC") || asmt_data.asmt_type.contains("F1") {
-        let _ = submit_request(&asmt_data, true, "http://localhost:5056/api/DocumentRequest/F1Request", handle.clone()).await;
+        let _ = submit_request(&asmt_data, true, "http://localhost:5056/api/DocumentRequest/F1Request").await;
     }
 
     if !asmt_data.asmt_type.contains("F1") {
-        let _ = submit_request(&asmt_data, false, "http://localhost:5056/api/DocumentRequest/DocRequest", handle.clone()).await;
+        let _ = submit_request(&asmt_data, false, "http://localhost:5056/api/DocumentRequest/DocRequest").await;
     }
 
 }
