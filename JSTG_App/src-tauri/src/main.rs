@@ -9,14 +9,13 @@ use request_builder::build_request;
 use std::error::Error;
 use log4rs;
 use log::{info, error};
-
 use log::LevelFilter;
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::file::FileAppender;
 use log4rs::encode::pattern::PatternEncoder;
 use log4rs::config::{Appender, Config, Logger, Root};
-
 use once_cell::sync::OnceCell;
+use std::path::PathBuf;
 
 mod db;
 mod settings;
@@ -27,30 +26,48 @@ static APP: OnceCell<tauri::AppHandle> = OnceCell::new();
 
 fn main() {
 
-    let stdout = ConsoleAppender::builder().build();
-
-    let requests = FileAppender::builder()
-        .encoder(Box::new(PatternEncoder::new("{d(%Y-%m-%d %H:%M:%S)} | {({l}):5.5} | {f}:{L} — {m}{n}")))
-        .build("log/app.log")
-        .unwrap();
-
-    let config = Config::builder()
-        .appender(Appender::builder().build("stdout", Box::new(stdout)))
-        .appender(Appender::builder().build("requests", Box::new(requests)))
-        .logger(Logger::builder()
-            .appender("requests")
-            .additive(false)
-            .build("app", LevelFilter::Debug))
-        .build(Root::builder().appender("stdout").build(LevelFilter::Warn))
-        .unwrap();
-
-    let _ = log4rs::init_config(config).unwrap();
-
-    info!(target: "app", "Tauri App is opening.");
-
     tauri::Builder::default()
     .setup(|app| {
+
         APP.set(app.handle()).expect("error initializing Tauri App");
+
+        let mut settings_file_path = app.handle().path_resolver()
+                                .app_config_dir()
+                                .unwrap()
+                                .into_os_string();
+
+        settings_file_path.push("/settings.json");
+
+        let path: PathBuf = PathBuf::from(settings_file_path);
+        let parent = path.parent().unwrap();
+        settings::create_settings_file(&path, &parent);
+
+        let stdout = ConsoleAppender::builder().build();
+
+        let log_file_path = app.handle().path_resolver()
+                                .app_log_dir()
+                                .unwrap()
+                                .into_os_string();
+
+        let requests = FileAppender::builder()
+            .encoder(Box::new(PatternEncoder::new("{d(%Y-%m-%d %H:%M:%S)} | {({l}):5.5} | {f}:{L} — {m}{n}")))
+            .build(log_file_path)
+            .unwrap();
+
+        let config = Config::builder()
+            .appender(Appender::builder().build("stdout", Box::new(stdout)))
+            .appender(Appender::builder().build("requests", Box::new(requests)))
+            .logger(Logger::builder()
+                .appender("requests")
+                .additive(false)
+                .build("app", LevelFilter::Debug))
+            .build(Root::builder().appender("stdout").build(LevelFilter::Warn))
+            .unwrap();
+
+        let _ = log4rs::init_config(config).unwrap();
+
+        info!(target: "app", "Tauri App is opening.");
+
         Ok(())
     })
     .invoke_handler(tauri::generate_handler![

@@ -11,7 +11,7 @@ struct Setting {
     save_dir: String
 }
 
-pub async  fn get_save_dir() -> String {
+pub async fn get_save_dir() -> String {
 
     let handle = super::get_app_handle();
 
@@ -28,7 +28,7 @@ pub async  fn get_save_dir() -> String {
     match path.try_exists() {
         Ok(val) => {
             if !val {
-                create_log_file(&path, &parent);
+                create_settings_file(&path, &parent);
             }
             info!(target: "app", "Reading the base save directory from the settings file: {0}", path.to_str().unwrap());
             let config = fs::File::open(&path).unwrap();
@@ -43,8 +43,11 @@ pub async  fn get_save_dir() -> String {
 
 }
 
-fn create_log_file(path: &PathBuf, parent: &Path) {
-    info!(target: "app", "The log file ({0}) does not exist. Attempting to create now.", path.to_str().unwrap());
+pub fn create_settings_file(path: &PathBuf, parent: &Path) {
+    if path.exists() {
+        return;
+    }
+    info!(target: "app", "The settings file ({0}) does not exist. Attempting to create now.", path.to_str().unwrap());
     if !parent.is_dir() {
         let _ = fs::create_dir_all(&parent);
     }
@@ -53,5 +56,5 @@ fn create_log_file(path: &PathBuf, parent: &Path) {
     let setting = Setting { save_dir: "/home/ben/Documents/JSTG_dev/".to_owned() };
     serde_json::to_writer(&mut writer, &setting).unwrap();
     writer.flush().unwrap();
-    info!(target: "app", "The log file has been created.");
+    info!(target: "app", "The settings file has been created.");
 }
