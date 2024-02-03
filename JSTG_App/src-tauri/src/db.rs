@@ -1,7 +1,9 @@
 use std::error::Error;
 use std::env;
-use crate::structs::{Document, AssessorListing, Assessor, ReferralCompanyListing, ReferralCompany, Path};
+use crate::structs::{Document, AssessorListing, Assessor, ReferralCompanyListing, ReferralCompany, Path, Assessment};
 use sqlx::{PgConnection, Connection};
+use serde_json::Value;
+use log::info;
 
 const DB_CONN_STR: &str = "JSTG_DB_POSTGRESQL";
 
@@ -20,6 +22,29 @@ const DB_CONN_STR: &str = "JSTG_DB_POSTGRESQL";
 //         },
 //         Err(..) => { return false; }
 //     };
+//
+// }
+
+// // Saves a generated request (JSON object) into the database. Values
+// // get mapped to corresponding columns.
+// pub async fn save_request_to_database(request: Option<Assessment<Value>>) {
+//
+//     // Mutliple requests can exist for one client.
+//     // Each request saved will be given a UID.
+//     // In the application, requests will be searched
+//     // by name. OTs should also appear.
+//
+// }
+//
+// // Retrieves a request from the database based on ID.
+// // The request may be used to fill in data to the form.
+// pub async fn get_request_from_database() -> Result<Option<Assessment<Value>>, Box<dyn Error + Send + Sync>> {
+//
+// }
+//
+// // Retrieves requests from the database 
+// // that match some search.
+// pub async fn get_requests_from_database() -> Result<Option<Assessment<Value>>, Box<dyn Error + Send + Sync>> {
 //
 // }
 

@@ -138,6 +138,7 @@ async fn request_document(data: String) {
 
     match build_request(data).await {
         Ok(asmt) => {
+            // Save request to DB.
             send_request(asmt).await;
         },
         _ => { error!(target: "app", "The request was not built correctly. No request is being sent."); }
