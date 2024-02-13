@@ -1,14 +1,27 @@
-﻿using Document = DocProcessor.Document;
+﻿using DocumentFormat.OpenXml.Office.Word;
+using Document = DocProcessor.Document;
 using DocumentType = DocProcessor.DocumentType;
+using List = DocProcessor.List;
 
 string path = "/home/ben/projects/word_documents/checkbox.docx";
 string savepath = "/home/ben/projects/word_documents/generated.docx";
 
-Document doc = new Document(path, DocumentType.ExistingDocument);
+//Document doc = new Document(path, DocumentType.ExistingDocument);
 //doc.EditLegacyCheckbox("Check1", true);
-doc.EditLegacyCheckbox("Check2", true);
-doc.SaveAs(savepath);
+// doc.EditLegacyCheckbox("Check2", true);
+// doc.SaveAs(savepath);
+// doc.Dispose();
+
+
+Document doc = new Document(savepath, DocumentType.NewDocument);
+List list = new List();
+
+doc.InsertText("Hello, World!");
+doc.InsertList(list.test());
+
+doc.Save();
 doc.Dispose();
+
 
 /*
 

@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Runtime.InteropServices.JavaScript;
+using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Office2010.Word;
 using DocumentFormat.OpenXml.Packaging;
@@ -22,6 +23,8 @@ public class Document: IDisposable
     private WordprocessingDocument Doc { get; set; }
     
     private MainDocumentPart MainPart { get; set; }
+    
+    private NumberingDefinitionsPart NumberingPart { get; set; }
     
     private Body Body { get; set; }
     
@@ -52,6 +55,8 @@ public class Document: IDisposable
         Doc = WordprocessingDocument.Open(path, true);
         MainPart = Doc.MainDocumentPart ?? Doc.AddMainDocumentPart();
         Body = MainPart.Document.Body ?? MainPart.Document.AppendChild(new Body());
+        NumberingPart = Doc.GetPartsOfType<NumberingDefinitionsPart>().FirstOrDefault() ??
+                        Doc.AddNewPart<NumberingDefinitionsPart>();
     }
     
     private void CreateDocument()
@@ -59,6 +64,36 @@ public class Document: IDisposable
         MainPart = Doc.AddMainDocumentPart();
         MainPart.Document = new DocumentFormat.OpenXml.Wordprocessing.Document();
         Body = MainPart.Document.AppendChild(new Body());
+        NumberingPart = MainPart.AddNewPart<NumberingDefinitionsPart>();
+    }
+
+    public void InsertList(Numbering list)
+    {
+        
+        list.Save(NumberingPart);
+        Paragraph paragraph = Body.AppendChild(new Paragraph(
+            new ParagraphProperties(
+                new NumberingProperties(
+                    new NumberingLevelReference() { Val = 0 },
+                    new NumberingId() { Val = 1 })),
+            new Run(
+                new RunProperties(),
+                new Text("Hello, ")
+                {
+                    Space = new EnumValue<SpaceProcessingModeValues>(SpaceProcessingModeValues.Preserve)
+                })));
+        
+        Paragraph p2 = Body.AppendChild(new Paragraph(
+                new ParagraphProperties(
+                    new NumberingProperties(
+                        new NumberingLevelReference() { Val = 0 },
+                        new NumberingId() { Val = 1 })),
+                new Run(
+                    new RunProperties(),
+                    new Text("world!")
+                    {
+                        Space = new EnumValue<SpaceProcessingModeValues>(SpaceProcessingModeValues.Preserve)
+                    })));
     }
 
     private static void CreateTempCopyOfDocument(string docPath, string tempPath)
