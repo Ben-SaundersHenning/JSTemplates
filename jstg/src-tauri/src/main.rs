@@ -3,7 +3,7 @@
 
 use std::path::Path;
 
-use log::{info, error, LevelFilter};
+use log::{info, LevelFilter};
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::file::FileAppender;
 use log4rs::config::{Appender, Logger, Root};
@@ -18,7 +18,8 @@ fn main() {
 
     tauri::Builder::default()
         .setup(setup_handler)
-        .invoke_handler(tauri::generate_handler![])
+        .invoke_handler(tauri::generate_handler![
+            storage::get_settings])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 
@@ -39,6 +40,7 @@ fn setup_handler(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error +
         .build(log_dir_path)
         .unwrap();
 
+    // setup loggers
     let config = Config::builder()
         .appender(Appender::builder().build("stdout", Box::new(stdout)))
         .appender(Appender::builder().build("requests", Box::new(requests)))
@@ -51,7 +53,7 @@ fn setup_handler(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error +
 
     let _ = log4rs::init_config(config).unwrap();
 
-    info!(target: "app", "JSTG is opening.");
+    info!(target: "app", "JSTG is starting.");
 
     Ok(())
 
