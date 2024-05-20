@@ -19,7 +19,8 @@ fn main() {
     tauri::Builder::default()
         .setup(setup_handler)
         .invoke_handler(tauri::generate_handler![
-            storage::get_settings])
+            storage::get_settings,
+            storage::update_settings])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 

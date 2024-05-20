@@ -2,7 +2,11 @@
 
     import { ref } from "vue"
 
+    import {invoke} from "@tauri-apps/api/tauri"
+
     const picked = ref("One")
+
+    let stat = ref("Not yet")
 
     const assessors = ref([
         {
@@ -42,11 +46,23 @@
         },
     ])
 
+    function submitTest() {
+        
+        console.log("tesstttt");
+        const send = "/test/test2/logs.log";
+        invoke('update_settings', { path: send });
+        stat.value = "sent now";
+    }
+
 </script>
 
 <template>
     <main class="home-page">
         <h1>Home</h1>
+        <h3>{{stat}}</h3>
+        <form>
+            <button @click.prevent="submitTest">Submit settings</button>
+        </form>
         <form>
             <fieldset>
                 <legend>ASSESSMENT</legend>

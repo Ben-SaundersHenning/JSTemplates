@@ -48,6 +48,49 @@ pub fn get_settings(app_handle: tauri::AppHandle) -> Option<Settings> {
 
 }
 
+#[tauri::command]
+pub fn update_settings(app_handle: tauri::AppHandle, path: String) {
+
+    println!("running update settings");
+
+    let app_name = &app_handle.package_info().name;
+
+    let mut settings_file_path = Path::new(&tauri::api::path::config_dir().unwrap())
+        .join(app_name);
+
+    // append the file to the directory path
+    settings_file_path.push("settings.json");
+
+    match settings_file_path.try_exists() {
+
+        Ok(exists) => {
+
+            if !exists {
+                create_settings_file(&settings_file_path);
+            }
+
+            println!("Opening the file: {}", settings_file_path.clone().display());
+
+            //open file
+            //TODO this will actually just truncate the existing file
+            let file = File::create(settings_file_path).unwrap();
+            // let settings: Settings = serde_json::from_reader(file).unwrap();
+
+            let mut writer = BufWriter::new(file);
+            let settings = Settings { save_dir: path };
+            serde_json::to_writer(&mut writer, &settings).unwrap();
+            writer.flush().unwrap();
+
+            info!(target: "app", "Wrote new settings to settings file.");
+
+        },
+
+        Err(e) => { error!(target: "app", "{}", e); }
+
+    }
+
+}
+
 fn create_settings_file(path: &PathBuf) {
 
     // create the parent directories
