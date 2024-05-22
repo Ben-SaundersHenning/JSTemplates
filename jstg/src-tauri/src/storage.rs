@@ -1,5 +1,3 @@
-// local settings
-
 use std::io::{BufWriter, Write};
 use std::path::PathBuf;
 use std::fs::File;
@@ -10,6 +8,18 @@ use serde::{Serialize, Deserialize};
 #[derive(Serialize, Deserialize)]
 pub struct Settings {
     save_dir: String
+}
+
+impl Settings {
+
+    // Creates an empty Settings
+    // struct.
+    fn new() -> Self {
+        Self {
+            save_dir: "".into(),
+        }
+    }
+
 }
 
 #[tauri::command]
@@ -23,19 +33,20 @@ pub fn get_settings(app_handle: tauri::AppHandle) -> Option<Settings> {
     // append the file to the directory path
     settings_file_path.push("settings.json");
 
+    // note that try_exists OK branch returns a true or false
+    // for existance.
     match settings_file_path.try_exists() {
 
         Ok(exists) => {
-
 
             if !exists {
                 create_settings_file(&settings_file_path);
             }
 
-
-            //open file
+            // open file, read to Settings struct
             let config = File::open(&settings_file_path).unwrap();
             let settings: Settings = serde_json::from_reader(config).unwrap();
+
             return Some(settings);
 
         },
@@ -48,10 +59,11 @@ pub fn get_settings(app_handle: tauri::AppHandle) -> Option<Settings> {
 
 }
 
+// Writes a Settings object to JSON file.
+// Note that the file is currently overwritten every time, but no
+// unchanged data is lost.
 #[tauri::command]
-pub fn update_settings(app_handle: tauri::AppHandle, path: String) {
-
-    println!("running update settings");
+pub fn update_settings(app_handle: tauri::AppHandle, new_settings: String) {
 
     let app_name = &app_handle.package_info().name;
 
@@ -69,15 +81,14 @@ pub fn update_settings(app_handle: tauri::AppHandle, path: String) {
                 create_settings_file(&settings_file_path);
             }
 
-            println!("Opening the file: {}", settings_file_path.clone().display());
-
-            //open file
-            //TODO this will actually just truncate the existing file
+            // open file
             let file = File::create(settings_file_path).unwrap();
-            // let settings: Settings = serde_json::from_reader(file).unwrap();
 
+            // convert settings to struct
+            let settings: Settings = serde_json::from_str(&new_settings).unwrap();
+
+            // write new settings to file
             let mut writer = BufWriter::new(file);
-            let settings = Settings { save_dir: path };
             serde_json::to_writer(&mut writer, &settings).unwrap();
             writer.flush().unwrap();
 
@@ -91,6 +102,7 @@ pub fn update_settings(app_handle: tauri::AppHandle, path: String) {
 
 }
 
+// Creates an empty settings file.
 fn create_settings_file(path: &PathBuf) {
 
     // create the parent directories
@@ -101,7 +113,7 @@ fn create_settings_file(path: &PathBuf) {
     // create the json file
     let file = File::create(path).unwrap();
     let mut writer = BufWriter::new(file);
-    let settings = Settings { save_dir: "".to_owned() };
+    let settings = Settings::new();
     serde_json::to_writer(&mut writer, &settings).unwrap();
     writer.flush().unwrap();
 

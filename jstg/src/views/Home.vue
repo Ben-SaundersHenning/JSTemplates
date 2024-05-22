@@ -1,12 +1,10 @@
 <script lang="ts" setup>
 
-    import { ref } from "vue"
+    import { ref, onMounted } from "vue"
 
     import {invoke} from "@tauri-apps/api/tauri"
 
     const picked = ref("One")
-
-    let stat = ref("Not yet")
 
     const assessors = ref([
         {
@@ -46,23 +44,38 @@
         },
     ])
 
-    function submitTest() {
-        
-        console.log("tesstttt");
-        const send = "/test/test2/logs.log";
-        invoke('update_settings', { path: send });
-        stat.value = "sent now";
+    // TODO: init this in early lifecycle
+    let settings = ref({
+        save_dir: ""
+    })
+
+    function updateSettings() {
+
+        const send = JSON.stringify(settings.value);
+        console.log(send)
+        invoke('update_settings', { newSettings: send });
+
     }
+
+    // retrieves the selected settings.
+    onMounted(() => {
+        invoke('get_settings').then((init_settings) => settings.value = init_settings as Object)
+        .catch((e) => status = e);
+    })
 
 </script>
 
 <template>
     <main class="home-page">
         <h1>Home</h1>
-        <h3>{{stat}}</h3>
+
+        <!-- temp form for settings, keeps save directory visible -->
         <form>
-            <button @click.prevent="submitTest">Submit settings</button>
+            <label for="settings">Settings:</label>
+            <input type="text" id="settings" name="settings" v-model="settings.save_dir"><br><br>
+            <button @click.prevent="updateSettings">Submit settings</button>
         </form>
+
         <form>
             <fieldset>
                 <legend>ASSESSMENT</legend>
