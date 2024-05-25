@@ -44,7 +44,6 @@
         },
     ])
 
-    // TODO: init this in early lifecycle
     let settings = ref({
         save_dir: ""
     })

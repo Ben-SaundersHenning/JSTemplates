@@ -62,6 +62,7 @@ pub fn get_settings(app_handle: tauri::AppHandle) -> Option<Settings> {
 // Writes a Settings object to JSON file.
 // Note that the file is currently overwritten every time, but no
 // unchanged data is lost.
+// new_settings is a json string.
 #[tauri::command]
 pub fn update_settings(app_handle: tauri::AppHandle, new_settings: String) {
 

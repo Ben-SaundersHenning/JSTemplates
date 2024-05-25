@@ -20,7 +20,9 @@ fn main() {
         .setup(setup_handler)
         .invoke_handler(tauri::generate_handler![
             storage::get_settings,
-            storage::update_settings])
+            storage::update_settings,
+            db::get_assessor,
+            db::get_referral_company])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 
@@ -29,7 +31,7 @@ fn main() {
 fn setup_handler(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error + 'static>> {
 
     let mut app_logs: String = (&app.package_info().name).into();
-    app_logs.push_str("/logs");
+    app_logs.push_str("/logs.log");
 
     let log_dir_path = Path::new(&tauri::api::path::config_dir().unwrap())
         .join(app_logs);
@@ -60,3 +62,22 @@ fn setup_handler(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error +
 
 }
 
+// A custom error type that represents all command errors
+#[derive(Debug, thiserror::Error)]
+pub enum Error {
+    // #[error("Failed to read file: {0}")]
+    // Io(#[from] std::io::Error),
+    // #[error("File is not valid utf8: {0}")]
+    // Utf8(#[from] std::string::FromUtf8Error),
+    #[error("Error retrieving values from the database.")]
+    Sqlx(#[from] sqlx::Error),
+}
+
+impl serde::Serialize for Error {
+  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+  where
+    S: serde::ser::Serializer,
+  {
+    serializer.serialize_str(self.to_string().as_ref())
+  }
+}
