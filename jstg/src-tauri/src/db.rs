@@ -46,12 +46,22 @@ pub struct Address {
 #[tauri::command]
 pub async fn get_assessor(registration_id: &str) -> Result<Assessor, Error> {
 
-    let mut conn = PgConnection::connect(&env::var(DB_CONN_STR).unwrap()).await?;
+    let mut conn_str: String = String::new();
+
+    // dev environment
+    if cfg!(dev) {
+        conn_str.push_str("postgres://jstg:password@localhost:5432/jsot");
+    } else {
+        conn_str.push_str(&env::var(DB_CONN_STR).unwrap());
+    }
+
+    let mut conn = PgConnection::connect(&conn_str).await?;
+
 
     let query = "SELECT registration_id,
-                        title,
                         first_name,
                         last_name,
+                        gender,
                         email,
                         qualifications_paragraph
                  FROM \"assessors\"
@@ -70,7 +80,17 @@ pub async fn get_assessor(registration_id: &str) -> Result<Assessor, Error> {
 #[tauri::command]
 pub async fn get_referral_company(referral_company_id: i32) -> Result<ReferralCompany, Error> {
 
-    let mut conn = PgConnection::connect(&env::var(DB_CONN_STR).unwrap()).await?;
+    let mut conn_str: String = String::new();
+
+    // dev environment
+    if cfg!(dev) {
+        conn_str.push_str("postgres://jstg:password@localhost:5432/jsot");
+    } else {
+        conn_str.push_str(&env::var(DB_CONN_STR).unwrap());
+    }
+
+    let mut conn = PgConnection::connect(&conn_str).await?;
+
     let query = "SELECT name,
                         common_name,
                         phone,
@@ -80,9 +100,7 @@ pub async fn get_referral_company(referral_company_id: i32) -> Result<ReferralCo
                         postal_code,
                         city,
                         province,
-                        province_abbreviated,
-                        country,
-                        '' AS address_long
+                        country
                  FROM \"referral_companies\"
                  WHERE \"id\" = $1;";
 
