@@ -14,6 +14,11 @@ pub enum Gender {
 }
 
 #[derive(Serialize, sqlx::FromRow)]
+pub struct JsonListing {
+    pub listing_details: sqlx::types::JsonValue,
+}
+
+#[derive(Serialize, sqlx::FromRow)]
 pub struct Assessor {
     pub registration_id: String,
     pub first_name: String,
@@ -43,8 +48,10 @@ pub struct Address {
     pub country: String,
 }
 
+// Retrieves the set of assessors
+// (name, id)
 #[tauri::command]
-pub async fn get_assessor(registration_id: &str) -> Result<Assessor, Error> {
+pub async fn get_assessor_options() -> Result<JsonListing, Error> {
 
     let mut conn_str: String = String::new();
 
@@ -57,6 +64,37 @@ pub async fn get_assessor(registration_id: &str) -> Result<Assessor, Error> {
 
     let mut conn = PgConnection::connect(&conn_str).await?;
 
+    // Fetches a JSON array of JSON objects,
+    // where each object represents one company.
+    let query = "SELECT json_agg(json_build_object(
+                    'name', assessors.first_name || ' ' || assessors.last_name,
+                    'id', trim(assessors.registration_id)
+                    )) as listing_details
+                 FROM \"assessors\";";
+
+    let assessors = sqlx::query_as::<_, JsonListing>(query)
+        .fetch_one(&mut conn).await?;
+
+    conn.close().await?;
+
+    Ok(assessors)
+
+}
+
+// Retrieives an assessor from the database based on
+// a given unique ID.
+pub async fn get_assessor(registration_id: &str) -> Result<Option<Assessor>, Error> {
+
+    let mut conn_str: String = String::new();
+
+    // dev environment
+    if cfg!(dev) {
+        conn_str.push_str("postgres://jstg:password@localhost:5432/jsot");
+    } else {
+        conn_str.push_str(&env::var(DB_CONN_STR).unwrap());
+    }
+
+    let mut conn = PgConnection::connect(&conn_str).await?;
 
     let query = "SELECT registration_id,
                         first_name,
@@ -69,7 +107,7 @@ pub async fn get_assessor(registration_id: &str) -> Result<Assessor, Error> {
 
     let assessor = sqlx::query_as::<_, Assessor>(query)
         .bind(registration_id)
-        .fetch_one(&mut conn).await?;
+        .fetch_optional(&mut conn).await?;
 
     conn.close().await?;
 
@@ -77,8 +115,42 @@ pub async fn get_assessor(registration_id: &str) -> Result<Assessor, Error> {
 
 }
 
+// Retrieves the set of companies
+// (name, id)
 #[tauri::command]
-pub async fn get_referral_company(referral_company_id: i32) -> Result<ReferralCompany, Error> {
+pub async fn get_referral_company_options() -> Result<JsonListing, Error> {
+
+    let mut conn_str: String = String::new();
+
+    // dev environment
+    if cfg!(dev) {
+        conn_str.push_str("postgres://jstg:password@localhost:5432/jsot");
+    } else {
+        conn_str.push_str(&env::var(DB_CONN_STR).unwrap());
+    }
+
+    let mut conn = PgConnection::connect(&conn_str).await?;
+
+    // Fetches a JSON array of JSON objects,
+    // where each object represents one company.
+    let query = "SELECT json_agg(json_build_object(
+                    'name', rc.common_name,
+                    'id', rc.id
+                    )) as listing_details
+                 FROM \"referral_companies\" rc;";
+
+    let companies = sqlx::query_as::<_, JsonListing>(query)
+        .fetch_one(&mut conn).await?;
+
+    conn.close().await?;
+
+    Ok(companies)
+
+}
+
+// Retrieives a company from the database based on
+// a given unique ID.
+pub async fn get_referral_company(referral_company_id: i32) -> Result<Option<ReferralCompany>, Error> {
 
     let mut conn_str: String = String::new();
 
@@ -106,8 +178,7 @@ pub async fn get_referral_company(referral_company_id: i32) -> Result<ReferralCo
 
     let company = sqlx::query_as::<_, ReferralCompany>(query)
         .bind(referral_company_id)
-        .fetch_one(&mut conn).await?;
-        // .fetch_optional(&mut conn).await?;
+        .fetch_optional(&mut conn).await?;
 
     conn.close().await?;
 

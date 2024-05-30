@@ -21,8 +21,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             storage::get_settings,
             storage::update_settings,
-            db::get_assessor,
-            db::get_referral_company])
+            db::get_assessor_options,
+            db::get_referral_company_options])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 
