@@ -6,27 +6,10 @@
 
     const picked = ref("One")
 
-    const assessors = ref([
-        {
-            name: "One",
-            id: "One"
-        },
-        {
-            name: "Two",
-            id: "Two"
-        },
-        {
-            name: "Three",
-            id: "Three"
-        },
-        {
-            name: "Four",
-            id: "Four"
-        },
-        {
-            name: "Five",
-            id: "Five"
-        },
+    let assessors = ref([
+    ])
+
+    let referral_companies = ref([
     ])
 
     const types = ref([
@@ -56,10 +39,21 @@
 
     }
 
-    // retrieves the selected settings.
     onMounted(() => {
+
         invoke('get_settings').then((init_settings) => settings.value = init_settings as Object)
-        .catch((e) => status = e);
+        .catch((e) => console.log(e));
+
+        invoke('get_assessor_options').then((assessor_options) => {
+            console.log(assessor_options.listing_details);
+            assessors.value = assessor_options.listing_details as Array;
+            console.log(assessors.value);
+        })
+        .catch((e) => console.log(e));
+
+        invoke('get_referral_company_options').then((rc_options) => referral_companies.value = rc_options as Array)
+        .catch((e) => console.log(e));
+
     })
 
 </script>
