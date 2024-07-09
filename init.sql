@@ -213,6 +213,8 @@ ALTER TABLE ONLY public.referral_companies
 insert into public.documents (name, user_friendly_name, common_name, file) values ('Test Document 1', 'Doc1', 'TD1', 'TD1.docx');
 insert into public.documents (name, user_friendly_name, common_name, file) values ('Test Document 2', 'Doc2', 'TD2', 'TD2.docx');
 insert into public.documents (name, user_friendly_name, common_name, file) values ('Test Document 3', 'Doc3', 'TD3', 'TD3.docx');
+insert into public.documents (name, user_friendly_name, common_name, file) values ('Test Document 4', 'Doc4', 'TD4', 'TD4.docx');
+insert into public.documents (name, user_friendly_name, common_name, file) values ('Test Document 5', 'Doc5', 'TD5', 'TD5.docx');
 
 --
 -- referral_companies test data

@@ -3,7 +3,7 @@
 
 <template>
   <div class="container">
-    <h1>App.vue</h1>
+    <!-- <h1>APP TITLE</h1> -->
     <router-view style="width: 100%"/>
   </div>
 </template>

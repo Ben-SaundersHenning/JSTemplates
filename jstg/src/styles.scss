@@ -1,0 +1,50 @@
+/* $primary-color: #a396b4; */
+/* $base-color: #ddd9e3; */
+/* $secondary-color: #3a1670; */
+
+$primary-color: #51455e;
+$base-color: #282828;
+$secondary-color: #230046;
+$accent-color: #320064;
+$shadow-color: #dccae9;
+
+html {
+    color: white;
+    font-size: 100% // or 62.5% or whatever you like, it doesn't matter, it's just a browser fix, however "rem" units will be based on that value, so make it confortable for calculations */
+}
+
+body {
+    font-size: 1.35em; /* That is your text's default font size. Here i chose 12px */
+    background-color: $base-color;
+}
+
+h1 { /* or whatever element you want to change the font size of */
+    font-size: 1.85rem; /* which equals to 20px if html's font-size was set to 100% */
+}
+
+
+.card {
+
+  box-sizing: border-box;
+  border: 5px double $accent-color;
+  border-radius: 10px;
+  min-height: 150px;
+  box-shadow: 0 4px 0px 0 $shadow-color;
+  background-color: $primary-color;
+
+  margin-top: 30px; // Margin required for title
+
+  display: flex;
+
+  #title {
+    position: absolute;
+  box-sizing: border-box;
+    top: -25px;
+    left: 25px;
+    border: 5px double $accent-color;
+    border-bottom: 0px;
+    border-radius: 10px 10px 0px 0px;
+  background-color: $primary-color;
+  }
+
+}

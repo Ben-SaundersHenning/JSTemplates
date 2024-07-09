@@ -48,6 +48,39 @@ pub struct Address {
     pub country: String,
 }
 
+// Retrieves the set of documents
+// (name)
+#[tauri::command]
+pub async fn get_document_options() -> Result<JsonListing, Error> {
+
+    let mut conn_str: String = String::new();
+
+    // dev environment
+    if cfg!(dev) {
+        conn_str.push_str("postgres://jstg:password@localhost:5432/jsot");
+    } else {
+        conn_str.push_str(&env::var(DB_CONN_STR).unwrap());
+    }
+
+    let mut conn = PgConnection::connect(&conn_str).await?;
+
+    // Fetches a JSON array of JSON objects,
+    // where each object represents one company.
+    let query = "SELECT json_agg(json_build_object(
+                    'document', d.common_name,
+                    'id', d.id
+                    )) as listing_details
+                 FROM \"documents\" d;";
+
+    let documents = sqlx::query_as::<_, JsonListing>(query)
+        .fetch_one(&mut conn).await?;
+
+    conn.close().await?;
+
+    Ok(documents)
+
+}
+
 // Retrieves the set of assessors
 // (name, id)
 #[tauri::command]
@@ -67,10 +100,10 @@ pub async fn get_assessor_options() -> Result<JsonListing, Error> {
     // Fetches a JSON array of JSON objects,
     // where each object represents one company.
     let query = "SELECT json_agg(json_build_object(
-                    'name', assessors.first_name || ' ' || assessors.last_name,
-                    'id', trim(assessors.registration_id)
+                    'name', a.first_name || ' ' || a.last_name,
+                    'id', trim(a.registration_id)
                     )) as listing_details
-                 FROM \"assessors\";";
+                 FROM \"assessors\" a;";
 
     let assessors = sqlx::query_as::<_, JsonListing>(query)
         .fetch_one(&mut conn).await?;
