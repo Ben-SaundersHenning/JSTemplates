@@ -19,11 +19,11 @@ fieldset {
   box-sizing: border-box;
   border: 5px double variables.$secondary-color;
   border-radius: 10px;
-  min-height: 150px;
-  /* background-color: variables.$accent-color; */
+  width: fit-content;
+  min-width: 320px;
   background-color: variables.$background-color-1;
-  margin-top: 30px; // Margin required for legend offset
-  display: flex;
+  overflow: wrap;
+  margin: 30px auto 0 auto;
 
   legend {
 
