@@ -1,4 +1,55 @@
 <script lang="ts" setup>
+
+    import { ref, onMounted } from "vue"
+
+    import {invoke} from "@tauri-apps/api/tauri"
+
+    const picked = ref("One")
+    const comp_picked = ref("One")
+
+    let assessors = ref([
+    ])
+
+    let referral_companies = ref([
+    ])
+
+    let types = ref([
+    ])
+
+    let settings = ref({
+        save_dir: ""
+    })
+
+    function updateSettings() {
+
+        const send = JSON.stringify(settings.value);
+        console.log(send)
+        invoke('update_settings', { newSettings: send });
+
+    }
+
+    onMounted(() => {
+
+        invoke('get_settings').then((init_settings) => settings.value = init_settings as Object)
+        .catch((e) => console.log(e));
+
+        invoke('get_assessor_options').then((assessor_options) => {
+            console.log(assessor_options.listing_details);
+            assessors.value = assessor_options.listing_details as Array;
+        })
+        .catch((e) => console.log(e));
+
+        invoke('get_document_options').then((document_options) => {
+            console.log(document_options.listing_details);
+            types.value = document_options.listing_details as Array;
+        })
+        .catch((e) => console.log(e));
+
+        invoke('get_referral_company_options').then((rc_options) => referral_companies.value = rc_options.listing_details as Array)
+        .catch((e) => console.log(e));
+
+    })
+
 </script>
 
 <template>
@@ -11,34 +62,18 @@
                 <div class="assessor-input vertical-input">
                     <p class="input-label">Assessor</p>
                     <div class="horizontal-input input-border">
-
-                        <input type="radio" id="html" name="fav_language" value="HTML" />
-                        <label for="html">HTML</label><br>
-                        <input type="radio" id="css" name="fav_language" value="CSS" />
-                        <label for="css">CSS</label><br>
-                        <input type="radio" id="javascript" name="fav_language" value="JavaScript" />
-                        <label for="javascript">JavaScript</label> 
-
+                        <span v-for="(assessor, index) in assessors">
+                            <input type="radio" name="assessor" :id="'assessor' + assessor.id" :value="assessor.id" v-model="picked" />
+                            <label :for="'assessor' + assessor.id">{{assessor.name}}</label>
+                        </span>
                     </div>
                 </div>
                 <div class="assessment-type-input vertical-input">
                     <p class="input-label">Type</p>
                     <div class="checkboxes input-border">
-                        <span>
-                            <input type="checkbox" id="html2" name="type" value="HTML" />
-                            <label for="html2">HTML</label><br>
-                        </span>
-                        <span>
-                            <input type="checkbox" id="css2" name="type" value="CSS" />
-                            <label for="css2">CSS</label><br>
-                        </span>
-                        <span>
-                            <input type="checkbox" id="html3" name="type" value="HTML3" />
-                            <label for="html3">HTML</label><br>
-                        </span>
-                        <span>
-                            <input type="checkbox" id="css3" name="type" value="CSS3" />
-                            <label for="css3">CSS</label><br>
+                        <span v-for="(type, index) in types">
+                            <input type="checkbox" name="assessment-type" :id="'assessment-type' + type.id" :value="type.document" v-model="checkedNames">
+                            <label :for="'assessment-type' + type.id">{{type.document}}</label>
                         </span>
                     </div>
                 </div>
@@ -46,44 +81,9 @@
 
                     <p class="input-label">Referral Company</p>
                     <div class="checkboxes company input-border">
-
-                        <span>                        
-                        <input type="radio" id="htmla" name="comp" value="HTML" />
-                        <label for="htmla">HTML</label><br>
-                        </span>
-                        <span>                        
-                        <input type="radio" id="cssa" name="comp" value="CSS" />
-                        <label for="cssa">CSS</label><br>
-                        </span>
-                        <span>                        
-                        <input type="radio" id="javascripta" name="comp" value="JavaScript" />
-                        <label for="javascripta">JavaScript</label> 
-                        </span>
-
-                        <span>                        
-                        <input type="radio" id="htmlb" name="comp" value="HTML" />
-                        <label for="htmlb">HTML</label><br>
-                        </span>
-                        <span>                        
-                        <input type="radio" id="cssb" name="comp" value="CSS" />
-                        <label for="cssb">CSS</label><br>
-                        </span>
-                        <span>
-                        <input type="radio" id="javascriptb" name="comp" value="JavaScript" />
-                        <label for="javascriptb">JavaScript</label> 
-                        </span>
-
-                        <span>                        
-                        <input type="radio" id="htmlc" name="comp" value="HTML" />
-                        <label for="htmlc">HTML</label><br>
-                        </span>
-                        <span>                        
-                        <input type="radio" id="cssc" name="comp" value="CSS" />
-                        <label for="cssc">CSS</label><br>
-                        </span>
-                        <span>                        
-                        <input type="radio" id="javascriptc" name="comp" value="JavaScript" />
-                        <label for="javascriptc">JavaScript</label> 
+                        <span v-for="(company, index) in referral_companies">
+                            <input type="radio" name="company" :id="'company' + company.id" :value="company.id" v-model="comp_picked" />
+                            <label :for="'company' + company.id">{{company.name}}</label>
                         </span>
                     </div>
                 </div>
@@ -298,7 +298,6 @@
     }
 
     .checkboxes {
-      //width: 60px;
       display: grid;
       grid-column-gap: 1rem;
       grid-row-gap: 0.5rem;
