@@ -1,8 +1,26 @@
 <script lang="ts" setup>
 
-    import { ref, onMounted } from "vue"
+    import { ref, onMounted, watch } from "vue"
 
-    import {invoke} from "@tauri-apps/api/tauri"
+    import { invoke } from "@tauri-apps/api/tauri"
+
+    import { useForm } from "vee-validate";
+
+    import { toTypedSchema } from "@vee-validate/zod";
+
+    import { z } from "zod";
+
+    const { asmtForm, defineField } = useForm({
+        validationSchema: toTypedSchema(
+            z.object({
+                adjuster: z.string().min(1),
+                insuranceCompany: z.string().min(1),
+            }),
+        ),
+    });
+
+    const [adjuster, adjusterAtrb] = defineField("adjuster");
+    const [insuranceCompany, insuranceCompanyAtrb] = defineField("insuranceCompany");
 
     const picked = ref("One")
     const comp_picked = ref("One")
@@ -19,6 +37,36 @@
     let settings = ref({
         save_dir: ""
     })
+
+    // const asmtData = reactive({
+    //         assessor: {
+    //             registrationId: "",
+    //         },
+    //         adjuster: "",
+    //         insuranceCompany: "",
+    //         claimNumber: "",
+    //         referralCompany: {
+    //             id: "",
+    //         },
+    //         dateOfAssessment: "",
+    //         claimant: {
+    //             firstName: ref("Ben"),
+    //             lastName: "",
+    //             gender: "",
+    //             dateOfBirth: "",
+    //             dateOfLoss: "",
+    //             address: {
+    //                 address: "",
+    //                 city: "",
+    //                 province: "",
+    //                 postalCode: "",
+    //                 country: "",
+    //             },
+    //         },
+    //         // asmtTypes: <{}>[], // types required in document, plus their required info.
+    //         // questions: [
+    //         // ]
+    //     });
 
     function updateSettings() {
 
@@ -88,7 +136,7 @@
                     </div>
                 </div>
                 <div class="date-of-assessment-input vertical-input">
-                    <p class="input-label">Date of Assessment</p>
+                    <p class="input-label">Date of Assessment (YYYY-MM-DD)</p>
                     <input aria-label="Date of Assessment" id="doa-input" class="input-border" type="text" name="doa" />
                 </div>
             </div>
@@ -168,12 +216,13 @@
             <div class="insurance-inputs">
                 <div class="company-input vertical-input">
                     <p class="input-label">Insurance Company</p>
-                    <input aria-label="Insurance Company" id="insurance-company-input" class="input-border" type="text" name="insurance-company" />
+                    <input aria-label="Insurance Company" id="insurance-company-input" class="input-border" type="text" name="insurance-company" 
+                           v-model="insuranceCompany" :="insuranceCompanyAtrb"/>
                 </div>
 
                 <div class="adjuster-input vertical-input">
                     <p class="input-label">Adjuster</p>
-                    <input aria-label="Adjuster" id="adjuster-input" class="input-border" type="text" name="adjuster" />
+                    <input aria-label="Adjuster" id="adjuster-input" class="input-border" type="text" name="adjuster" v-model="adjuster" :="adjusterAtrb"/>
                 </div>
 
                 <div class="claim-number-input vertical-input">
