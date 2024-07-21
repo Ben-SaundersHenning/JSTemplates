@@ -13,15 +13,61 @@
     const { errors, handleSubmit, defineField } = useForm({
         validationSchema: toTypedSchema(
             z.object({
+                assessor: z.object({
+                    registrationId: z.string().min(1),
+                }),
                 adjuster: z.string().min(1),
                 insuranceCompany: z.string().min(1),
+                claimNumber: z.string().min(1),
+                referralCompany: z.object({
+                    id: z.string().min(1),
+                }),
+                dateOfAssessment: z.string().min(1),
                 claimant: z.object({
                     firstName: z.string().min(1),
+                    lastName: z.string().min(1),
+                    gender: z.string().min(1),
+                    dateOfBirth: z.string().min(1),
+                    dateOfLoss: z.string().min(1),
+                    address: z.object({
+                        address: z.string().min(1),
+                        city: z.string().min(1),
+                        province: z.string().min(1),
+                        postalCode: z.string().min(1),
+                        country: z.string().min(1),
+                    }),
                 }),
+
+
+
             }),
         ),
     });
 
+    // NAMING SHORTCUTS
+    // assessor => asr
+    // referralCompany => rc
+    // claimant => cl
+    // address => add
+    // dateOf => do
+    const [asrRegistrationId, asrRegistrationIdAtrb] = defineField("assessor.registrationId");
+    const [adjuster, adjusterAtrb] = defineField("adjuster");
+    const [insuranceCompany, insuranceCompanyAtrb] = defineField("insuranceCompany");
+    const [claimNumber, claimNumberAtrb] = defineField("claimNumber");
+    const [rcId, rcIdAtrb] = defineField("referralCompany.id");
+    const [doAssessment, doAssessmentAtrb] = defineField("dateOfAssessment");
+    const [clFirstName, clFirstNameAtrb] = defineField("claimant.firstName");
+    const [clLastName, clLastNameAtrb] = defineField("claimant.lastName");
+    const [clGender, clGenderAtrb] = defineField("claimant.Gender");
+    const [clDoBirth, clDoBirthAtrb] = defineField("claimant.DateOfBirth");
+    const [clDoLoss, clDoLossAtrb] = defineField("claimant.DateOfLoss");
+    const [clAddAddress, clAddAddressAtrb] = defineField("claimant.Address.Address");
+    const [clAddCity, clAddCityAtrb] = defineField("claimant.Address.City");
+    const [clAddProvince, clAddProvinceAtrb] = defineField("claimant.Address.Province");
+    const [clAddPostalCode, clAddPostalCodeAtrb] = defineField("claimant.Address.PostalCode");
+    const [clAddCountry, clAddCountryAtrb] = defineField("claimant.Address.Country");
+
+    // OLD OBJECT --
     // const asmtData = reactive({
     //         assessor: {
     //             registrationId: "",
@@ -52,9 +98,6 @@
     //         // ]
     //     });
 
-    const [adjuster, adjusterAtrb] = defineField("adjuster");
-    const [insuranceCompany, insuranceCompanyAtrb] = defineField("insuranceCompany");
-    const [claimantFirstName, claimantFirstNameAtrb] = defineField("claimant.firstName");
 
     const picked = ref("One")
     const comp_picked = ref("One")
@@ -119,15 +162,18 @@
                     <p class="input-label">Assessor</p>
                     <div class="horizontal-input input-border">
                         <span v-for="(assessor, index) in assessors">
-                            <input type="radio" name="assessor" :id="'assessor' + assessor.id" :value="assessor.id" v-model="picked" />
+                            <input type="radio" name="assessor" :id="'assessor' + assessor.id" :value="assessor.id"
+                                   v-model="asrRegistrationId" :="asrRegistrationIdAtrb"/>
                             <label :for="'assessor' + assessor.id">{{assessor.name}}</label>
                         </span>
                     </div>
+                    <div>{{errors['assessor.registrationId']}}</div>
                 </div>
                 <div class="assessment-type-input vertical-input">
                     <p class="input-label">Type</p>
                     <div class="checkboxes input-border">
                         <span v-for="(type, index) in types">
+                            <!-- TODO: ADD SCHEMA FOR THIS INPUT -->
                             <input type="checkbox" name="assessment-type" :id="'assessment-type' + type.id" :value="type.document" v-model="checkedNames">
                             <label :for="'assessment-type' + type.id">{{type.document}}</label>
                         </span>
@@ -156,7 +202,7 @@
             <div class="client-inputs">
                 <div class="firstname-input vertical-input">
                     <p class="input-label">First Name</p>
-                    <input aria-label="First Name" id="fname-input" class="input-border" type="text" name="fname" v-model="claimantFirstName" :="claimantFirstNameAtrb"/>
+                    <input aria-label="First Name" id="fname-input" class="input-border" type="text" name="fname" v-model="clFirstName" :="clFirstNameAtrb"/>
                     <div>{{errors['claimant.firstName']}}</div>
                 </div>
 
