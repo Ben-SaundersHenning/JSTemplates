@@ -58,14 +58,14 @@
     const [doAssessment, doAssessmentAtrb] = defineField("dateOfAssessment");
     const [clFirstName, clFirstNameAtrb] = defineField("claimant.firstName");
     const [clLastName, clLastNameAtrb] = defineField("claimant.lastName");
-    const [clGender, clGenderAtrb] = defineField("claimant.Gender");
-    const [clDoBirth, clDoBirthAtrb] = defineField("claimant.DateOfBirth");
-    const [clDoLoss, clDoLossAtrb] = defineField("claimant.DateOfLoss");
-    const [clAddAddress, clAddAddressAtrb] = defineField("claimant.Address.Address");
-    const [clAddCity, clAddCityAtrb] = defineField("claimant.Address.City");
-    const [clAddProvince, clAddProvinceAtrb] = defineField("claimant.Address.Province");
-    const [clAddPostalCode, clAddPostalCodeAtrb] = defineField("claimant.Address.PostalCode");
-    const [clAddCountry, clAddCountryAtrb] = defineField("claimant.Address.Country");
+    const [clGender, clGenderAtrb] = defineField("claimant.gender");
+    const [clDoBirth, clDoBirthAtrb] = defineField("claimant.dateOfBirth");
+    const [clDoLoss, clDoLossAtrb] = defineField("claimant.dateOfLoss");
+    const [clAddAddress, clAddAddressAtrb] = defineField("claimant.address.address");
+    const [clAddCity, clAddCityAtrb] = defineField("claimant.address.city");
+    const [clAddProvince, clAddProvinceAtrb] = defineField("claimant.address.province");
+    const [clAddPostalCode, clAddPostalCodeAtrb] = defineField("claimant.address.postalCode");
+    const [clAddCountry, clAddCountryAtrb] = defineField("claimant.address.country");
 
     // OLD OBJECT --
     // const asmtData = reactive({
@@ -184,14 +184,18 @@
                     <p class="input-label">Referral Company</p>
                     <div class="checkboxes company input-border">
                         <span v-for="(company, index) in referral_companies">
-                            <input type="radio" name="company" :id="'company' + company.id" :value="company.id" v-model="comp_picked" />
+                            <input type="radio" name="company" :id="'company' + company.id" :value="company.id"
+                                   v-model="rcId" :="rcIdAtrb"/>
                             <label :for="'company' + company.id">{{company.name}}</label>
                         </span>
                     </div>
+                    <div>{{errors['referralCompany.id']}}</div>
                 </div>
                 <div class="date-of-assessment-input vertical-input">
                     <p class="input-label">Date of Assessment (YYYY-MM-DD)</p>
-                    <input aria-label="Date of Assessment" id="doa-input" class="input-border" type="text" name="doa" />
+                    <input aria-label="Date of Assessment" id="doa-input" class="input-border" type="text" name="doa"
+                                   v-model="doAssessment" :="doAssessmentAtrb"/>
+                    <div>{{errors['dateOfAssessment']}}</div>
                 </div>
             </div>
 
@@ -208,59 +212,80 @@
 
                 <div class="lastname-input vertical-input">
                     <p class="input-label">Last Name</p>
-                    <input aria-label="Last Name" id="lname-input" class="input-border" type="text" name="lname" />
+                    <input aria-label="Last Name" id="lname-input" class="input-border" type="text" name="lname"
+                                   v-model="clLastName" :="clLastNameAtrb"/>
+                    <div>{{errors['claimant.lastName']}}</div>
                 </div>
 
                 <div class="gender-input vertical-input">
                     <p class="input-label">Gender</p>
                     <div class="horizontal-input input-border">
-                        <input type="radio" id="male" name="gender" value="male" />
+                        <input type="radio" id="male" name="gender" value="male"
+                                   v-model="clGender" :="clGenderAtrb"/>
                         <label for="male">Male</label><br>
-                        <input type="radio" id="female" name="gender" value="female" />
+                        <input type="radio" id="female" name="gender" value="female"
+                                   v-model="clGender" :="clGenderAtrb"/>
                         <label for="female">Female</label><br>
-                        <input type="radio" id="other" name="gender" value="other" />
+                        <input type="radio" id="other" name="gender" value="other"
+                                   v-model="clGender" :="clGenderAtrb"/>
                         <label for="other">Other</label><br>
                     </div>
+                    <div>{{errors['claimant.gender']}}</div>
                 </div>
 
                 <div class="dob-input vertical-input">
                     <p class="input-label">Date of Birth (YYYY-MM-DD)</p>
-                    <input aria-label="Date of Birth" id="dob-input" class="input-border" type="text" name="dob" />
+                    <input aria-label="Date of Birth" id="dob-input" class="input-border" type="text" name="dob"
+                                   v-model="clDoBirth" :="clDoBirthAtrb"/>
+                    <div>{{errors['claimant.dateOfBirth']}}</div>
                 </div>
 
                 <div class="dol-input vertical-input">
                     <p class="input-label">Date of Loss (YYYY-MM-DD)</p>
-                    <input aria-label="Date of Loss" id="dol-input" class="input-border" type="text" name="dol" />
+                    <input aria-label="Date of Loss" id="dol-input" class="input-border" type="text" name="dol"
+                                   v-model="clDoLoss" :="clDoLossAtrb"/>
+                    <div>{{errors['claimant.dateOfLoss']}}</div>
                 </div>
 
                 <div class="street-input vertical-input">
                     <p class="input-label">Street Address</p>
-                    <input aria-label="Street Address" id="street-address-input" class="input-border" type="text" name="address" />
+                    <input aria-label="Street Address" id="street-address-input" class="input-border" type="text" name="address"
+                                   v-model="clAddAddress" :="clAddAddressAtrb"/>
+                    <div>{{errors['claimant.address.address']}}</div>
                 </div>
 
                 <div class="apt-input vertical-input">
                     <p class="input-label">Apt, Suite, etc</p>
+                    <!-- TODO: ADD A MODEL FOR THIS INPUT -->
                     <input aria-label="Apt, Suite, etc" id="apt-suite-input" class="input-border" type="text" name="apt-suite" />
                 </div>
 
                 <div class="city-input vertical-input">
                     <p class="input-label">City</p>
-                    <input aria-label="City" id="city-input" class="input-border" type="text" name="city" />
+                    <input aria-label="City" id="city-input" class="input-border" type="text" name="city"
+                                   v-model="clAddCity" :="clAddCityAtrb"/>
+                    <div>{{errors['claimant.address.city']}}</div>
                 </div>
 
                 <div class="postal-code-input vertical-input">
                     <p class="input-label">Postal Code</p>
-                    <input aria-label="Postal Code" id="postal-code-input" class="input-border" type="text" name="postal-code" />
+                    <input aria-label="Postal Code" id="postal-code-input" class="input-border" type="text" name="postal-code"
+                                   v-model="clAddPostalCode" :="clAddPostalCodeAtrb"/>
+                    <div>{{errors['claimant.address.postalCode']}}</div>
                 </div>
 
                 <div class="province-input vertical-input">
                     <p class="input-label">Province</p>
-                    <input aria-label="Province" id="province-input" class="input-border" type="text" name="province" />
+                    <input aria-label="Province" id="province-input" class="input-border" type="text" name="province"
+                                   v-model="clAddProvince" :="clAddProvinceAtrb"/>
+                    <div>{{errors['claimant.address.province']}}</div>
                 </div>
 
                 <div class="country-input vertical-input">
                     <p class="input-label">Country</p>
-                    <input aria-label="Country" id="country-input" class="input-border" type="text" name="country" />
+                    <input aria-label="Country" id="country-input" class="input-border" type="text" name="country"
+                                   v-model="clAddCountry" :="clAddCountryAtrb"/>
+                    <div>{{errors['claimant.address.country']}}</div>
                 </div>
 
             </div>
@@ -284,7 +309,9 @@
 
                 <div class="claim-number-input vertical-input">
                     <p class="input-label">Claim Number</p>
-                    <input aria-label="Claim Number" id="claim-number-input" class="input-border" type="text" name="claim-number" />
+                    <input aria-label="Claim Number" id="claim-number-input" class="input-border" type="text" name="claim-number"
+                                   v-model="claimNumber" :="claimNumberAtrb"/>
+                    <div>{{errors['claimNumber']}}</div>
                 </div>
             </div>
         </fieldset>
