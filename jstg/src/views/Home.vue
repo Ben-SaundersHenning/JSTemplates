@@ -10,33 +10,17 @@
 
     import { z } from "zod";
 
-    const { asmtForm, defineField } = useForm({
+    const { errors, handleSubmit, defineField } = useForm({
         validationSchema: toTypedSchema(
             z.object({
                 adjuster: z.string().min(1),
                 insuranceCompany: z.string().min(1),
+                claimant: z.object({
+                    firstName: z.string().min(1),
+                }),
             }),
         ),
     });
-
-    const [adjuster, adjusterAtrb] = defineField("adjuster");
-    const [insuranceCompany, insuranceCompanyAtrb] = defineField("insuranceCompany");
-
-    const picked = ref("One")
-    const comp_picked = ref("One")
-
-    let assessors = ref([
-    ])
-
-    let referral_companies = ref([
-    ])
-
-    let types = ref([
-    ])
-
-    let settings = ref({
-        save_dir: ""
-    })
 
     // const asmtData = reactive({
     //         assessor: {
@@ -68,6 +52,26 @@
     //         // ]
     //     });
 
+    const [adjuster, adjusterAtrb] = defineField("adjuster");
+    const [insuranceCompany, insuranceCompanyAtrb] = defineField("insuranceCompany");
+    const [claimantFirstName, claimantFirstNameAtrb] = defineField("claimant.firstName");
+
+    const picked = ref("One")
+    const comp_picked = ref("One")
+
+    let assessors = ref([
+    ])
+
+    let referral_companies = ref([
+    ])
+
+    let types = ref([
+    ])
+
+    let settings = ref({
+        save_dir: ""
+    })
+
     function updateSettings() {
 
         const send = JSON.stringify(settings.value);
@@ -75,6 +79,10 @@
         invoke('update_settings', { newSettings: send });
 
     }
+
+    const onSubmit = handleSubmit(values => {
+        console.log("form submission worked");
+    });
 
     onMounted(() => {
 
@@ -101,7 +109,7 @@
 </script>
 
 <template>
-    <form>
+    <form @submit="onSubmit">
 
         <fieldset>
 
@@ -148,7 +156,8 @@
             <div class="client-inputs">
                 <div class="firstname-input vertical-input">
                     <p class="input-label">First Name</p>
-                    <input aria-label="First Name" id="fname-input" class="input-border" type="text" name="fname" />
+                    <input aria-label="First Name" id="fname-input" class="input-border" type="text" name="fname" v-model="claimantFirstName" :="claimantFirstNameAtrb"/>
+                    <div>{{errors['claimant.firstName']}}</div>
                 </div>
 
                 <div class="lastname-input vertical-input">
@@ -218,11 +227,13 @@
                     <p class="input-label">Insurance Company</p>
                     <input aria-label="Insurance Company" id="insurance-company-input" class="input-border" type="text" name="insurance-company" 
                            v-model="insuranceCompany" :="insuranceCompanyAtrb"/>
+                    <div>{{errors['insuranceCompany']}}</div>
                 </div>
 
                 <div class="adjuster-input vertical-input">
                     <p class="input-label">Adjuster</p>
                     <input aria-label="Adjuster" id="adjuster-input" class="input-border" type="text" name="adjuster" v-model="adjuster" :="adjusterAtrb"/>
+                    <div>{{errors['adjuster']}}</div>
                 </div>
 
                 <div class="claim-number-input vertical-input">
@@ -231,6 +242,8 @@
                 </div>
             </div>
         </fieldset>
+
+        <button type="submit">Submit</button>
 
     </form>
 </template>
