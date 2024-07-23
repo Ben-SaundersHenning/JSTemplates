@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 
-    import { ref, onMounted, watch } from "vue"
+    import { ref, onMounted, watch, computed } from "vue"
 
     import { invoke } from "@tauri-apps/api/tauri"
 
@@ -10,31 +10,34 @@
 
     import { z } from "zod";
 
+    import dayjs from 'dayjs';
+
     const { errors, handleSubmit, defineField } = useForm({
         validationSchema: toTypedSchema(
             z.object({
                 assessor: z.object({
-                    registrationId: z.string().min(1),
+                    registrationId: z.string().regex(/^G[0-9]{7}$/),
                 }),
-                adjuster: z.string().min(1),
-                insuranceCompany: z.string().min(1),
-                claimNumber: z.string().min(1),
+                adjuster: z.string().optional(),
+                insuranceCompany: z.string().trim().min(1),
+                claimNumber: z.string().trim().min(1),
                 referralCompany: z.object({
-                    id: z.string().min(1),
+                    id: z.number(),
                 }),
-                dateOfAssessment: z.string().min(1),
+                dateOfAssessment: z.string().date(),
                 claimant: z.object({
-                    firstName: z.string().min(1),
-                    lastName: z.string().min(1),
-                    gender: z.string().min(1),
-                    dateOfBirth: z.string().min(1),
-                    dateOfLoss: z.string().min(1),
+                    firstName: z.string().trim().min(1),
+                    lastName: z.string().trim().min(1),
+                    gender: z.enum(["Male", "Female", "Other"]),
+                    dateOfBirth: z.string().date(),
+                    dateOfLoss: z.string().date(),
                     address: z.object({
-                        address: z.string().min(1),
-                        city: z.string().min(1),
-                        province: z.string().min(1),
-                        postalCode: z.string().min(1),
-                        country: z.string().min(1),
+                        streetAddress: z.string().trim().min(1),
+                        unit: z.string().trim().min(1).optional(),
+                        city: z.string().trim().min(1),
+                        province: z.string().trim().min(1),
+                        postalCode: z.string().trim().min(1),
+                        country: z.string().trim().min(1),
                     }),
                 }),
 
@@ -61,7 +64,8 @@
     const [clGender, clGenderAtrb] = defineField("claimant.gender");
     const [clDoBirth, clDoBirthAtrb] = defineField("claimant.dateOfBirth");
     const [clDoLoss, clDoLossAtrb] = defineField("claimant.dateOfLoss");
-    const [clAddAddress, clAddAddressAtrb] = defineField("claimant.address.address");
+    const [clAddStreetAddress, clAddStreetAddressAtrb] = defineField("claimant.address.streetAddress");
+    const [clAddUnit, clAddUnitAtrb] = defineField("claimant.address.unit");
     const [clAddCity, clAddCityAtrb] = defineField("claimant.address.city");
     const [clAddProvince, clAddProvinceAtrb] = defineField("claimant.address.province");
     const [clAddPostalCode, clAddPostalCodeAtrb] = defineField("claimant.address.postalCode");
@@ -98,9 +102,17 @@
     //         // ]
     //     });
 
-
-    const picked = ref("One")
-    const comp_picked = ref("One")
+    // Example return formats:
+    // July 23, 2024
+    // December 25, 2019
+    function formatDate(date) {
+        const parsedDate = z.string().date().safeParse(date);
+        if (parsedDate.success === true) {
+            return dayjs(date).format('MMMM D, YYYY');
+        } else {
+            return "";
+        }
+    }
 
     let assessors = ref([
     ])
@@ -196,6 +208,7 @@
                     <input aria-label="Date of Assessment" id="doa-input" class="input-border" type="text" name="doa"
                                    v-model="doAssessment" :="doAssessmentAtrb"/>
                     <div>{{errors['dateOfAssessment']}}</div>
+                    <div>{{formatDate(doAssessment)}}</div>
                 </div>
             </div>
 
@@ -220,13 +233,13 @@
                 <div class="gender-input vertical-input">
                     <p class="input-label">Gender</p>
                     <div class="horizontal-input input-border">
-                        <input type="radio" id="male" name="gender" value="male"
+                        <input type="radio" id="male" name="gender" value="Male"
                                    v-model="clGender" :="clGenderAtrb"/>
                         <label for="male">Male</label><br>
-                        <input type="radio" id="female" name="gender" value="female"
+                        <input type="radio" id="female" name="gender" value="Female"
                                    v-model="clGender" :="clGenderAtrb"/>
                         <label for="female">Female</label><br>
-                        <input type="radio" id="other" name="gender" value="other"
+                        <input type="radio" id="other" name="gender" value="Other"
                                    v-model="clGender" :="clGenderAtrb"/>
                         <label for="other">Other</label><br>
                     </div>
@@ -238,6 +251,7 @@
                     <input aria-label="Date of Birth" id="dob-input" class="input-border" type="text" name="dob"
                                    v-model="clDoBirth" :="clDoBirthAtrb"/>
                     <div>{{errors['claimant.dateOfBirth']}}</div>
+                    <div>{{formatDate(clDoBirth)}}</div>
                 </div>
 
                 <div class="dol-input vertical-input">
@@ -245,19 +259,21 @@
                     <input aria-label="Date of Loss" id="dol-input" class="input-border" type="text" name="dol"
                                    v-model="clDoLoss" :="clDoLossAtrb"/>
                     <div>{{errors['claimant.dateOfLoss']}}</div>
+                    <div>{{formatDate(clDoLoss)}}</div>
                 </div>
 
                 <div class="street-input vertical-input">
                     <p class="input-label">Street Address</p>
                     <input aria-label="Street Address" id="street-address-input" class="input-border" type="text" name="address"
-                                   v-model="clAddAddress" :="clAddAddressAtrb"/>
-                    <div>{{errors['claimant.address.address']}}</div>
+                                   v-model="clAddStreetAddress" :="clAddStreetAddressAtrb"/>
+                    <div>{{errors['claimant.address.streetAddress']}}</div>
                 </div>
 
                 <div class="apt-input vertical-input">
                     <p class="input-label">Apt, Suite, etc</p>
-                    <!-- TODO: ADD A MODEL FOR THIS INPUT -->
-                    <input aria-label="Apt, Suite, etc" id="apt-suite-input" class="input-border" type="text" name="apt-suite" />
+                    <input aria-label="Apt, Suite, etc" id="unit-input" class="input-border" type="text" name="unit"
+                                   v-model="clAddUnit" :="clAddUnitAtrb"/>
+                    <div>{{errors['claimant.address.unit']}}</div>
                 </div>
 
                 <div class="city-input vertical-input">

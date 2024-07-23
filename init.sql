@@ -231,19 +231,19 @@ insert into public.referral_companies (name, common_name, address, city, provinc
 --
 
 insert into public.assessors (registration_id, first_name, last_name, gender, email, qualifications_paragraph) values 
-('123456', 'Frodo', 'Baggins', 'male', 'frodo@lotr.com', 'Ring Bearer');
+('G1234569', 'Frodo', 'Baggins', 'male', 'frodo@lotr.com', 'Ring Bearer');
 
 insert into public.assessors (registration_id, first_name, last_name, gender, email, qualifications_paragraph) values 
-('123455', 'Bilbo', 'Baggins', 'male', 'bilbo@lotr.com', 'Ring Bearer');
+('G1234559', 'Bilbo', 'Baggins', 'male', 'bilbo@lotr.com', 'Ring Bearer');
 
 insert into public.assessors (registration_id, first_name, last_name, gender, email, qualifications_paragraph) values 
-('1', 'Tom', 'Bombadil', 'male', 'tom@lotr.com', 'Yellow Boots');
+('G6543219', 'Tom', 'Bombadil', 'male', 'tom@lotr.com', 'Yellow Boots');
 
 insert into public.assessors (registration_id, first_name, last_name, gender, email, qualifications_paragraph) values 
-('2', 'Goldberry', 'River-daughter', 'female', 'goldberry@lotr.com', 'lilies');
+('G1597539', 'Goldberry', 'River-daughter', 'female', 'goldberry@lotr.com', 'lilies');
 
 insert into public.assessors (registration_id, first_name, last_name, gender, email, qualifications_paragraph) values 
-('3', 'Treebeard', 'Fangorn', 'other', 'treebeard@lotr.com', 'Fangorn Forest');
+('G1597539', 'Treebeard', 'Fangorn', 'other', 'treebeard@lotr.com', 'Fangorn Forest');
 
 --
 -- assessment_types test data
