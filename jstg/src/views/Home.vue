@@ -204,11 +204,13 @@
                     <div>{{errors['referralCompany.id']}}</div>
                 </div>
                 <div class="date-of-assessment-input vertical-input">
-                    <p class="input-label">Date of Assessment (YYYY-MM-DD)</p>
-                    <input aria-label="Date of Assessment" id="doa-input" class="input-border" type="text" name="doa"
-                                   v-model="doAssessment" :="doAssessmentAtrb"/>
+                    <p class="input-label">Date of Assessment</p>
+                    <div class="date-input">
+                        <input aria-label="Date of Assessment" id="doa-input"  type="text" name="doa"
+                                       v-model="doAssessment" :="doAssessmentAtrb"/>
+                        <span>{{formatDate(doAssessment)}}</span>
+                    </div>
                     <div>{{errors['dateOfAssessment']}}</div>
-                    <div>{{formatDate(doAssessment)}}</div>
                 </div>
             </div>
 
@@ -247,19 +249,23 @@
                 </div>
 
                 <div class="dob-input vertical-input">
-                    <p class="input-label">Date of Birth (YYYY-MM-DD)</p>
-                    <input aria-label="Date of Birth" id="dob-input" class="input-border" type="text" name="dob"
-                                   v-model="clDoBirth" :="clDoBirthAtrb"/>
+                    <p class="input-label">Date of Birth</p>
+                    <div class="date-input">
+                        <input aria-label="Date of Birth" id="dob-input" class="input-border" type="text" name="dob"
+                                       v-model="clDoBirth" :="clDoBirthAtrb"/>
+                        <span>{{formatDate(clDoBirth)}}</span>
+                    </div>
                     <div>{{errors['claimant.dateOfBirth']}}</div>
-                    <div>{{formatDate(clDoBirth)}}</div>
                 </div>
 
                 <div class="dol-input vertical-input">
-                    <p class="input-label">Date of Loss (YYYY-MM-DD)</p>
-                    <input aria-label="Date of Loss" id="dol-input" class="input-border" type="text" name="dol"
-                                   v-model="clDoLoss" :="clDoLossAtrb"/>
+                    <p class="input-label">Date of Loss</p>
+                    <div class="date-input">
+                        <input aria-label="Date of Loss" id="dol-input" class="input-border" type="text" name="dol"
+                                       v-model="clDoLoss" :="clDoLossAtrb"/>
+                        <span>{{formatDate(clDoLoss)}}</span>
+                    </div>
                     <div>{{errors['claimant.dateOfLoss']}}</div>
-                    <div>{{formatDate(clDoLoss)}}</div>
                 </div>
 
                 <div class="street-input vertical-input">
@@ -507,6 +513,45 @@
             box-shadow: 0px 3px 0px 0px variables.$shadow-color;
 
         }
-}
+    }
+
+    .date-input {
+
+        display: flex;
+        flex-direction: row;
+        column-gap: 5px;
+        align-items: center;
+        justify-content: start;
+        flex-wrap: wrap;
+
+        border: 2px solid variables.$input-border-color;
+        border-radius: 4px;
+        background-color: variables.$accent-color;
+        padding: 0.5rem;
+        width: fit-content;
+
+        transition: border 0.2s linear;
+
+        input[type=text] {
+
+            border: none;
+            padding: none;
+
+            color: variables.$text-color;
+            outline: none;
+            width: 10ch;
+            background-color: variables.$accent-color;
+
+        }
+
+        /* span { */
+        /*     width: 40%; */
+        /* } */
+
+        &:focus-within, &:hover {
+            border: 2px solid variables.$shadow-color;
+        }
+
+    }
 
 </style>
