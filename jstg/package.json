@@ -10,7 +10,8 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@tauri-apps/api": "^1",
+    "@tauri-apps/api": "2.0.0-rc.0",
+    "@tauri-apps/plugin-shell": "2.0.0-rc.0",
     "@vee-validate/zod": "^4.13.2",
     "dayjs": "^1.11.12",
     "vee-validate": "^4.13.2",
@@ -19,7 +20,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^1",
+    "@tauri-apps/cli": "2.0.0-rc.1",
     "@vitejs/plugin-vue": "^5.0.4",
     "sass": "^1.77.2",
     "typescript": "^5.0.2",

@@ -1,7 +1,7 @@
+use crate::Error;
+use serde::Serialize;
 use sqlx::{postgres::PgConnection, Connection};
 use std::env;
-use serde::Serialize;
-use crate::Error;
 
 const DB_CONN_STR: &str = "JSTG_DB_POSTGRESQL";
 
@@ -10,7 +10,7 @@ const DB_CONN_STR: &str = "JSTG_DB_POSTGRESQL";
 pub enum Gender {
     Male,
     Female,
-    Other
+    Other,
 }
 
 #[derive(Serialize, sqlx::FromRow)]
@@ -25,7 +25,7 @@ pub struct Assessor {
     pub last_name: String,
     pub email: String,
     pub gender: Gender,
-    pub qualifications_paragraph: String
+    pub qualifications_paragraph: String,
 }
 
 #[derive(Serialize, sqlx::FromRow)]
@@ -52,7 +52,6 @@ pub struct Address {
 // (name)
 #[tauri::command]
 pub async fn get_document_options() -> Result<JsonListing, Error> {
-
     let mut conn_str: String = String::new();
 
     // dev environment
@@ -73,19 +72,18 @@ pub async fn get_document_options() -> Result<JsonListing, Error> {
                  FROM \"documents\" d;";
 
     let documents = sqlx::query_as::<_, JsonListing>(query)
-        .fetch_one(&mut conn).await?;
+        .fetch_one(&mut conn)
+        .await?;
 
     conn.close().await?;
 
     Ok(documents)
-
 }
 
 // Retrieves the set of assessors
 // (name, id)
 #[tauri::command]
 pub async fn get_assessor_options() -> Result<JsonListing, Error> {
-
     let mut conn_str: String = String::new();
 
     // dev environment
@@ -106,18 +104,17 @@ pub async fn get_assessor_options() -> Result<JsonListing, Error> {
                  FROM \"assessors\" a;";
 
     let assessors = sqlx::query_as::<_, JsonListing>(query)
-        .fetch_one(&mut conn).await?;
+        .fetch_one(&mut conn)
+        .await?;
 
     conn.close().await?;
 
     Ok(assessors)
-
 }
 
 // Retrieives an assessor from the database based on
 // a given unique ID.
 pub async fn get_assessor(registration_id: &str) -> Result<Option<Assessor>, Error> {
-
     let mut conn_str: String = String::new();
 
     // dev environment
@@ -140,19 +137,18 @@ pub async fn get_assessor(registration_id: &str) -> Result<Option<Assessor>, Err
 
     let assessor = sqlx::query_as::<_, Assessor>(query)
         .bind(registration_id)
-        .fetch_optional(&mut conn).await?;
+        .fetch_optional(&mut conn)
+        .await?;
 
     conn.close().await?;
 
     Ok(assessor)
-
 }
 
 // Retrieves the set of companies
 // (name, id)
 #[tauri::command]
 pub async fn get_referral_company_options() -> Result<JsonListing, Error> {
-
     let mut conn_str: String = String::new();
 
     // dev environment
@@ -173,18 +169,19 @@ pub async fn get_referral_company_options() -> Result<JsonListing, Error> {
                  FROM \"referral_companies\" rc;";
 
     let companies = sqlx::query_as::<_, JsonListing>(query)
-        .fetch_one(&mut conn).await?;
+        .fetch_one(&mut conn)
+        .await?;
 
     conn.close().await?;
 
     Ok(companies)
-
 }
 
 // Retrieives a company from the database based on
 // a given unique ID.
-pub async fn get_referral_company(referral_company_id: i32) -> Result<Option<ReferralCompany>, Error> {
-
+pub async fn get_referral_company(
+    referral_company_id: i32,
+) -> Result<Option<ReferralCompany>, Error> {
     let mut conn_str: String = String::new();
 
     // dev environment
@@ -211,10 +208,10 @@ pub async fn get_referral_company(referral_company_id: i32) -> Result<Option<Ref
 
     let company = sqlx::query_as::<_, ReferralCompany>(query)
         .bind(referral_company_id)
-        .fetch_optional(&mut conn).await?;
+        .fetch_optional(&mut conn)
+        .await?;
 
     conn.close().await?;
 
     Ok(company)
-
 }

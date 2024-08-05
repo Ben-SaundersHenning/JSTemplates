@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 
-    import { ref, onMounted, watch, computed } from "vue"
+    import { ref, onMounted, watch, computed } from "vue";
 
-    import { invoke } from "@tauri-apps/api/tauri"
+    import { invoke } from "@tauri-apps/api/core";
 
     import { useForm } from "vee-validate";
 
@@ -40,9 +40,7 @@
                         country: z.string().trim().min(1),
                     }),
                 }),
-
-
-
+                assessmentTypes: z.array(z.string()),
             }),
         ),
     });
@@ -70,6 +68,7 @@
     const [clAddProvince, clAddProvinceAtrb] = defineField("claimant.address.province");
     const [clAddPostalCode, clAddPostalCodeAtrb] = defineField("claimant.address.postalCode");
     const [clAddCountry, clAddCountryAtrb] = defineField("claimant.address.country");
+    const [assessmentTypes, assessmentTypesAtrb] = defineField("assessmentTypes");
 
     // OLD OBJECT --
     // const asmtData = reactive({
@@ -136,7 +135,7 @@
     }
 
     const onSubmit = handleSubmit(values => {
-        console.log("form submission worked");
+        console.log(JSON.stringify(values));
     });
 
     onMounted(() => {
@@ -186,7 +185,7 @@
                     <div class="checkboxes input-border">
                         <span v-for="(type, index) in types">
                             <!-- TODO: ADD SCHEMA FOR THIS INPUT -->
-                            <input type="checkbox" name="assessment-type" :id="'assessment-type' + type.id" :value="type.document" v-model="checkedNames">
+                            <input type="checkbox" name="assessment-type" :id="'assessment-type' + type.id" :value="type.document" v-model="assessmentTypes">
                             <label :for="'assessment-type' + type.id">{{type.document}}</label>
                         </span>
                     </div>
@@ -208,7 +207,7 @@
                     <div class="date-input">
                         <input aria-label="Date of Assessment" id="doa-input"  type="text" name="doa"
                                        v-model="doAssessment" :="doAssessmentAtrb"/>
-                        <span>{{formatDate(doAssessment)}}</span>
+                        <span @onclick="document.getElementById('doa-input').focus(); document.getElementById('doa-input').select();">{{formatDate(doAssessment)}}</span>
                     </div>
                     <div>{{errors['dateOfAssessment']}}</div>
                 </div>
@@ -527,8 +526,10 @@
         border: 2px solid variables.$input-border-color;
         border-radius: 4px;
         background-color: variables.$accent-color;
-        padding: 0.5rem;
+        padding-right: 0.5rem;
+        min-width: 25ch;
         width: fit-content;
+        height: fit-content;
 
         transition: border 0.2s linear;
 
@@ -539,7 +540,8 @@
 
             color: variables.$text-color;
             outline: none;
-            width: 10ch;
+            max-width: 10ch;
+            height: 1.5rem;
             background-color: variables.$accent-color;
 
         }

@@ -14,33 +14,36 @@ mod db;
 mod document_request;
 mod storage;
 
-fn main() {
+extern crate dirs;
 
+fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_shell::init())
         .setup(setup_handler)
         .invoke_handler(tauri::generate_handler![
             storage::get_settings,
             storage::update_settings,
             db::get_assessor_options,
             db::get_document_options,
-            db::get_referral_company_options])
+            db::get_referral_company_options
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
-
 }
 
 fn setup_handler(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error + 'static>> {
-
     let mut app_logs: String = (&app.package_info().name).into();
     app_logs.push_str("/logs.log");
 
-    let log_dir_path = Path::new(&tauri::api::path::config_dir().unwrap())
-        .join(app_logs);
+    // let log_dir_path = Path::new(&tauri::api::path::config_dir().unwrap()).join(app_logs);
+    let log_dir_path = Path::new(&dirs::config_dir().unwrap()).join(app_logs);
 
     let stdout = ConsoleAppender::builder().build();
 
     let requests = FileAppender::builder()
-        .encoder(Box::new(PatternEncoder::new("{d(%Y-%m-%d %H:%M:%S)} | {({l}):5.5} | {f}:{L} - {m}{n}")))
+        .encoder(Box::new(PatternEncoder::new(
+            "{d(%Y-%m-%d %H:%M:%S)} | {({l}):5.5} | {f}:{L} - {m}{n}",
+        )))
         .build(log_dir_path)
         .unwrap();
 
@@ -48,10 +51,12 @@ fn setup_handler(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error +
     let config = Config::builder()
         .appender(Appender::builder().build("stdout", Box::new(stdout)))
         .appender(Appender::builder().build("requests", Box::new(requests)))
-        .logger(Logger::builder()
-            .appender("requests")
-            .additive(false)
-            .build("app", LevelFilter::Debug))
+        .logger(
+            Logger::builder()
+                .appender("requests")
+                .additive(false)
+                .build("app", LevelFilter::Debug),
+        )
         .build(Root::builder().appender("stdout").build(LevelFilter::Warn))
         .unwrap();
 
@@ -60,7 +65,6 @@ fn setup_handler(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error +
     info!(target: "app", "JSTG is starting.");
 
     Ok(())
-
 }
 
 // A custom error type that represents all command errors
@@ -75,10 +79,10 @@ pub enum Error {
 }
 
 impl serde::Serialize for Error {
-  fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-  where
-    S: serde::ser::Serializer,
-  {
-    serializer.serialize_str(self.to_string().as_ref())
-  }
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::ser::Serializer,
+    {
+        serializer.serialize_str(self.to_string().as_ref())
+    }
 }
