@@ -337,7 +337,9 @@
             </div>
         </fieldset>
 
-        <button type="submit">Submit</button>
+        <div class="horizontal-input" style="justify-content: center; margin-top: 30px;">
+            <button class="submit" type="submit">Submit</button>
+        </div>
 
     </form>
 </template>
@@ -558,6 +560,24 @@
 
     .error {
         color: variables.$error-color;
+    }
+
+    .submit {
+
+
+        font-size: 1.15rem;
+        color: variables.$text-color;
+        border: 2px solid variables.$input-border-color;
+        border-radius: 4px;
+        background-color: variables.$accent-color;
+        padding: 0.5rem;
+
+        transition: border 0.2s linear;
+
+        &:focus-within, &:hover {
+            border: 2px solid variables.$shadow-color;
+        }
+
     }
 
 </style>
