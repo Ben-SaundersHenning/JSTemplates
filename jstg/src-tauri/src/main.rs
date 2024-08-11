@@ -25,7 +25,8 @@ fn main() {
             storage::update_settings,
             db::get_assessor_options,
             db::get_document_options,
-            db::get_referral_company_options
+            db::get_referral_company_options,
+            document_request::request_document,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

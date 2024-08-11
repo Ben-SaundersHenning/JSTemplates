@@ -15,15 +15,11 @@
     const { errors, handleSubmit, defineField } = useForm({
         validationSchema: toTypedSchema(
             z.object({
-                assessor: z.object({
-                    registrationId: z.string().regex(/^G[0-9]{7}$/),
-                }),
+                assessorRegistrationId: z.string().regex(/^G[0-9]{7}$/),
                 adjuster: z.string().optional(),
                 insuranceCompany: z.string().trim().min(1),
                 claimNumber: z.string().trim().min(1),
-                referralCompany: z.object({
-                    id: z.number(),
-                }),
+                referralCompanyId: z.number(),
                 dateOfAssessment: z.string().date(),
                 claimant: z.object({
                     firstName: z.string().trim().min(1),
@@ -51,11 +47,11 @@
     // claimant => cl
     // address => add
     // dateOf => do
-    const [asrRegistrationId, asrRegistrationIdAtrb] = defineField("assessor.registrationId");
+    const [asrRegistrationId, asrRegistrationIdAtrb] = defineField("assessorRegistrationId");
     const [adjuster, adjusterAtrb] = defineField("adjuster");
     const [insuranceCompany, insuranceCompanyAtrb] = defineField("insuranceCompany");
     const [claimNumber, claimNumberAtrb] = defineField("claimNumber");
-    const [rcId, rcIdAtrb] = defineField("referralCompany.id");
+    const [rcId, rcIdAtrb] = defineField("referralCompanyId");
     const [doAssessment, doAssessmentAtrb] = defineField("dateOfAssessment");
     const [clFirstName, clFirstNameAtrb] = defineField("claimant.firstName");
     const [clLastName, clLastNameAtrb] = defineField("claimant.lastName");
@@ -135,7 +131,8 @@
     }
 
     const onSubmit = handleSubmit(values => {
-        console.log(JSON.stringify(values));
+        // console.log(JSON.stringify(values));
+        invoke('request_document', { data: JSON.stringify(values) });
     });
 
     onMounted(() => {
@@ -178,7 +175,7 @@
                             <label :for="'assessor' + assessor.id">{{assessor.name}}</label>
                         </span>
                     </div>
-                    <span class="error">{{errors['assessor.registrationId']}}</span>
+                    <span class="error">{{errors['assessorRegistrationId']}}</span>
                 </div>
                 <div class="assessment-type-input vertical-input">
                     <p class="input-label">Type</p>
@@ -202,7 +199,7 @@
                             <label :for="'company' + company.id">{{company.name}}</label>
                         </span>
                     </div>
-                    <span class="error">{{errors['referralCompany.id']}}</span>
+                    <span class="error">{{errors['referralCompanyId']}}</span>
                 </div>
                 <div class="date-of-assessment-input vertical-input">
                     <p class="input-label">Date of Assessment</p>

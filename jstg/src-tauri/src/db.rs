@@ -1,11 +1,11 @@
 use crate::Error;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use sqlx::{postgres::PgConnection, Connection};
 use std::env;
 
 const DB_CONN_STR: &str = "JSTG_DB_POSTGRESQL";
 
-#[derive(Serialize, sqlx::Type)]
+#[derive(Serialize, Deserialize, sqlx::Type)]
 #[sqlx(rename_all = "lowercase")]
 pub enum Gender {
     Male,
@@ -18,7 +18,7 @@ pub struct JsonListing {
     pub listing_details: sqlx::types::JsonValue,
 }
 
-#[derive(Serialize, sqlx::FromRow)]
+#[derive(Serialize, Deserialize, sqlx::FromRow)]
 pub struct Assessor {
     pub registration_id: String,
     pub first_name: String,
@@ -28,7 +28,7 @@ pub struct Assessor {
     pub qualifications_paragraph: String,
 }
 
-#[derive(Serialize, sqlx::FromRow)]
+#[derive(Serialize, Deserialize, sqlx::FromRow)]
 pub struct ReferralCompany {
     pub name: String,
     pub common_name: String,
@@ -39,9 +39,23 @@ pub struct ReferralCompany {
     pub address: Address,
 }
 
-#[derive(Serialize, sqlx::FromRow)]
+#[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct Claimant {
+    pub first_name: String,
+    pub last_name: String,
+    pub gender: String,
+    pub date_of_birth: String,
+    pub date_of_loss: String,
+    #[sqlx(flatten)]
+    pub address: Address,
+}
+
+#[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct Address {
-    pub address: String,
+    pub street_address: String,
+    pub unit: String,
     pub city: String,
     pub province: String,
     pub postal_code: String,
