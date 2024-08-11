@@ -12,7 +12,7 @@
 use crate::db;
 use serde::Deserialize;
 
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct DocumentRequest {
     assessor_registration_id: String,
@@ -22,16 +22,13 @@ struct DocumentRequest {
     referral_company_id: u16,
     date_of_assessment: String,
     claimant: db::Claimant,
-    assessment_types: String,
+    document_id: u16,
 }
 
 #[tauri::command]
 pub async fn request_document(data: String) {
 
     println!("{}", data);
-
-    let request: DocumentRequest = serde_json::from_str(&data).unwrap();
-
-    println!("{:?}", request);
+    let _request: DocumentRequest = serde_json::from_str(&data).unwrap();
 
 }

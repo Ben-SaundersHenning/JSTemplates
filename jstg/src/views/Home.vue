@@ -36,7 +36,7 @@
                         country: z.string().trim().min(1),
                     }),
                 }),
-                assessmentTypes: z.string(),
+                documentId: z.number(),
             }),
         ),
     });
@@ -64,7 +64,7 @@
     const [clAddProvince, clAddProvinceAtrb] = defineField("claimant.address.province");
     const [clAddPostalCode, clAddPostalCodeAtrb] = defineField("claimant.address.postalCode");
     const [clAddCountry, clAddCountryAtrb] = defineField("claimant.address.country");
-    const [assessmentTypes, assessmentTypesAtrb] = defineField("assessmentTypes");
+    const [documentId, documentIdAtrb] = defineField("documentId");
 
     // OLD OBJECT --
     // const asmtData = reactive({
@@ -115,7 +115,7 @@
     let referral_companies = ref([
     ])
 
-    let types = ref([
+    let documents = ref([
     ])
 
     let settings = ref({
@@ -148,7 +148,7 @@
 
         invoke('get_document_options').then((document_options) => {
             console.log(document_options.listing_details);
-            types.value = document_options.listing_details as Array;
+            documents.value = document_options.listing_details as Array;
         })
         .catch((e) => console.log(e));
 
@@ -177,17 +177,17 @@
                     </div>
                     <span class="error">{{errors['assessorRegistrationId']}}</span>
                 </div>
-                <div class="assessment-type-input vertical-input">
+                <div class="document-input vertical-input">
                     <p class="input-label">Type</p>
                     <div class="checkboxes input-border">
-                        <span v-for="(type, index) in types">
+                        <span v-for="(document, index) in documents">
                             <!-- TODO: ADD SCHEMA FOR THIS INPUT -->
-                            <input type="radio" name="assessment-type" :id="'assessment-type' + type.id" :value="type.document" 
-                                   v-model="assessmentTypes" :="assessmentTypesAtrb">
-                            <label :for="'assessment-type' + type.id">{{type.document}}</label>
+                            <input type="radio" name="document" :id="'document' + document.id" :value="document.id"
+                                   v-model="documentId" :="documentIdAtrb">
+                            <label :for="'document' + document.id">{{document.document}}</label>
                         </span>
                     </div>
-                    <span class="error">{{errors['assessmentTypes']}}</span>
+                    <span class="error">{{errors['documentId']}}</span>
                 </div>
                 <div class="company-input vertical-input">
 
@@ -389,7 +389,7 @@
         width: fit-content;
 
         .assessor-input { grid-area: 1 / 1 / 2 / 3; }
-        .assessment-type-input { grid-area: 2 / 1 / 3 / 2; }
+        .document-input { grid-area: 2 / 1 / 3 / 2; }
         .company-input { grid-area: 2 / 2 / 3 / 3; }
         .date-of-assessment-input { grid-area: 3 / 1 / 4 / 2; }
 
