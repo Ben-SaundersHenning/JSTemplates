@@ -190,6 +190,7 @@
                             <label :for="'assessment-type' + type.id">{{type.document}}</label>
                         </span>
                     </div>
+                    <span class="error">{{errors['assessmentTypes']}}</span>
                 </div>
                 <div class="company-input vertical-input">
 
