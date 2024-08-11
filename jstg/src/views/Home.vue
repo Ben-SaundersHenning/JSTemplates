@@ -178,7 +178,7 @@
                             <label :for="'assessor' + assessor.id">{{assessor.name}}</label>
                         </span>
                     </div>
-                    <div>{{errors['assessor.registrationId']}}</div>
+                    <span class="error">{{errors['assessor.registrationId']}}</span>
                 </div>
                 <div class="assessment-type-input vertical-input">
                     <p class="input-label">Type</p>
@@ -201,7 +201,7 @@
                             <label :for="'company' + company.id">{{company.name}}</label>
                         </span>
                     </div>
-                    <div>{{errors['referralCompany.id']}}</div>
+                    <span class="error">{{errors['referralCompany.id']}}</span>
                 </div>
                 <div class="date-of-assessment-input vertical-input">
                     <p class="input-label">Date of Assessment</p>
@@ -210,7 +210,7 @@
                                        v-model="doAssessment" :="doAssessmentAtrb"/>
                         <span @onclick="document.getElementById('doa-input').focus(); document.getElementById('doa-input').select();">{{formatDate(doAssessment)}}</span>
                     </div>
-                    <div>{{errors['dateOfAssessment']}}</div>
+                    <span class="error">{{errors['dateOfAssessment']}}</span>
                 </div>
             </div>
 
@@ -222,14 +222,14 @@
                 <div class="firstname-input vertical-input">
                     <p class="input-label">First Name</p>
                     <input aria-label="First Name" id="fname-input" class="input-border" type="text" name="fname" v-model="clFirstName" :="clFirstNameAtrb"/>
-                    <div>{{errors['claimant.firstName']}}</div>
+                    <span class="error">{{errors['claimant.firstName']}}</span>
                 </div>
 
                 <div class="lastname-input vertical-input">
                     <p class="input-label">Last Name</p>
                     <input aria-label="Last Name" id="lname-input" class="input-border" type="text" name="lname"
                                    v-model="clLastName" :="clLastNameAtrb"/>
-                    <div>{{errors['claimant.lastName']}}</div>
+                    <span class="error">{{errors['claimant.lastName']}}</span>
                 </div>
 
                 <div class="gender-input vertical-input">
@@ -245,7 +245,7 @@
                                    v-model="clGender" :="clGenderAtrb"/>
                         <label for="other">Other</label><br>
                     </div>
-                    <div>{{errors['claimant.gender']}}</div>
+                    <span class="error">{{errors['claimant.gender']}}</span>
                 </div>
 
                 <div class="dob-input vertical-input">
@@ -255,7 +255,7 @@
                                        v-model="clDoBirth" :="clDoBirthAtrb"/>
                         <span>{{formatDate(clDoBirth)}}</span>
                     </div>
-                    <div>{{errors['claimant.dateOfBirth']}}</div>
+                    <span class="error">{{errors['claimant.dateOfBirth']}}</span>
                 </div>
 
                 <div class="dol-input vertical-input">
@@ -265,49 +265,49 @@
                                        v-model="clDoLoss" :="clDoLossAtrb"/>
                         <span>{{formatDate(clDoLoss)}}</span>
                     </div>
-                    <div>{{errors['claimant.dateOfLoss']}}</div>
+                    <span class="error">{{errors['claimant.dateOfLoss']}}</span>
                 </div>
 
                 <div class="street-input vertical-input">
                     <p class="input-label">Street Address</p>
                     <input aria-label="Street Address" id="street-address-input" class="input-border" type="text" name="address"
                                    v-model="clAddStreetAddress" :="clAddStreetAddressAtrb"/>
-                    <div>{{errors['claimant.address.streetAddress']}}</div>
+                    <span class="error">{{errors['claimant.address.streetAddress']}}</span>
                 </div>
 
                 <div class="apt-input vertical-input">
                     <p class="input-label">Apt, Suite, etc</p>
                     <input aria-label="Apt, Suite, etc" id="unit-input" class="input-border" type="text" name="unit"
                                    v-model="clAddUnit" :="clAddUnitAtrb"/>
-                    <div>{{errors['claimant.address.unit']}}</div>
+                    <span class="error">{{errors['claimant.address.unit']}}</span>
                 </div>
 
                 <div class="city-input vertical-input">
                     <p class="input-label">City</p>
                     <input aria-label="City" id="city-input" class="input-border" type="text" name="city"
                                    v-model="clAddCity" :="clAddCityAtrb"/>
-                    <div>{{errors['claimant.address.city']}}</div>
+                    <span class="error">{{errors['claimant.address.city']}}</span>
                 </div>
 
                 <div class="postal-code-input vertical-input">
                     <p class="input-label">Postal Code</p>
                     <input aria-label="Postal Code" id="postal-code-input" class="input-border" type="text" name="postal-code"
                                    v-model="clAddPostalCode" :="clAddPostalCodeAtrb"/>
-                    <div>{{errors['claimant.address.postalCode']}}</div>
+                    <span class="error">{{errors['claimant.address.postalCode']}}</span>
                 </div>
 
                 <div class="province-input vertical-input">
                     <p class="input-label">Province</p>
                     <input aria-label="Province" id="province-input" class="input-border" type="text" name="province"
                                    v-model="clAddProvince" :="clAddProvinceAtrb"/>
-                    <div>{{errors['claimant.address.province']}}</div>
+                    <span class="error">{{errors['claimant.address.province']}}</span>
                 </div>
 
                 <div class="country-input vertical-input">
                     <p class="input-label">Country</p>
                     <input aria-label="Country" id="country-input" class="input-border" type="text" name="country"
                                    v-model="clAddCountry" :="clAddCountryAtrb"/>
-                    <div>{{errors['claimant.address.country']}}</div>
+                    <span class="error">{{errors['claimant.address.country']}}</span>
                 </div>
 
             </div>
@@ -320,25 +320,27 @@
                     <p class="input-label">Insurance Company</p>
                     <input aria-label="Insurance Company" id="insurance-company-input" class="input-border" type="text" name="insurance-company" 
                            v-model="insuranceCompany" :="insuranceCompanyAtrb"/>
-                    <div>{{errors['insuranceCompany']}}</div>
+                    <span class="error">{{errors['insuranceCompany']}}</span>
                 </div>
 
                 <div class="adjuster-input vertical-input">
                     <p class="input-label">Adjuster</p>
                     <input aria-label="Adjuster" id="adjuster-input" class="input-border" type="text" name="adjuster" v-model="adjuster" :="adjusterAtrb"/>
-                    <div>{{errors['adjuster']}}</div>
+                    <span class="error">{{errors['adjuster']}}</span>
                 </div>
 
                 <div class="claim-number-input vertical-input">
                     <p class="input-label">Claim Number</p>
                     <input aria-label="Claim Number" id="claim-number-input" class="input-border" type="text" name="claim-number"
                                    v-model="claimNumber" :="claimNumberAtrb"/>
-                    <div>{{errors['claimNumber']}}</div>
+                    <span class="error">{{errors['claimNumber']}}</span>
                 </div>
             </div>
         </fieldset>
 
-        <button type="submit">Submit</button>
+        <div class="horizontal-input" style="justify-content: center; margin-top: 30px;">
+            <button class="submit" type="submit">Submit</button>
+        </div>
 
     </form>
 </template>
@@ -550,6 +552,28 @@
         /* span { */
         /*     width: 40%; */
         /* } */
+
+        &:focus-within, &:hover {
+            border: 2px solid variables.$shadow-color;
+        }
+
+    }
+
+    .error {
+        color: variables.$error-color;
+    }
+
+    .submit {
+
+
+        font-size: 1.15rem;
+        color: variables.$text-color;
+        border: 2px solid variables.$input-border-color;
+        border-radius: 4px;
+        background-color: variables.$accent-color;
+        padding: 0.5rem;
+
+        transition: border 0.2s linear;
 
         &:focus-within, &:hover {
             border: 2px solid variables.$shadow-color;
