@@ -40,7 +40,7 @@
                         country: z.string().trim().min(1),
                     }),
                 }),
-                assessmentTypes: z.array(z.string()),
+                assessmentTypes: z.string(),
             }),
         ),
     });
@@ -185,7 +185,8 @@
                     <div class="checkboxes input-border">
                         <span v-for="(type, index) in types">
                             <!-- TODO: ADD SCHEMA FOR THIS INPUT -->
-                            <input type="checkbox" name="assessment-type" :id="'assessment-type' + type.id" :value="type.document" v-model="assessmentTypes">
+                            <input type="radio" name="assessment-type" :id="'assessment-type' + type.id" :value="type.document" 
+                                   v-model="assessmentTypes" :="assessmentTypesAtrb">
                             <label :for="'assessment-type' + type.id">{{type.document}}</label>
                         </span>
                     </div>
