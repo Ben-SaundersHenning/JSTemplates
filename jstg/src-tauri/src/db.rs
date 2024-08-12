@@ -1,6 +1,7 @@
 use crate::Error;
 use serde::{Deserialize, Serialize};
 use sqlx::{postgres::PgConnection, Connection};
+use chrono::NaiveDate;
 use std::env;
 
 const DB_CONN_STR: &str = "JSTG_DB_POSTGRESQL";
@@ -39,23 +40,24 @@ pub struct ReferralCompany {
     pub address: Address,
 }
 
-#[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
+#[derive(Serialize, Deserialize, sqlx::FromRow)]
 #[serde(rename_all = "camelCase")]
 pub struct Claimant {
     pub first_name: String,
     pub last_name: String,
-    pub gender: String,
-    pub date_of_birth: String,
-    pub date_of_loss: String,
+    pub gender: Gender,
+    pub age: Option<u8>,
+    pub date_of_birth: NaiveDate,
+    pub date_of_loss: NaiveDate,
     #[sqlx(flatten)]
     pub address: Address,
 }
 
-#[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
+#[derive(Serialize, Deserialize, sqlx::FromRow)]
 #[serde(rename_all = "camelCase")]
 pub struct Address {
     pub street_address: String,
-    pub unit: String,
+    pub unit: Option<String>,
     pub city: String,
     pub province: String,
     pub postal_code: String,

@@ -77,6 +77,8 @@ pub enum Error {
     // Utf8(#[from] std::string::FromUtf8Error),
     #[error("Error retrieving values from the database.")]
     Sqlx(#[from] sqlx::Error),
+    #[error("Error converting data to struct.")]
+    Serde(#[from] serde_json::Error),
 }
 
 impl serde::Serialize for Error {
