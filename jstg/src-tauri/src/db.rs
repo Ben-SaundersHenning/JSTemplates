@@ -24,13 +24,14 @@ pub struct Assessor {
     pub registration_id: String,
     pub first_name: String,
     pub last_name: String,
-    pub email: String,
     pub gender: Gender,
+    pub email: String,
     pub qualifications_paragraph: String,
 }
 
 #[derive(Serialize, Deserialize, sqlx::FromRow)]
 pub struct ReferralCompany {
+    pub id: i16,
     pub name: String,
     pub common_name: String,
     pub phone: String,
@@ -46,7 +47,7 @@ pub struct Claimant {
     pub first_name: String,
     pub last_name: String,
     pub gender: Gender,
-    pub age: Option<u8>,
+    pub age: Option<i8>,
     pub date_of_birth: NaiveDate,
     pub date_of_loss: NaiveDate,
     #[sqlx(flatten)]
@@ -196,7 +197,7 @@ pub async fn get_referral_company_options() -> Result<JsonListing, Error> {
 // Retrieives a company from the database based on
 // a given unique ID.
 pub async fn get_referral_company(
-    referral_company_id: i32,
+    referral_company_id: i16,
 ) -> Result<Option<ReferralCompany>, Error> {
     let mut conn_str: String = String::new();
 
@@ -209,7 +210,8 @@ pub async fn get_referral_company(
 
     let mut conn = PgConnection::connect(&conn_str).await?;
 
-    let query = "SELECT name,
+    let query = "SELECT id,
+                        name,
                         common_name,
                         phone,
                         fax,

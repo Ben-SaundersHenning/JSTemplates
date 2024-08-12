@@ -21,10 +21,10 @@ struct FormRequest {
     adjuster: Option<String>,
     insurance_company: String,
     claim_number: String,
-    referral_company_id: u16,
+    referral_company_id: i16,
     date_of_assessment: NaiveDate,
     claimant: db::Claimant,
-    document_id: u16,
+    document_id: i16,
 }
 
 #[derive(Serialize)]
@@ -35,16 +35,6 @@ struct Assessor {
     gender: db::Gender,
     email: String,
     qualificatons_paragraph: String,
-}
-
-#[derive(Serialize)]
-struct ReferralCompany {
-    id: String,
-    name: String,
-    address: db::Address,
-    phone: String,
-    fax: String,
-    email: String,
 }
 
 #[derive(Serialize)]
@@ -59,7 +49,7 @@ struct DocumentRequest {
     adjuster: String,
     insurance_company: String,
     claim_number: String,
-    referral_company: ReferralCompany,
+    referral_company: db::ReferralCompany,
     date_of_assessment: String,
     claimant: db::Claimant,
     document: Document,
@@ -72,10 +62,20 @@ impl FormRequest {
         Ok(request)
     }
 
-    fn build_document_request(&self) -> DocumentRequest {
+    async fn build_document_request(&self) -> Result<DocumentRequest, Error> {
 
         // 1. Retrieive assessor
+        let assessor: db::Assessor = db::get_assessor(&self.assessor_registration_id)
+                                     .await
+                                     .unwrap()
+                                     .unwrap();
+
         // 2. Retrieive referral company
+        let referral_company: db::ReferralCompany = db::get_referral_company(self.referral_company_id)
+                                     .await
+                                     .unwrap()
+                                     .unwrap();
+
         // 3. Retrieive document info
         // 4. Calculate claimant age
         // 5. Work on AC, CAT, MRB, NEB portions
