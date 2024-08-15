@@ -21,38 +21,10 @@ struct FormRequest {
     adjuster: Option<String>,
     insurance_company: String,
     claim_number: String,
-    referral_company_id: i16,
+    referral_company_id: i32,
     date_of_assessment: NaiveDate,
     claimant: db::Claimant,
-    document_id: i16,
-}
-
-#[derive(Serialize)]
-struct Assessor {
-    registration_id: String,
-    first_name: String,
-    last_last: String,
-    gender: db::Gender,
-    email: String,
-    qualificatons_paragraph: String,
-}
-
-#[derive(Serialize)]
-struct Document {
-    id: String,
-    file: String,
-}
-
-#[derive(Serialize)]
-struct DocumentRequest {
-    assessor: Assessor,
-    adjuster: String,
-    insurance_company: String,
-    claim_number: String,
-    referral_company: db::ReferralCompany,
-    date_of_assessment: String,
-    claimant: db::Claimant,
-    document: Document,
+    document_id: i32,
 }
 
 impl FormRequest {
@@ -62,7 +34,11 @@ impl FormRequest {
         Ok(request)
     }
 
-    async fn build_document_request(&self) -> Result<DocumentRequest, Error> {
+    // Builds a DocumentRequest object by consuming self.
+    // TODO: Add some checks to the data returning from the DB.
+    // Since the IDs are retrieved from the DB, they should theoretically
+    // never be incorrect, but the DB itself could be down.
+    async fn build_document_request(self) -> DocumentRequest {
 
         // 1. Retrieive assessor
         let assessor: db::Assessor = db::get_assessor(&self.assessor_registration_id)
@@ -76,19 +52,75 @@ impl FormRequest {
                                      .unwrap()
                                      .unwrap();
 
-        // 3. Retrieive document info
-        // 4. Calculate claimant age
-        // 5. Work on AC, CAT, MRB, NEB portions
+        // 3. Retrieive document path
+        let document: db::Document = db::get_document(self.document_id)
+                                     .await
+                                     .unwrap()
+                                     .unwrap();
+
+
+        // 4. Work on AC, CAT, MRB, NEB portions TODO
+
         // 6. Return a Document Request
 
-        todo!();
+        let document_request = DocumentRequest::from_form_request(self, assessor, referral_company, document);
+
+        document_request
+
     }
 
 }
 
+#[derive(Serialize)]
+struct DocumentRequest {
+    assessor: db::Assessor,
+    adjuster: Option<String>,
+    insurance_company: String,
+    claim_number: String,
+    referral_company: db::ReferralCompany,
+    date_of_assessment: NaiveDate,
+    claimant: db::Claimant,
+    document: db::Document,
+}
+
+impl DocumentRequest {
+
+    fn from_form_request(form_request: FormRequest, assessor: db::Assessor,
+                         referral_company: db::ReferralCompany, document: db::Document) -> Self {
+
+        // Calculate age in years
+        let doa: i32 = form_request.date_of_assessment.format("%Y%m%d").to_string().parse().unwrap();
+        let dob: i32 = form_request.claimant.date_of_birth.format("%Y%m%d").to_string().parse().unwrap();
+        let age = (doa - dob)/10000;
+
+        DocumentRequest {
+            assessor,
+            adjuster: form_request.adjuster,
+            insurance_company: form_request.insurance_company,
+            claim_number: form_request.claim_number,
+            referral_company,
+            date_of_assessment: form_request.date_of_assessment,
+            claimant: db::Claimant {
+                first_name: form_request.claimant.first_name, 
+                last_name: form_request.claimant.last_name, 
+                gender: form_request.claimant.gender, 
+                age: Some(age),
+                date_of_birth: form_request.claimant.date_of_birth, 
+                date_of_loss: form_request.claimant.date_of_loss, 
+                address: form_request.claimant.address, 
+            },
+            document,
+        }
+
+    }
+
+}
+
+
 #[tauri::command]
 pub async fn request_document(data: String) {
 
-    let _request = FormRequest::from_json(data).unwrap();
+    let request = FormRequest::from_json(data).unwrap();
+    let document_request = request.build_document_request().await;
 
 }

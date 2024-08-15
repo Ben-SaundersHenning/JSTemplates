@@ -31,7 +31,7 @@ pub struct Assessor {
 
 #[derive(Serialize, Deserialize, sqlx::FromRow)]
 pub struct ReferralCompany {
-    pub id: i16,
+    pub id: i32,
     pub name: String,
     pub common_name: String,
     pub phone: String,
@@ -47,7 +47,7 @@ pub struct Claimant {
     pub first_name: String,
     pub last_name: String,
     pub gender: Gender,
-    pub age: Option<i8>,
+    pub age: Option<i32>,
     pub date_of_birth: NaiveDate,
     pub date_of_loss: NaiveDate,
     #[sqlx(flatten)]
@@ -63,6 +63,13 @@ pub struct Address {
     pub province: String,
     pub postal_code: String,
     pub country: String,
+}
+
+#[derive(Serialize, Deserialize, sqlx::FromRow)]
+#[serde(rename_all = "camelCase")]
+pub struct Document {
+    pub id: i32,
+    pub path: String,
 }
 
 // Retrieves the set of documents
@@ -95,6 +102,35 @@ pub async fn get_document_options() -> Result<JsonListing, Error> {
     conn.close().await?;
 
     Ok(documents)
+}
+
+// Retrieives a document path from the database based on
+// a given unique ID.
+pub async fn get_document(document_id: i32) -> Result<Option<Document>, Error> {
+    let mut conn_str: String = String::new();
+
+    // dev environment
+    if cfg!(dev) {
+        conn_str.push_str("postgres://jstg:password@localhost:5432/jsot");
+    } else {
+        conn_str.push_str(&env::var(DB_CONN_STR).unwrap());
+    }
+
+    let mut conn = PgConnection::connect(&conn_str).await?;
+
+    let query = "SELECT id,
+                        path
+                 FROM \"documents\"
+                 WHERE id = $1";
+
+    let document = sqlx::query_as::<_, Document>(query)
+        .bind(document_id)
+        .fetch_optional(&mut conn)
+        .await?;
+
+    conn.close().await?;
+
+    Ok(document)
 }
 
 // Retrieves the set of assessors
@@ -197,7 +233,7 @@ pub async fn get_referral_company_options() -> Result<JsonListing, Error> {
 // Retrieives a company from the database based on
 // a given unique ID.
 pub async fn get_referral_company(
-    referral_company_id: i16,
+    referral_company_id: i32,
 ) -> Result<Option<ReferralCompany>, Error> {
     let mut conn_str: String = String::new();
 
@@ -216,7 +252,8 @@ pub async fn get_referral_company(
                         phone,
                         fax,
                         email,
-                        address,
+                        street_address,
+                        unit,
                         postal_code,
                         city,
                         province,

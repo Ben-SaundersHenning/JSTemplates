@@ -84,7 +84,7 @@ CREATE TABLE public.documents (
     name text NOT NULL,
     user_friendly_name text NOT NULL,
     common_name text NOT NULL,
-    file text NOT NULL
+    path text NOT NULL
 );
 
 
@@ -120,7 +120,8 @@ CREATE TABLE public.referral_companies (
     id integer NOT NULL,
     name text NOT NULL,
     common_name text NOT NULL,
-    address text NOT NULL,
+    street_address text NOT NULL,
+    unit text NOT NULL,
     city text NOT NULL,
     province text NOT NULL,
     postal_code text NOT NULL,
@@ -210,21 +211,21 @@ ALTER TABLE ONLY public.referral_companies
 -- documents test data
 --
 
-insert into public.documents (name, user_friendly_name, common_name, file) values ('Test Document 1', 'Doc1', 'TD1', 'TD1.docx');
-insert into public.documents (name, user_friendly_name, common_name, file) values ('Test Document 2', 'Doc2', 'TD2', 'TD2.docx');
-insert into public.documents (name, user_friendly_name, common_name, file) values ('Test Document 3', 'Doc3', 'TD3', 'TD3.docx');
-insert into public.documents (name, user_friendly_name, common_name, file) values ('Test Document 4', 'Doc4', 'TD4', 'TD4.docx');
-insert into public.documents (name, user_friendly_name, common_name, file) values ('Test Document 5', 'Doc5', 'TD5', 'TD5.docx');
+insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 1', 'Doc1', 'TD1', 'TD1.docx');
+insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 2', 'Doc2', 'TD2', 'TD2.docx');
+insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 3', 'Doc3', 'TD3', 'TD3.docx');
+insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 4', 'Doc4', 'TD4', 'TD4.docx');
+insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 5', 'Doc5', 'TD5', 'TD5.docx');
 
 --
 -- referral_companies test data
 --
 
-insert into public.referral_companies (name, common_name, address, city, province, country, postal_code, phone, fax, email) values
-('Nalgene', 'Nalgene', '123 Water Street, Suite 1500', 'Toronto', 'Ontario', 'Canada', 'M1M 1M1', '999-999-9999', '999-999-9999', 'info@nalgene.com');
+insert into public.referral_companies (name, common_name, street_address, unit, city, province, country, postal_code, phone, fax, email) values
+('Nalgene', 'Nalgene', '123 Water Street', 'Suite 1500', 'Toronto', 'Ontario', 'Canada', 'M1M 1M1', '999-999-9999', '999-999-9999', 'info@nalgene.com');
 
-insert into public.referral_companies (name, common_name, address, city, province, country, postal_code, phone, fax, email) values
-('Excel', 'Execel', '123 Gum Street', 'Toronto', 'Ontario', 'Canada', 'M9M 9M9', '111-111-1111', '111-111-1111', 'info@excel.com');
+insert into public.referral_companies (name, common_name, street_address, unit, city, province, country, postal_code, phone, fax, email) values
+('Excel', 'Execel', '123 Gum Street', '', 'Toronto', 'Ontario', 'Canada', 'M9M 9M9', '111-111-1111', '111-111-1111', 'info@excel.com');
 
 --
 -- assessors test data
