@@ -12,6 +12,10 @@
 
     import dayjs from 'dayjs';
 
+    import AC from '../components/AC.vue';
+    import CAT from '../components/CAT.vue';
+    import MRB from '../components/MRB.vue';
+
     const { errors, handleSubmit, defineField } = useForm({
         validationSchema: toTypedSchema(
             z.object({
@@ -287,13 +291,6 @@
                     <span class="error">{{errors['claimant.address.city']}}</span>
                 </div>
 
-                <div class="postal-code-input vertical-input">
-                    <p class="input-label">Postal Code</p>
-                    <input aria-label="Postal Code" id="postal-code-input" class="input-border" type="text" name="postal-code"
-                                   v-model="clAddPostalCode" :="clAddPostalCodeAtrb"/>
-                    <span class="error">{{errors['claimant.address.postalCode']}}</span>
-                </div>
-
                 <div class="province-input vertical-input">
                     <p class="input-label">Province</p>
                     <input aria-label="Province" id="province-input" class="input-border" type="text" name="province"
@@ -306,6 +303,13 @@
                     <input aria-label="Country" id="country-input" class="input-border" type="text" name="country"
                                    v-model="clAddCountry" :="clAddCountryAtrb"/>
                     <span class="error">{{errors['claimant.address.country']}}</span>
+                </div>
+
+                <div class="postal-code-input vertical-input">
+                    <p class="input-label">Postal Code</p>
+                    <input aria-label="Postal Code" id="postal-code-input" class="input-border" type="text" name="postal-code"
+                                   v-model="clAddPostalCode" :="clAddPostalCodeAtrb"/>
+                    <span class="error">{{errors['claimant.address.postalCode']}}</span>
                 </div>
 
             </div>
@@ -336,6 +340,10 @@
             </div>
         </fieldset>
 
+        <AC/>
+        <CAT/>
+        <MRB/>
+
         <div class="horizontal-input" style="justify-content: center; margin-top: 30px;">
             <button class="submit" type="submit">Submit</button>
         </div>
@@ -346,27 +354,6 @@
 <style lang="scss" scoped>
 
     @use '../variables';
-
-    ul {
-
-      display: block;
-      margin: 0;
-      padding: 0;
-      background-color: pink;
-      position: absolute;
-      width: 75px;
-
-        li {
-            list-style: none;
-            text-align: center;
-
-            &:hover {
-                background-color: blue;
-                cursor: default;
-            }
-        }
-    }
-
 
     .prevent-select {
 
@@ -414,9 +401,9 @@
         .street-input { grid-area: 3 / 1 / 3 / 2; }
         .apt-input { grid-area: 3 / 2 / 3 / 3; }
         .city-input { grid-area: 3 / 3 / 3 / 4; }
-        .postal-code-input { grid-area: 4 / 1 / 4 / 2; }
-        .province-input { grid-area: 4 / 2 / 4 / 3; }
-        .country-input { grid-area: 4 / 3 / 4 / 4; }
+        .province-input { grid-area: 4 / 1 / 4 / 2; }
+        .country-input { grid-area: 4 / 2 / 4 / 3; }
+        .postal-code-input { grid-area: 4 / 3 / 4 / 4; }
 
     }
 
@@ -436,23 +423,6 @@
     }
 
 
-    .horizontal-input {
-
-        display: flex;
-        flex-direction: row;
-        column-gap: 1rem;
-        align-items: center;
-        flex-wrap: wrap;
-
-    }
-
-    .vertical-input {
-
-        display: flex;
-        flex-direction: column;
-        flex-wrap: scroll;
-
-    }
 
     .checkboxes {
       display: grid;
@@ -466,103 +436,8 @@
         overflow: auto;
     }
 
-    .input-label {
-        margin: 0px 5px 5px 0px;
-    }
-
-    .input-border {
-
-        border: 2px solid variables.$input-border-color;
-        border-radius: 4px;
-        background-color: variables.$accent-color;
-        padding: 0.5rem;
-        width: fit-content;
-
-        transition: border 0.2s linear;
-
-        &:focus-within, &:hover {
-            border: 2px solid variables.$shadow-color;
-        }
-
-    }
-
-    input[type=text] {
-
-        color: variables.$text-color;
-        padding: 0.5rem;
-        outline: none; 
-        border: 2px solid variables.$input-border-color;
-        border-radius: 4px;
-        width: fit-content;
-        transition: border 0.2s linear;
-
-        &:focus {
-            border: 2px solid variables.$shadow-color;
-        }
-
-    }
-
-    input[type=radio], input[type=checkbox] {
-
-        display: none;
-        box-shadow: none;
-        /* transition: box-shadow 0.5s linear; */
-
-        &:checked + label {
-
-            box-shadow: 0px 3px 0px 0px variables.$shadow-color;
-
-        }
-    }
-
-    .date-input {
-
-        display: flex;
-        flex-direction: row;
-        column-gap: 5px;
-        align-items: center;
-        justify-content: start;
-        flex-wrap: wrap;
-
-        border: 2px solid variables.$input-border-color;
-        border-radius: 4px;
-        background-color: variables.$accent-color;
-        padding-right: 0.5rem;
-        min-width: 25ch;
-        width: fit-content;
-        height: fit-content;
-
-        transition: border 0.2s linear;
-
-        input[type=text] {
-
-            border: none;
-            padding: none;
-
-            color: variables.$text-color;
-            outline: none;
-            max-width: 10ch;
-            height: 1.5rem;
-            background-color: variables.$accent-color;
-
-        }
-
-        /* span { */
-        /*     width: 40%; */
-        /* } */
-
-        &:focus-within, &:hover {
-            border: 2px solid variables.$shadow-color;
-        }
-
-    }
-
-    .error {
-        color: variables.$error-color;
-    }
 
     .submit {
-
 
         font-size: 1.15rem;
         color: variables.$text-color;
