@@ -12,9 +12,11 @@
 
     import dayjs from 'dayjs';
 
-    import AC from '../components/AC.vue';
-    import CAT from '../components/CAT.vue';
-    import MRB from '../components/MRB.vue';
+    // Dynamic schemas
+    let acSchema = true ? z.optional() : z.object({
+                            firstAssessment: z.enum(["yes", "no"]),
+                            dateOfLastAssessment: z.string().trim().min(1).optional(),
+                            monthlyAllowance: z.string().trim().min(1).optional()});
 
     const { errors, handleSubmit, defineField } = useForm({
         validationSchema: toTypedSchema(
@@ -41,9 +43,20 @@
                     }),
                 }),
                 documentId: z.number(),
+                // ac: z.object({
+                //     firstAssessment: z.enum(["yes", "no"]),
+                //     dateOfLastAssessment: z.string().trim().min(1).optional(),
+                //     monthlyAllowance: z.string().trim().min(1).optional(),
+                // }),
+                ac: acSchema,
+                // cat: z.object({
+                // }).optional(),
+                // mrb: z.object({
+                // }).optional(),
             }),
         ),
     });
+
 
     // NAMING SHORTCUTS
     // assessor => asr
@@ -69,6 +82,9 @@
     const [clAddPostalCode, clAddPostalCodeAtrb] = defineField("claimant.address.postalCode");
     const [clAddCountry, clAddCountryAtrb] = defineField("claimant.address.country");
     const [documentId, documentIdAtrb] = defineField("documentId");
+    const [acFirstAssessment, acFirstAssessmentAtrb] = defineField("ac.firstAssessment");
+    const [acDateOfLastAssessment, acDateOfLastAssessmentAtrb] = defineField("ac.DateOfLastAssessment");
+    const [acMonthlyAllowance, acMonthlyAllowanceAtrb] = defineField("ac.MonthlyAllowance");
 
     // OLD OBJECT --
     // const asmtData = reactive({
@@ -100,6 +116,7 @@
     //         // questions: [
     //         // ]
     //     });
+
 
     // Example return formats:
     // July 23, 2024
@@ -185,7 +202,6 @@
                     <p class="input-label">Type</p>
                     <div class="checkboxes input-border">
                         <span v-for="(document, index) in documents">
-                            <!-- TODO: ADD SCHEMA FOR THIS INPUT -->
                             <input type="radio" name="document" :id="'document' + document.id" :value="document.id"
                                    v-model="documentId" :="documentIdAtrb">
                             <label :for="'document' + document.id">{{document.document}}</label>
@@ -194,7 +210,6 @@
                     <span class="error">{{errors['documentId']}}</span>
                 </div>
                 <div class="company-input vertical-input">
-
                     <p class="input-label">Referral Company</p>
                     <div class="checkboxes company input-border">
                         <span v-for="(company, index) in referral_companies">
@@ -340,9 +355,27 @@
             </div>
         </fieldset>
 
-        <AC/>
-        <CAT/>
-        <MRB/>
+        <fieldset>
+            <legend>Attendant Care Benefits</legend>
+            <div class="ac-inputs">
+                <div class="first-assessment-input vertical-input">
+                    <p class="input-label">Is there a previous Form 1?</p>
+                    <div class="checkboxes input-border">
+                        <span>
+                            <input type="radio" id="first-assessment-input-yes" name="first-assessment" value="yes"
+                                   v-model="acFirstAssessment" :="acFirstAssessmentAtrb"/>
+                            <label for="first-assessment-input-yes">Yes</label> 
+                        </span>
+                        <span>
+                            <input type="radio" id="first-assessment-input-no" name="first-assessment" value="no"
+                                   v-model="acFirstAssessment" :="acFirstAssessmentAtrb"/>
+                            <label for="first-assessment-input-no">No</label> 
+                        </span>
+                    </div>
+                    <span class="error">{{errors['ac.firstAssessment']}}</span>
+                </div>
+            </div>
+        </fieldset>
 
         <div class="horizontal-input" style="justify-content: center; margin-top: 30px;">
             <button class="submit" type="submit">Submit</button>
