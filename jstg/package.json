@@ -1,0 +1,31 @@
+{
+  "name": "jstg",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@tauri-apps/api": ">=2.0.0",
+    "@tauri-apps/plugin-shell": ">=2.0.0",
+    "@vee-validate/zod": "^4.13.2",
+    "dayjs": "^1.11.13",
+    "vee-validate": "^4.13.2",
+    "vue": "^3.3.4",
+    "vue-router": "^4.4.5",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": ">=2.0.0",
+    "@vitejs/plugin-vue": "^5.0.5",
+    "sass-embedded": "^1.79.5",
+    "typescript": "^5.2.2",
+    "vite": "^5.3.1",
+    "vue-tsc": "^2.0.22"
+  },
+  "packageManager": "pnpm@9.12.1+sha512.e5a7e52a4183a02d5931057f7a0dbff9d5e9ce3161e33fa68ae392125b79282a8a8a470a51dfc8a0ed86221442eb2fb57019b0990ed24fab519bf0e1bc5ccfc4"
+}

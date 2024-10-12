@@ -1,0 +1,21 @@
+services:
+
+  database:
+    build: ./database # Postgresql
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # networks:
+    #   - db
+
+  generationapi:
+    build: ./generationapi
+    ports:
+      - 8080:8080
+
+volumes:
+  pgdata:
+
+# networks:
+#   db:
