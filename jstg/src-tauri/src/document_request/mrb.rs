@@ -2,9 +2,9 @@ use serde::{Serialize, Deserialize};
 use chrono::NaiveDate;
 
 #[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all(serialize = "snake_case", deserialize = "camelCase"))]
 pub struct Mrb {
     pub date_of_ocf_18: NaiveDate,
     pub assessor: String,
-    pub ocf_18_amount: String,
+    pub amount_of_ocf_18: String,
 }

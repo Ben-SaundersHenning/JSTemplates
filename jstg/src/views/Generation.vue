@@ -59,7 +59,7 @@
                 mrb: (!(includeMRB.value) ? z.optional(z.object({})) : z.object({
                             dateOfOcf18: z.string().date(),
                             assessor: z.string().trim().min(1),
-                            ocf18Amount: z.string().trim().min(1)})),
+                            amountOfOcf18: z.string().trim().min(1)})),
             }),
         )),
     });
@@ -95,7 +95,7 @@
     const [catAssessor, catAssessorAtrb] = defineField("cat.assessor");
     const [mrbDateOfOcf18, mrbDateOfOcf18Atrb] = defineField("mrb.dateOfOcf18");
     const [mrbAssessor, mrbAssessorAtrb] = defineField("mrb.assessor");
-    const [mrbOcf18Amount, mrbOcf18AmountAtrb] = defineField("mrb.ocf18Amount");
+    const [mrbAmountOfOcf18, mrbAmountOfOcf18Atrb] = defineField("mrb.amountOfOcf18");
 
     // Example return formats:
     // July 23, 2024
@@ -151,8 +151,22 @@
     }
 
     function onSuccess(values) {
-        //console.log(JSON.stringify(values));
+
+        // Remove potentially empty keys
+        if (values["ac"] !== undefined && Object.keys(values["ac"]).length === 0) {
+            delete values["ac"];
+        }
+        if (values["cat"] !== undefined && Object.keys(values["cat"]).length === 0) {
+            delete values["cat"];
+        }
+        if (values["mrb"] !== undefined && Object.keys(values["mrb"]).length === 0) {
+            delete values["mrb"];
+        }
+
+        // console.log(JSON.stringify(values));
+
         invoke('request_document', { data: JSON.stringify(values) });
+
     }
 
     function onInvalidSubmit({ values, errors, results }) {
@@ -454,8 +468,8 @@
                 <div class="ocf18-amount-input vertical-input">
                     <p class="input-label">Amount of OCF18</p>
                     <input aria-label="Amount of OCF18" id="ocf18-amount-input" class="input-border" type="text" name="ocf18-amount"
-                            v-model="mrbOcf18Amount" :="mrbOcf18AmountAtrb"/>
-                    <span class="error">{{errors['mrb.ocf18Amount']}}</span>
+                            v-model="mrbAmountOfOcf18" :="mrbAmountOfOcf18Atrb"/>
+                    <span class="error">{{errors['mrb.amountOfOcf18']}}</span>
                 </div>
 
             </div>

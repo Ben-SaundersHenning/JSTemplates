@@ -42,7 +42,7 @@ pub struct ReferralCompany {
 }
 
 #[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all(serialize = "snake_case", deserialize = "camelCase"))]
 pub struct Claimant {
     pub first_name: String,
     pub last_name: String,
@@ -56,7 +56,7 @@ pub struct Claimant {
 }
 
 #[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all(serialize = "snake_case", deserialize = "camelCase"))]
 pub struct Address {
     pub street_address: String,
     pub unit: Option<String>,
@@ -67,7 +67,7 @@ pub struct Address {
 }
 
 #[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all(serialize = "snake_case", deserialize = "camelCase"))]
 pub struct Document {
     pub id: i32,
     pub path: String,

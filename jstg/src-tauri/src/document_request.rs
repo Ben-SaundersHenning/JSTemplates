@@ -11,7 +11,7 @@ use serde::{Serialize, Deserialize};
 use chrono::NaiveDate;
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all(serialize = "snake_case", deserialize = "camelCase"))]
 struct FormRequest {
     assessor_registration_id: String,
     adjuster: Option<String>,
@@ -94,6 +94,7 @@ impl FormRequest {
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all(serialize = "snake_case", deserialize = "camelCase"))]
 struct DocumentRequest {
     assessor: db::Assessor,
     adjuster: Option<String>,
@@ -153,6 +154,8 @@ pub async fn request_document(data: String) {
 
     let request = FormRequest::from_json(data).unwrap();
     let document_request = request.build_document_request().await;
-    println!("{:?}", document_request);
+
+    let json = serde_json::to_string(&document_request).unwrap();
+    println!("{}", json);
 
 }

@@ -2,7 +2,7 @@ use serde::{Serialize, Deserialize};
 use chrono::NaiveDate;
 
 #[derive(Serialize, Deserialize, sqlx::FromRow, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all(serialize = "snake_case", deserialize = "camelCase"))]
 pub struct Ac {
     pub first_assessment: bool,
     pub date_of_last_assessment: Option<NaiveDate>,
