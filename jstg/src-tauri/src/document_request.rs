@@ -62,10 +62,7 @@ impl FormRequest {
                                      .unwrap();
 
 
-        // 4. Work on AC, CAT, MRB, NEB portions TODO
-
-        // 6. Return a Document Request
-
+        // 4. Return a Document Request
         let document_request = DocumentRequest::from_form_request(self, assessor, referral_company, document);
 
         document_request
@@ -74,7 +71,7 @@ impl FormRequest {
 
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 struct DocumentRequest {
     assessor: db::Assessor,
     adjuster: Option<String>,
@@ -84,6 +81,9 @@ struct DocumentRequest {
     date_of_assessment: NaiveDate,
     claimant: db::Claimant,
     document: db::Document,
+    ac: Option<db::Ac>,
+    cat: Option<db::Cat>,
+    mrb: Option<db::Mrb>,
 }
 
 impl DocumentRequest {
@@ -113,6 +113,9 @@ impl DocumentRequest {
                 address: form_request.claimant.address, 
             },
             document,
+            ac: form_request.ac,
+            cat: form_request.cat,
+            mrb: form_request.mrb,
         }
 
     }
@@ -124,7 +127,7 @@ impl DocumentRequest {
 pub async fn request_document(data: String) {
 
     let request = FormRequest::from_json(data).unwrap();
-    println!("{:?}", request);
     let document_request = request.build_document_request().await;
+    println!("{:?}", document_request);
 
 }
