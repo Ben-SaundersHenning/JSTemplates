@@ -9,6 +9,10 @@ use cat::Cat;
 use mrb::Mrb;
 use serde::{Serialize, Deserialize};
 use chrono::NaiveDate;
+use bytes::Bytes;
+use reqwest::Response;
+
+const ENDPOINT: &str = "http://localhost:5056/api/DocumentRequest/DocRequest";
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all(serialize = "snake_case", deserialize = "camelCase"))]
@@ -86,9 +90,6 @@ impl FormRequest {
 
         document_request
 
-        // TODO
-        // add hourly rates to ac
-
     }
 
 }
@@ -146,6 +147,34 @@ impl DocumentRequest {
 
     }
 
+    async fn send_request(self) -> Result<Response, Error> {
+
+        let request = serde_json::to_string(&self).unwrap();
+
+        let client = reqwest::Client::new();
+        let res = client.post(ENDPOINT)
+            .json(&request)
+            .header("responseType", "blob")
+            .header("content-type", "application/json")
+            .send()
+            .await?;
+
+        Ok(res)
+
+        // match res.status() {
+        //     reqwest::StatusCode::OK => {
+        //
+        //         // File
+        //         let body = res.bytes().await?;
+        //
+        //         return Ok(body);
+        //
+        //     },
+        //     _status => {},
+        // }
+
+    }
+
 }
 
 
@@ -153,9 +182,10 @@ impl DocumentRequest {
 pub async fn request_document(data: String) {
 
     let request = FormRequest::from_json(data).unwrap();
-    let document_request = request.build_document_request().await;
+    let _document_request = request.build_document_request().await;
+    // let response = document_request.send_request();
 
-    let json = serde_json::to_string(&document_request).unwrap();
-    println!("{}", json);
+    // let json = serde_json::to_string(&document_request).unwrap();
+    // println!("{}", json);
 
 }

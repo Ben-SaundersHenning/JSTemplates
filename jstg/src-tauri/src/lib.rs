@@ -80,6 +80,9 @@ pub enum Error {
     Sqlx(#[from] sqlx::Error),
     #[error("Error converting data to struct.")]
     Serde(#[from] serde_json::Error),
+    #[error("Error making HTTP request.")]
+    Reqwest(#[from] reqwest::Error),
+
 }
 
 impl serde::Serialize for Error {
