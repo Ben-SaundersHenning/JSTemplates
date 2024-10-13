@@ -57,22 +57,31 @@ impl FormRequest {
                                      .unwrap()
                                      .unwrap();
 
-        // let mut ac: Ac = self.ac.clone().take();
+        // 4. Build AC portion
         let ac: Option<Ac> = match &self.ac {
             Some(val) => {
-                Some(Ac {
+                if val.first_assessment {
+                    Some(Ac {
                         first_assessment: val.first_assessment,
-                        date_of_last_assessment: val.date_of_last_assessment,
-                        monthly_allowance: val.monthly_allowance.clone(),
-                        hourly_rates: Ac::determine_hourly_rates(val.date_of_last_assessment),
-                })
+                        date_of_last_assessment: None,
+                        monthly_allowance: None,
+                        hourly_rates: None,
+                    })
+                } else {
+                    Some(Ac {
+                            first_assessment: val.first_assessment,
+                            date_of_last_assessment: val.date_of_last_assessment,
+                            monthly_allowance: val.monthly_allowance.clone(),
+                            hourly_rates: Ac::determine_hourly_rates(val.date_of_last_assessment),
+                    })
+                }
             },
             None => {
                 None
             }
         };
 
-        // 4. Return a Document Request
+        // 5. Return a Document Request
         let document_request = DocumentRequest::from_form_request(self, assessor, referral_company, document, ac);
 
         document_request
