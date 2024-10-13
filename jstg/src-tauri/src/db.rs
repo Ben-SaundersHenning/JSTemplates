@@ -6,7 +6,7 @@ use std::env;
 
 const DB_CONN_STR: &str = "JSTG_DB_POSTGRESQL";
 
-#[derive(Serialize, Deserialize, sqlx::Type)]
+#[derive(Serialize, Deserialize, sqlx::Type, Debug)]
 #[sqlx(rename_all = "lowercase")]
 pub enum Gender {
     Male,
@@ -14,12 +14,12 @@ pub enum Gender {
     Other,
 }
 
-#[derive(Serialize, sqlx::FromRow)]
+#[derive(Serialize, sqlx::FromRow, Debug)]
 pub struct JsonListing {
     pub listing_details: sqlx::types::JsonValue,
 }
 
-#[derive(Serialize, Deserialize, sqlx::FromRow)]
+#[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
 pub struct Assessor {
     pub registration_id: String,
     pub first_name: String,
@@ -29,7 +29,7 @@ pub struct Assessor {
     pub qualifications_paragraph: String,
 }
 
-#[derive(Serialize, Deserialize, sqlx::FromRow)]
+#[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
 pub struct ReferralCompany {
     pub id: i32,
     pub name: String,
@@ -41,7 +41,7 @@ pub struct ReferralCompany {
     pub address: Address,
 }
 
-#[derive(Serialize, Deserialize, sqlx::FromRow)]
+#[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Claimant {
     pub first_name: String,
@@ -54,7 +54,7 @@ pub struct Claimant {
     pub address: Address,
 }
 
-#[derive(Serialize, Deserialize, sqlx::FromRow)]
+#[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Address {
     pub street_address: String,
@@ -65,12 +65,37 @@ pub struct Address {
     pub country: String,
 }
 
-#[derive(Serialize, Deserialize, sqlx::FromRow)]
+#[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Document {
     pub id: i32,
     pub path: String,
 }
+
+#[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct Ac {
+    pub first_assessment: bool,
+    pub date_of_last_assessment: Option<NaiveDate>,
+    pub monthly_allowance: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct Cat {
+    pub date_of_ocf_19: NaiveDate,
+    pub assessor: String,
+}
+
+#[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct Mrb {
+    pub date_of_ocf_18: NaiveDate,
+    pub assessor: String,
+    pub ocf_18_amount: String,
+}
+
+
 
 // Retrieves the set of documents
 // (name)

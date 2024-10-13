@@ -151,8 +151,8 @@
     }
 
     function onSuccess(values) {
-        console.log(JSON.stringify(values));
-        //invoke('request_document', { data: JSON.stringify(values) });
+        //console.log(JSON.stringify(values));
+        invoke('request_document', { data: JSON.stringify(values) });
     }
 
     function onInvalidSubmit({ values, errors, results }) {
@@ -402,7 +402,6 @@
 
             </div>
         </fieldset>
-
 
         <fieldset v-if="includeCAT">
             <legend>Catastrophic Impairment</legend>

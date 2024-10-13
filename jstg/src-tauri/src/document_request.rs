@@ -14,7 +14,7 @@ use crate::Error;
 use serde::{Serialize, Deserialize};
 use chrono::NaiveDate;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 struct FormRequest {
     assessor_registration_id: String,
@@ -25,6 +25,9 @@ struct FormRequest {
     date_of_assessment: NaiveDate,
     claimant: db::Claimant,
     document_id: i32,
+    ac: Option<db::Ac>,
+    cat: Option<db::Cat>,
+    mrb: Option<db::Mrb>,
 }
 
 impl FormRequest {
@@ -121,6 +124,7 @@ impl DocumentRequest {
 pub async fn request_document(data: String) {
 
     let request = FormRequest::from_json(data).unwrap();
+    println!("{:?}", request);
     let document_request = request.build_document_request().await;
 
 }
