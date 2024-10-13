@@ -210,11 +210,19 @@ ALTER TABLE ONLY public.referral_companies
 -- documents test data
 --
 
-insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 1', 'Doc1', 'TD1', 'TD1.docx');
-insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 2', 'Doc2', 'TD2', 'TD2.docx');
-insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 3', 'Doc3', 'TD3', 'TD3.docx');
-insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 4', 'Doc4', 'TD4', 'TD4.docx');
-insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 5', 'Doc5', 'TD5', 'TD5.docx');
+insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 1', 'AC', 'AC', 'TD1.docx');
+insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 2', 'AC MRB', 'AC MRB', 'TD2.docx');
+insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 3', 'AC MRB NEB', 'AC MRB NEB', 'TD3.docx');
+insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 4', 'AC NEB', 'AC NEB', 'TD4.docx');
+insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 5', 'CAT', 'CAT', 'TD5.docx');
+insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 5', 'CAT AC', 'CAT AC', 'TD5.docx');
+insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 5', 'CAT AC MRB', 'CAT AC MRB', 'TD5.docx');
+insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 5', 'CAT CAT_GOSE', 'CAT CAT_GOSE', 'TD5.docx');
+insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 5', 'CAT CAT_GOSE MRB', 'CAT CAT_GOSE MRB', 'TD5.docx');
+insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 5', 'CAT_GOSE', 'CAT_GOSE', 'TD5.docx');
+insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 5', 'MRB', 'MRB', 'TD5.docx');
+insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 5', 'MRB NEB', 'MRB NEB', 'TD5.docx');
+insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 5', 'NEB', 'NEB', 'TD5.docx');
 
 --
 -- referral_companies test data

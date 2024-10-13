@@ -12,17 +12,12 @@
 
     import dayjs from 'dayjs';
 
-    // this temp string determines what sub-schemas to include in validation
-    const test_type = "AC CAT MRB";
+    const includeAC = ref(false);
+    const includeCAT = ref(false);
+    const includeMRB = ref(false);
 
-    function evaluateAssessmentType() {
-        return test_type.split(" ");
-    }
-
-    const includeAC = evaluateAssessmentType().includes("AC") ? true : false;
-    const includeCAT = evaluateAssessmentType().includes("CAT") ? true : false;
-    const includeMRB = evaluateAssessmentType().includes("MRB") ? true : false;
-
+    // If AC is included in the schema, it accepts one of these two schemas
+    // based on the value of firstAssessment.
     let acSchema = (!includeAC) ? z.optional() : z.discriminatedUnion("firstAssessment", [
                                     z.object({
                                         firstAssessment: z.literal(true),
@@ -165,6 +160,25 @@
     let settings = ref({
         save_dir: ""
     })
+
+    watch(documentId, (newID) => {
+
+        includeAC.value = false;
+        includeCAT.value = false;
+        includeMRB.value = false;
+
+        const doc = documents.value.find((document) => document.id === newID);
+        const docTypes = doc.document.split(" ");
+        if(docTypes.includes("AC")) {
+            includeAC.value = true;
+        }
+        if(docTypes.includes("CAT") || docTypes.includes("CAT_GOSE")) {
+            includeCAT.value = true;
+        }
+        if(docTypes.includes("MRB")) {
+            includeMRB.value = true;
+        }
+    });
 
     function updateSettings() {
 
