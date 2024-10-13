@@ -384,20 +384,23 @@
                 </div>
 
                 <div class="dola-input vertical-input">
-                    <p class="input-label">Date of Last Assessment</p>
-                    <div class="date-input">
-                        <input aria-label="Date of Last Assessment" id="dola-input"  type="text" name="dola"
-                                       v-model="acDateOfLastAssessment" :="acDateOfLastAssessmentAtrb"/>
-                        <span @onclick="document.getElementById('dola-input').focus(); document.getElementById('dola-input').select();">{{formatDate(acDateOfLastAssessment)}}</span>
+                    <p :class="{ 'input-label': !acFirstAssessment, 'disabled-input-label': acFirstAssessment }">Date of Last Assessment</p>
+                    <div class="date-input" >
+                        <input aria-label="Date of Last Assessment" id="dola-input"  type="text" name="dola" :style="[acFirstAssessment ? 'color: gray' : '']"
+                                       v-model="acDateOfLastAssessment" :="acDateOfLastAssessmentAtrb" :disabled="acFirstAssessment"/>
+                        <span @onclick="document.getElementById('dola-input').focus(); document.getElementById('dola-input').select();"
+                              :style="[acFirstAssessment ? 'color: gray' : '']">
+                                {{formatDate(acDateOfLastAssessment)}}
+                        </span>
                     </div>
-                    <span class="error">{{errors['ac.dateOfLastAssessment']}}</span>
+                    <span v-if="!acFirstAssessment" class="error">{{errors['ac.dateOfLastAssessment']}}</span>
                 </div>
 
                 <div class="monthly-allowance-input vertical-input">
-                    <p class="input-label">Monthly Allowance</p>
-                    <input aria-label="monthly-allowance" id="monthly-allowance-input" class="input-border" type="text" name="monthly-allowance" 
-                            v-model="acMonthlyAllowance" :="acMonthlyAllowanceAtrb"/>
-                    <span class="error">{{errors['ac.monthlyAllowance']}}</span>
+                    <p :class="{ 'input-label': !acFirstAssessment, 'disabled-input-label': acFirstAssessment }">Monthly Allowance</p>
+                    <input aria-label="monthly-allowance" id="monthly-allowance-input" class="input-border" type="text" name="monthly-allowance" :style="[acFirstAssessment ? 'color: gray' : '']"
+                                        v-model="acMonthlyAllowance" :="acMonthlyAllowanceAtrb" :disabled="acFirstAssessment"/>
+                    <span v-if="!acFirstAssessment" class="error">{{errors['ac.monthlyAllowance']}}</span>
                 </div>
 
             </div>
