@@ -118,7 +118,7 @@ impl DocumentRequest {
         let dob: i32 = form_request.claimant.date_of_birth.format("%Y%m%d").to_string().parse().unwrap();
         let age = (doa - dob)/10000;
 
-        let youth: bool = age >= 18;
+        let youth: bool = age < 18;
 
         DocumentRequest {
             assessor,
