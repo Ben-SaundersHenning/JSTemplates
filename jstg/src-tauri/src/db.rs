@@ -48,6 +48,7 @@ pub struct Claimant {
     pub last_name: String,
     pub gender: Gender,
     pub age: Option<i32>,
+    pub youth: Option<bool>,
     pub date_of_birth: NaiveDate,
     pub date_of_loss: NaiveDate,
     #[sqlx(flatten)]
@@ -72,28 +73,8 @@ pub struct Document {
     pub path: String,
 }
 
-#[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct Ac {
-    pub first_assessment: bool,
-    pub date_of_last_assessment: Option<NaiveDate>,
-    pub monthly_allowance: Option<String>,
-}
 
-#[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct Cat {
-    pub date_of_ocf_19: NaiveDate,
-    pub assessor: String,
-}
 
-#[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct Mrb {
-    pub date_of_ocf_18: NaiveDate,
-    pub assessor: String,
-    pub ocf_18_amount: String,
-}
 
 
 

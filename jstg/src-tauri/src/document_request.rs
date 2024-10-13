@@ -1,16 +1,12 @@
-// request processing
-// this file may decompose to:
-//
-// document_request.rs
-// ac.rs
-// cat.rs
-// mrb.rs
-// neb.rs
-//
-// For individual processing.
+mod ac;
+mod cat;
+mod mrb;
 
 use crate::db;
 use crate::Error;
+use ac::Ac;
+use cat::Cat;
+use mrb::Mrb;
 use serde::{Serialize, Deserialize};
 use chrono::NaiveDate;
 
@@ -25,9 +21,9 @@ struct FormRequest {
     date_of_assessment: NaiveDate,
     claimant: db::Claimant,
     document_id: i32,
-    ac: Option<db::Ac>,
-    cat: Option<db::Cat>,
-    mrb: Option<db::Mrb>,
+    ac: Option<Ac>,
+    cat: Option<Cat>,
+    mrb: Option<Mrb>,
 }
 
 impl FormRequest {
@@ -61,11 +57,28 @@ impl FormRequest {
                                      .unwrap()
                                      .unwrap();
 
+        // let mut ac: Ac = self.ac.clone().take();
+        let ac: Option<Ac> = match &self.ac {
+            Some(val) => {
+                Some(Ac {
+                        first_assessment: val.first_assessment,
+                        date_of_last_assessment: val.date_of_last_assessment,
+                        monthly_allowance: val.monthly_allowance.clone(),
+                        hourly_rates: Ac::determine_hourly_rates(val.date_of_last_assessment),
+                })
+            },
+            None => {
+                None
+            }
+        };
 
         // 4. Return a Document Request
-        let document_request = DocumentRequest::from_form_request(self, assessor, referral_company, document);
+        let document_request = DocumentRequest::from_form_request(self, assessor, referral_company, document, ac);
 
         document_request
+
+        // TODO
+        // add hourly rates to ac
 
     }
 
@@ -81,20 +94,22 @@ struct DocumentRequest {
     date_of_assessment: NaiveDate,
     claimant: db::Claimant,
     document: db::Document,
-    ac: Option<db::Ac>,
-    cat: Option<db::Cat>,
-    mrb: Option<db::Mrb>,
+    ac: Option<Ac>,
+    cat: Option<Cat>,
+    mrb: Option<Mrb>,
 }
 
 impl DocumentRequest {
 
     fn from_form_request(form_request: FormRequest, assessor: db::Assessor,
-                         referral_company: db::ReferralCompany, document: db::Document) -> Self {
+                         referral_company: db::ReferralCompany, document: db::Document, ac: Option<Ac>) -> Self {
 
         // Calculate age in years
         let doa: i32 = form_request.date_of_assessment.format("%Y%m%d").to_string().parse().unwrap();
         let dob: i32 = form_request.claimant.date_of_birth.format("%Y%m%d").to_string().parse().unwrap();
         let age = (doa - dob)/10000;
+
+        let youth: bool = age >= 18;
 
         DocumentRequest {
             assessor,
@@ -108,12 +123,13 @@ impl DocumentRequest {
                 last_name: form_request.claimant.last_name, 
                 gender: form_request.claimant.gender, 
                 age: Some(age),
+                youth: Some(youth),
                 date_of_birth: form_request.claimant.date_of_birth, 
                 date_of_loss: form_request.claimant.date_of_loss, 
                 address: form_request.claimant.address, 
             },
             document,
-            ac: form_request.ac,
+            ac,
             cat: form_request.cat,
             mrb: form_request.mrb,
         }
