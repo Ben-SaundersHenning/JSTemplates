@@ -14,17 +14,27 @@
 
     // this temp string determines what sub-schemas to include in validation
     const test_type = "AC CAT MRB";
+
+    function evaluateAssessmentType() {
+        return test_type.split(" ");
+    }
+
     const includeAC = evaluateAssessmentType().includes("AC") ? true : false;
     const includeCAT = evaluateAssessmentType().includes("CAT") ? true : false;
     const includeMRB = evaluateAssessmentType().includes("MRB") ? true : false;
 
-    // Dynamic schemas
-    // TODO: truthy value should be bound to an input, and used to show/hide the associated inputs
-    let acSchema = (!includeAC) ? z.optional() : z.object({
-                            firstAssessment: z.boolean(),
-                            // TODO: these are optional if firstAssessment is true.
-                            dateOfLastAssessment: z.string().date(),
-                            monthlyAllowance: z.string().trim().min(1)});
+    let acSchema = (!includeAC) ? z.optional() : z.discriminatedUnion("firstAssessment", [
+                                    z.object({
+                                        firstAssessment: z.literal(true),
+                                        dateOfLastAssessment: z.optional(),
+                                        monthlyAllowance: z.optional(),
+                                    }),
+                                    z.object({
+                                        firstAssessment: z.literal(false),
+                                        dateOfLastAssessment: z.string().date(),
+                                        monthlyAllowance: z.string().trim().min(1),
+                                    }),
+                                ]);
 
     let catSchema = (!includeCAT) ? z.optional() : z.object({
                             dateOfOcf19: z.string().date(),
@@ -67,6 +77,36 @@
         ),
     });
 
+    // OLD OBJECT --
+    // const asmtData = reactive({
+    //         assessor: {
+    //             registrationId: "",
+    //         },
+    //         adjuster: "",
+    //         insuranceCompany: "",
+    //         claimNumber: "",
+    //         referralCompany: {
+    //             id: "",
+    //         },
+    //         dateOfAssessment: "",
+    //         claimant: {
+    //             firstName: ref("Ben"),
+    //             lastName: "",
+    //             gender: "",
+    //             dateOfBirth: "",
+    //             dateOfLoss: "",
+    //             address: {
+    //                 address: "",
+    //                 city: "",
+    //                 province: "",
+    //                 postalCode: "",
+    //                 country: "",
+    //             },
+    //         },
+    //         // asmtTypes: <{}>[], // types required in document, plus their required info.
+    //         // questions: [
+    //         // ]
+    //     });
 
     // NAMING SHORTCUTS
     // assessor => asr
@@ -101,38 +141,6 @@
     const [mrbAssessor, mrbAssessorAtrb] = defineField("mrb.assessor");
     const [mrbOcf18Amount, mrbOcf18AmountAtrb] = defineField("mrb.ocf18Amount");
 
-    // OLD OBJECT --
-    // const asmtData = reactive({
-    //         assessor: {
-    //             registrationId: "",
-    //         },
-    //         adjuster: "",
-    //         insuranceCompany: "",
-    //         claimNumber: "",
-    //         referralCompany: {
-    //             id: "",
-    //         },
-    //         dateOfAssessment: "",
-    //         claimant: {
-    //             firstName: ref("Ben"),
-    //             lastName: "",
-    //             gender: "",
-    //             dateOfBirth: "",
-    //             dateOfLoss: "",
-    //             address: {
-    //                 address: "",
-    //                 city: "",
-    //                 province: "",
-    //                 postalCode: "",
-    //                 country: "",
-    //             },
-    //         },
-    //         // asmtTypes: <{}>[], // types required in document, plus their required info.
-    //         // questions: [
-    //         // ]
-    //     });
-
-
     // Example return formats:
     // July 23, 2024
     // December 25, 2019
@@ -143,10 +151,6 @@
         } else {
             return "";
         }
-    }
-
-    function evaluateAssessmentType() {
-        return test_type.split(" ");
     }
 
     let assessors = ref([
