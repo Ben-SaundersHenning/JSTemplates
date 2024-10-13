@@ -16,32 +16,8 @@
     const includeCAT = ref(false);
     const includeMRB = ref(false);
 
-    // If AC is included in the schema, it accepts one of these two schemas
-    // based on the value of firstAssessment.
-    let acSchema = (!includeAC) ? z.optional() : z.discriminatedUnion("firstAssessment", [
-                                    z.object({
-                                        firstAssessment: z.literal(true),
-                                        dateOfLastAssessment: z.optional(),
-                                        monthlyAllowance: z.optional(),
-                                    }),
-                                    z.object({
-                                        firstAssessment: z.literal(false),
-                                        dateOfLastAssessment: z.string().date(),
-                                        monthlyAllowance: z.string().trim().min(1),
-                                    }),
-                                ]);
-
-    let catSchema = (!includeCAT) ? z.optional() : z.object({
-                            dateOfOcf19: z.string().date(),
-                            assessor: z.string().trim().min(1)});
-
-    let mrbSchema = (!includeMRB) ? z.optional() : z.object({
-                            dateOfOcf18: z.string().date(),
-                            assessor: z.string().trim().min(1),
-                            ocf18Amount: z.string().trim().min(1)});
-
     const { errors, handleSubmit, defineField } = useForm({
-        validationSchema: toTypedSchema(
+        validationSchema: computed(() => toTypedSchema(
             z.object({
                 assessorRegistrationId: z.string().regex(/^G[0-9]{7}$/),
                 adjuster: z.string().optional(),
@@ -65,43 +41,28 @@
                     }),
                 }),
                 documentId: z.number(),
-                ac: acSchema,
-                cat: catSchema,
-                mrb: mrbSchema,
+                ac: (!(includeAC.value) ? z.optional(z.object({})) : z.discriminatedUnion("firstAssessment", [
+                        z.object({
+                            firstAssessment: z.literal(true),
+                            dateOfLastAssessment: z.optional(z.string().date()),
+                            monthlyAllowance: z.optional(z.string().trim().min(1)),
+                        }),
+                        z.object({
+                            firstAssessment: z.literal(false),
+                            dateOfLastAssessment: z.string().date(),
+                            monthlyAllowance: z.string().trim().min(1),
+                        }),
+                    ])),
+                cat: (!(includeCAT.value) ? z.optional(z.object({})) : z.object({
+                            dateOfOcf19: z.string().date(),
+                            assessor: z.string().trim().min(1)})),
+                mrb: (!(includeMRB.value) ? z.optional(z.object({})) : z.object({
+                            dateOfOcf18: z.string().date(),
+                            assessor: z.string().trim().min(1),
+                            ocf18Amount: z.string().trim().min(1)})),
             }),
-        ),
+        )),
     });
-
-    // OLD OBJECT --
-    // const asmtData = reactive({
-    //         assessor: {
-    //             registrationId: "",
-    //         },
-    //         adjuster: "",
-    //         insuranceCompany: "",
-    //         claimNumber: "",
-    //         referralCompany: {
-    //             id: "",
-    //         },
-    //         dateOfAssessment: "",
-    //         claimant: {
-    //             firstName: ref("Ben"),
-    //             lastName: "",
-    //             gender: "",
-    //             dateOfBirth: "",
-    //             dateOfLoss: "",
-    //             address: {
-    //                 address: "",
-    //                 city: "",
-    //                 province: "",
-    //                 postalCode: "",
-    //                 country: "",
-    //             },
-    //         },
-    //         // asmtTypes: <{}>[], // types required in document, plus their required info.
-    //         // questions: [
-    //         // ]
-    //     });
 
     // NAMING SHORTCUTS
     // assessor => asr
@@ -178,20 +139,30 @@
         if(docTypes.includes("MRB")) {
             includeMRB.value = true;
         }
+
     });
 
     function updateSettings() {
 
         const send = JSON.stringify(settings.value);
-        console.log(send)
+        // console.log(send)
         invoke('update_settings', { newSettings: send });
 
     }
 
-    const onSubmit = handleSubmit(values => {
-        // console.log(JSON.stringify(values));
-        invoke('request_document', { data: JSON.stringify(values) });
-    });
+    function onSuccess(values) {
+        console.log(JSON.stringify(values));
+        //invoke('request_document', { data: JSON.stringify(values) });
+    }
+
+    function onInvalidSubmit({ values, errors, results }) {
+        console.log(errors);
+        // console.log("IncludeAC:", includeAC);
+        // console.log("IncludeCAT:", includeCAT);
+        // console.log("IncludeMRB:", includeMRB);
+    }
+
+    const onSubmit = handleSubmit(onSuccess, onInvalidSubmit);
 
     onMounted(() => {
 
@@ -199,13 +170,13 @@
         .catch((e) => console.log(e));
 
         invoke('get_assessor_options').then((assessor_options) => {
-            console.log(assessor_options.listing_details);
+            // console.log(assessor_options.listing_details);
             assessors.value = assessor_options.listing_details as Array;
         })
         .catch((e) => console.log(e));
 
         invoke('get_document_options').then((document_options) => {
-            console.log(document_options.listing_details);
+            // console.log(document_options.listing_details);
             documents.value = document_options.listing_details as Array;
         })
         .catch((e) => console.log(e));
