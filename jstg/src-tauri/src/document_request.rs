@@ -9,7 +9,7 @@ use cat::Cat;
 use mrb::Mrb;
 use serde::{Serialize, Deserialize};
 use chrono::NaiveDate;
-use bytes::Bytes;
+use log::info;
 use reqwest::Response;
 
 const ENDPOINT: &str = "http://localhost:5056/api/DocumentRequest/DocRequest";
@@ -181,11 +181,13 @@ impl DocumentRequest {
 #[tauri::command]
 pub async fn request_document(data: String) {
 
+    info!(target: "app", "Processing new request.");
+
     let request = FormRequest::from_json(data).unwrap();
     let _document_request = request.build_document_request().await;
     // let response = document_request.send_request();
 
-    // let json = serde_json::to_string(&document_request).unwrap();
-    // println!("{}", json);
+    let json = serde_json::to_string(&_document_request).unwrap();
+    println!("{}", json);
 
 }

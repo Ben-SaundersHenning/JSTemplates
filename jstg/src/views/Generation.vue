@@ -142,14 +142,6 @@
 
     });
 
-    function updateSettings() {
-
-        const send = JSON.stringify(settings.value);
-        // console.log(send)
-        invoke('update_settings', { newSettings: send });
-
-    }
-
     function onSuccess(values) {
 
         // Remove potentially empty keys

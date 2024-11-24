@@ -3,3 +3,5 @@ generationapi/bin
 generationapi/obj
 jstg/node_modules
 jstg/.idea
+example_request_maximal.json
+example_request_minimal.json

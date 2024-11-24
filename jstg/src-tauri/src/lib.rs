@@ -22,8 +22,8 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .setup(setup_handler)
         .invoke_handler(tauri::generate_handler![
-            storage::get_settings,
-            storage::update_settings,
+            // storage::get_settings,
+            // storage::update_settings,
             db::get_assessor_options,
             db::get_document_options,
             db::get_referral_company_options,
@@ -38,6 +38,11 @@ fn setup_handler(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error +
     app_logs.push_str("/logs.log");
 
     // let log_dir_path = Path::new(&tauri::api::path::config_dir().unwrap()).join(app_logs);
+
+
+    // Config Dir
+    // Linux: $HOME/.config
+    // Windows: RoamingAddData
     let log_dir_path = Path::new(&dirs::config_dir().unwrap()).join(app_logs);
 
     let stdout = ConsoleAppender::builder().build();
@@ -67,6 +72,7 @@ fn setup_handler(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error +
     info!(target: "app", "JSTG is starting.");
 
     Ok(())
+
 }
 
 // A custom error type that represents all command errors
