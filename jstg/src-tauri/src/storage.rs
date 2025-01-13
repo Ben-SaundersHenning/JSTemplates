@@ -10,7 +10,7 @@ extern crate dirs;
 
 const APP_NAME: &str = "Jstg";
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Settings {
     path: String, // Path to the settings.json file
     settings: HashMap<String, String>, // Key-Value settings
@@ -20,24 +20,63 @@ impl Settings {
 
     // Opens the existing settings file,
     // or creates a new default one if one doesn't exist.
-    fn open() -> Self {
+    pub fn open() -> Self {
 
         let settings_file_path: PathBuf = get_settings_file_path();
 
         match settings_file_path.try_exists() {
 
-            Ok(truthy) => {
+            Ok(exists) => {
 
-                if truthy {
+                if exists {
 
-                    // file exists, try to read it
-                    let mut contents: String = fs::read_to_string(settings_file_path).unwrap_or("".to_string());
-                    // serde_json::from_str(s)
+                    let mut settings = Settings {
+                        path: settings_file_path.clone().into_os_string().into_string().unwrap(),
+                        settings: HashMap::new(),
+                    };
 
+                    // insert each setting into the hashmap
+                    for line in fs::read_to_string(settings_file_path).unwrap().lines() {
+                        let key_vals: Vec<&str> = line.split(":")
+                                        .map(|x| x.trim())
+                                        .collect();
+                        settings.settings.insert(key_vals[0].to_string(), key_vals[1].to_string());
+                    }
+
+                    info!(target: "app", "Loaded the existing configuration file.");
+
+                    return settings;
+
+                // the file does not exist
                 } else {
 
-                    // file does not exist, create default hash
-                    // and save it to new file
+                    // create the parent directories
+                    if let Err(e) = create_dir_all(settings_file_path.parent().unwrap()) {
+                        error!(target: "app", "{}", e);
+                    }
+
+                    // create the file
+                    let file = File::create(settings_file_path.clone()).unwrap();
+                    let mut writer = BufWriter::new(file);
+
+                    // default settings
+                    let settings = Settings {
+                        path: settings_file_path.into_os_string().into_string().unwrap(),
+                        settings: HashMap::from([
+                            ("Test".to_string(), "Test".to_string()),
+                            ("test".to_string(), "test".to_string()),
+                        ])
+                    };
+
+                    for (key, value) in settings.clone().settings.into_iter() {
+                        write!(&mut writer, "{key}: {value}\n").unwrap();
+                    }
+
+                    writer.flush().unwrap();
+
+                    info!(target: "app", "Created a configuration file with default options.");
+
+                    return settings;
 
                 }
 
@@ -52,7 +91,16 @@ impl Settings {
         //     path: settings_file_path.to_str().unwrap().into(),
         // }
 
-        todo!()
+        // default settings
+        let settings = Settings {
+            path: get_settings_file_path().into_os_string().into_string().unwrap(),
+            settings: HashMap::from([
+                ("Test".to_string(), "Test".to_string()),
+                ("test".to_string(), "test".to_string()),
+            ])
+        };
+
+        settings
 
     }
 
@@ -173,7 +221,7 @@ fn get_settings_file_path() -> PathBuf {
     let mut settings_file_path = Path::new(&dirs::config_dir().unwrap()).join(APP_NAME);
 
     // append the file to the directory path
-    settings_file_path.push("settings.json");
+    settings_file_path.push("configuration.txt");
 
     settings_file_path
 
