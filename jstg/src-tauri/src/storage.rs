@@ -106,9 +106,16 @@ impl Settings {
 
     // Gets the associated value
     // for a given key
-    pub fn get(&self, key: &str) -> &str {
+    pub fn get(&self, key: &str) -> Option<&str> {
 
-        todo!()
+        match self.settings.get_key_value(key) {
+            Some(val) => {
+                return Some(val.1);
+            },
+            None => {}
+        }
+
+        None
 
     }
 

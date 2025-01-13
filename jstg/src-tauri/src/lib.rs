@@ -71,7 +71,7 @@ fn setup_handler(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error +
 
     info!(target: "app", "JSTG is starting.");
 
-    let _ = storage::Settings::open();
+    let config = storage::Settings::open();
 
     Ok(())
 
