@@ -1,8 +1,8 @@
 use log::{error, info};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::fs::{self, File};
-use std::io::{BufWriter, Read, Write};
+use std::fs::{self, File, OpenOptions};
+use std::io::{BufWriter, Write};
 use std::path::PathBuf;
 use std::{fs::create_dir_all, path::Path};
 
@@ -63,8 +63,7 @@ impl Settings {
                     let settings = Settings {
                         path: settings_file_path.into_os_string().into_string().unwrap(),
                         settings: HashMap::from([
-                            ("Test".to_string(), "Test".to_string()),
-                            ("test".to_string(), "test".to_string()),
+                            ("document_save_path".to_string(), get_documents_path().into_os_string().into_string().unwrap())
                         ])
                     };
 
@@ -95,8 +94,7 @@ impl Settings {
         let settings = Settings {
             path: get_settings_file_path().into_os_string().into_string().unwrap(),
             settings: HashMap::from([
-                ("Test".to_string(), "Test".to_string()),
-                ("test".to_string(), "test".to_string()),
+                ("document_save_path".to_string(), get_documents_path().into_os_string().into_string().unwrap())
             ])
         };
 
@@ -120,15 +118,46 @@ impl Settings {
     }
 
     // Sets the value for the given key
-    pub fn set(&self, key: &str, value: &str) -> bool {
+    pub fn set(&mut self, key: &str, value: &str) -> bool {
 
+        // overwrite or new key?
         todo!()
 
     }
 
-    fn save(&self) {
+    // Overwrites all configuration values
+    pub fn set_all(&mut self, values: HashMap<String, String>) -> bool {
 
-        todo!()
+        self.settings = values;
+        true
+
+    }
+
+    pub fn remove(&mut self, key: &str) -> bool {
+
+        match self.settings.remove(key) {
+            Some(_) => return true,
+            None => return false
+        }
+
+    }
+
+    // Writes the configuration values to file
+    // Currently assumes that the file does exist
+    fn save(&self) -> bool {
+
+        let file = OpenOptions::new().write(true).truncate(true).open(get_settings_file_path()).unwrap();
+        let mut writer = BufWriter::new(file);
+
+        for (key, value) in self.settings.clone().into_iter() {
+            write!(&mut writer, "{key}: {value}\n").unwrap();
+        }
+
+        writer.flush().unwrap();
+
+        info!(target: "app", "Updated the configuration file.");
+
+        true
 
     }
 
@@ -231,5 +260,77 @@ fn get_settings_file_path() -> PathBuf {
     settings_file_path.push("configuration.txt");
 
     settings_file_path
+
+}
+
+fn get_documents_path() -> PathBuf {
+
+    let file_path = Path::new(&dirs::document_dir().unwrap()).join(APP_NAME);
+
+    file_path
+
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn open_configuration() {
+
+        let settings = Settings::open();
+
+    }
+
+    #[test]
+    #[ignore]
+    fn get_value() {
+
+        let settings = Settings::open();
+        let result = settings.get("document_save_path").unwrap();
+        assert_eq!(result, "test");
+
+    }
+
+    #[test]
+    #[ignore]
+    fn get_bad_value() {
+
+        let settings = Settings::open();
+        let result = settings.get("test123");
+        assert!(result.is_none(), "true")
+
+    }
+
+    #[test]
+    #[ignore]
+    fn save_to_file() {
+
+        let mut settings = Settings::open();
+        settings.settings.insert("hello".to_string(), "world".to_string());
+        settings.settings.insert("blahblah".to_string(), "yipee".to_string());
+
+        let result = settings.save();
+
+        assert_eq!(result, true);
+
+    }
+
+    #[test]
+    #[ignore]
+    fn remove_and_save_to_file() {
+
+        let mut settings = Settings::open();
+        settings.settings.insert("hello".to_string(), "world".to_string());
+        settings.settings.insert("blahblah".to_string(), "yipee".to_string());
+
+        settings.remove("test");
+
+        let result = settings.save();
+
+        assert_eq!(result, true);
+
+    }
 
 }
