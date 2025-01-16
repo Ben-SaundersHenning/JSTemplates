@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 
     import Generation from "./Generation.vue"
+    import TopBar from "../components/TopBar.vue"
     import { invoke } from "@tauri-apps/api/core";
 
     function getSettings() {
@@ -13,8 +14,20 @@
 
 <template>
     <!-- <button @click="getSettings">Get Settings</button> -->
-    <Generation/>
+    <div id="parent">
+        <TopBar/>
+        <Generation/>
+    </div>
+
 </template>
 
 <style lang="scss" scoped>
+
+#parent {
+
+    display: flex;
+    flex-direction: column;
+
+}
+
 </style>

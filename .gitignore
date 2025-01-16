@@ -5,3 +5,4 @@ jstg/node_modules
 jstg/.idea
 example_request_maximal.json
 example_request_minimal.json
+jstg/src-tauri/.DS_Store
