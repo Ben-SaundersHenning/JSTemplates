@@ -28,6 +28,7 @@ pub fn run() {
             db::get_referral_company_options,
             document_request::request_document,
             storage::get_config,
+            storage::update_config,
             util::verify_directory,
         ])
         .run(tauri::generate_context!())

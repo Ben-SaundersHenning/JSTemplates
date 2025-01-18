@@ -175,11 +175,18 @@ pub fn get_config(_app_handle: tauri::AppHandle) -> HashMap<String, String> {
 
         let settings = Settings::open();
 
-        let temp = settings.get_all().unwrap();
+        settings.get_all().unwrap()
 
-        dbg!(temp.clone()); 
+}
 
-        temp
+#[tauri::command]
+pub fn update_config(conf: HashMap<String, String>) {
+
+        let mut settings = Settings::open();
+
+        settings.set_all(conf);
+
+        settings.save();
 
 }
 

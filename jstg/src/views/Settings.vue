@@ -16,20 +16,16 @@
 
     const onSubmit = handleSubmit(onSuccess, onInvalidSubmit);
 
-    let config = ref({
-    })
-
     function onSuccess(values) {
 
         invoke('verify_directory', { directory: values.savePath }).then((truthy) => {
             if(truthy) {
-                // update conf
+                invoke('update_config', { conf: values });
             }
             else {
                 setFieldError('savePath', 'Not a valid path');
             }
         })
-        console.log(values);
 
     }
 
@@ -40,16 +36,9 @@
     onMounted(() => {
 
         invoke('get_config').then((init_config) => {
-            config.value = init_config;
-            setFieldValue('savePath', init_config.document_save_path);
+            setFieldValue('savePath', init_config.savePath);
         })
         .catch((e) => console.log(e));
-
-        console.log(savePath);
-
-        //apply config to fields
-
-        savePath.value = config.value.document_save_path;
 
     })
 
