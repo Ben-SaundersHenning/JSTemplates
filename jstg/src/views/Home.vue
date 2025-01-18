@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 
     import Generation from "./Generation.vue"
-    import TopBar from "../components/TopBar.vue"
     import { invoke } from "@tauri-apps/api/core";
 
     function getSettings() {
@@ -13,9 +12,7 @@
 </script>
 
 <template>
-    <!-- <button @click="getSettings">Get Settings</button> -->
     <div id="parent">
-        <TopBar/>
         <Generation/>
     </div>
 

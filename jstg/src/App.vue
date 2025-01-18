@@ -1,9 +1,12 @@
 <script setup lang="ts">
+
+    import TopBar from "./components/TopBar.vue"
+
 </script>
 
 <template>
   <div class="container">
-    <!-- <h1>APP TITLE</h1> -->
+    <TopBar/>
     <router-view style="width: 100%"/>
   </div>
 </template>
