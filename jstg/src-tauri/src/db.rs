@@ -74,10 +74,6 @@ pub struct Document {
 }
 
 
-
-
-
-
 // Retrieves the set of documents
 // (name)
 #[tauri::command]

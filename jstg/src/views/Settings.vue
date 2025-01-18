@@ -1,13 +1,14 @@
 <script lang="ts" setup>
 
-    import { onMounted } from "vue";
+    import { ref, onMounted } from "vue";
     import { useForm } from "vee-validate";
     import { toTypedSchema } from "@vee-validate/zod";
     import { z } from "zod";
+    import { invoke } from "@tauri-apps/api/core";
 
-    const { errors, handleSubmit, defineField } = useForm({
+    const { errors, handleSubmit, setFieldError, defineField } = useForm({
         validationSchema: toTypedSchema(z.object({
-            savePath: z.string().trim().min(1), //TODO validate directory
+            savePath: z.string().trim().min(1),
         }))
     });
 
@@ -15,7 +16,15 @@
 
     const onSubmit = handleSubmit(onSuccess, onInvalidSubmit);
 
+    let config = ref({
+        save_dir: ""
+    })
+
     function onSuccess(values) {
+
+        // verify path
+        // if there is an error, set:
+        setFieldError('savePath', 'Not a valid path');
 
     }
 
@@ -25,7 +34,9 @@
 
     onMounted(() => {
 
-        //get config
+        invoke('get_config').then((init_config) => config.value = init_config as Object)
+        .catch((e) => console.log(e));
+
         //apply config to fields
 
     })

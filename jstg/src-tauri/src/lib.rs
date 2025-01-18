@@ -22,12 +22,11 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .setup(setup_handler)
         .invoke_handler(tauri::generate_handler![
-            // storage::get_settings,
-            // storage::update_settings,
             db::get_assessor_options,
             db::get_document_options,
             db::get_referral_company_options,
             document_request::request_document,
+            storage::get_config,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

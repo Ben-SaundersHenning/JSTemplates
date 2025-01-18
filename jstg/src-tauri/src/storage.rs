@@ -117,6 +117,13 @@ impl Settings {
 
     }
 
+    // Returns every key-value pair in the config
+    pub fn get_all(&self) -> Option<HashMap<String, String>> {
+
+        return Some(self.settings.clone());
+
+    }
+
     // Sets the value for the given key
     pub fn set(&mut self, key: &str, value: &str) -> bool {
 
@@ -160,6 +167,15 @@ impl Settings {
         true
 
     }
+
+}
+
+#[tauri::command]
+pub fn get_config(_app_handle: tauri::AppHandle) -> HashMap<String, String> {
+
+        let settings = Settings::open();
+
+        return settings.get_all().unwrap();
 
 }
 
