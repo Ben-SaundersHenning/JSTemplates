@@ -602,21 +602,5 @@
     }
 
 
-    .submit {
-
-        font-size: 1.15rem;
-        color: variables.$text-color;
-        border: 2px solid variables.$input-border-color;
-        border-radius: 4px;
-        background-color: variables.$accent-color;
-        padding: 0.5rem;
-
-        transition: border 0.2s linear;
-
-        &:focus-within, &:hover {
-            border: 2px solid variables.$shadow-color;
-        }
-
-    }
 
 </style>
