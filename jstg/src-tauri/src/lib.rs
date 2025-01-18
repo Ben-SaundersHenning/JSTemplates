@@ -13,6 +13,7 @@ use log4rs::Config;
 mod db;
 mod document_request;
 mod storage;
+mod util;
 
 extern crate dirs;
 
@@ -27,6 +28,7 @@ pub fn run() {
             db::get_referral_company_options,
             document_request::request_document,
             storage::get_config,
+            util::verify_directory,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

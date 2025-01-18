@@ -6,7 +6,7 @@
     import { z } from "zod";
     import { invoke } from "@tauri-apps/api/core";
 
-    const { errors, handleSubmit, setFieldError, defineField } = useForm({
+    const { errors, handleSubmit, setFieldError, defineField, setFieldValue } = useForm({
         validationSchema: toTypedSchema(z.object({
             savePath: z.string().trim().min(1),
         }))
@@ -17,14 +17,19 @@
     const onSubmit = handleSubmit(onSuccess, onInvalidSubmit);
 
     let config = ref({
-        save_dir: ""
     })
 
     function onSuccess(values) {
 
-        // verify path
-        // if there is an error, set:
-        setFieldError('savePath', 'Not a valid path');
+        invoke('verify_directory', { directory: values.savePath }).then((truthy) => {
+            if(truthy) {
+                // update conf
+            }
+            else {
+                setFieldError('savePath', 'Not a valid path');
+            }
+        })
+        console.log(values);
 
     }
 
@@ -34,10 +39,17 @@
 
     onMounted(() => {
 
-        invoke('get_config').then((init_config) => config.value = init_config as Object)
+        invoke('get_config').then((init_config) => {
+            config.value = init_config;
+            setFieldValue('savePath', init_config.document_save_path);
+        })
         .catch((e) => console.log(e));
 
+        console.log(savePath);
+
         //apply config to fields
+
+        savePath.value = config.value.document_save_path;
 
     })
 
@@ -49,7 +61,7 @@
         <div class="inputs">
             <div class="path-input vertical-input">
                 <p class="input-label">Document Save Path</p>
-                <input aria-label="Document Save Path" id="savepath-input" class="input-border" type="text" name="savepath" v-model="savePath" :="savePathAtrb"/>
+                <input style="width: auto" aria-label="Document Save Path" id="savepath-input" class="input-border" type="text" name="savepath" v-model="savePath" :="savePathAtrb"/>
                 <span class="error">{{errors['savePath']}}</span>
             </div>
         </div>

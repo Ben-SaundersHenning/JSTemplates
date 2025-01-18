@@ -118,10 +118,6 @@
     let documents = ref([
     ])
 
-    let settings = ref({
-        save_dir: ""
-    })
-
     watch(documentId, (newID) => {
 
         includeAC.value = false;
@@ -171,9 +167,6 @@
     const onSubmit = handleSubmit(onSuccess, onInvalidSubmit);
 
     onMounted(() => {
-
-        invoke('get_settings').then((init_settings) => settings.value = init_settings as Object)
-        .catch((e) => console.log(e));
 
         invoke('get_assessor_options').then((assessor_options) => {
             // console.log(assessor_options.listing_details);
