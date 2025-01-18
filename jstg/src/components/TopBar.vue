@@ -1,18 +1,27 @@
 <script lang="ts" setup>
 
+    import { computed } from 'vue'
+    import { useRouter, useRoute } from 'vue-router'
+
+    const route = useRoute()
+
+    const inSettings = computed(() => {
+        return route.path === "/settings";
+    })
+
 </script>
 
 <template>
 
     <nav class="navbar">
         <div class="doc-nav center">
-            <RouterLink to="/">Document Generation</RouterLink>
+            <RouterLink to="/" :class="[!inSettings ? 'selected' : '']">Document Generation</RouterLink>
         </div>
         <div class="temp-nav center">
             <h2 id="title">JSTG</h2>
         </div>
         <div class="config-nav center">
-            <RouterLink to="/settings">Settings</RouterLink>
+            <RouterLink to="/settings" :class="[inSettings ? 'selected' : '']">Settings</RouterLink>
         </div>
     </nav>
 
@@ -46,6 +55,10 @@
         display: flex;
         justify-content: center;
         align-items: center;
+    }
+
+    .selected {
+        border-bottom: 2px solid variables.$shadow-color;
     }
 
     #title {

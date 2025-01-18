@@ -3,12 +3,6 @@
     import Generation from "./Generation.vue"
     import { invoke } from "@tauri-apps/api/core";
 
-    function getSettings() {
-
-        // invoke('get_settings').then((cur_settings) => console.log(cur_settings));
-
-    }
-
 </script>
 
 <template>
