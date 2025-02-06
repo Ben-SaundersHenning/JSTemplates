@@ -8,7 +8,7 @@ use std::{fs::create_dir_all, path::Path};
 
 extern crate dirs;
 
-const APP_NAME: &str = "Jstg";
+const APP_NAME: &str = "jstg";
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Settings {
