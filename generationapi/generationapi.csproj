@@ -13,6 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\docProcessor\docProcessor.csproj" />
       <ProjectReference Include="..\docProcessor\docProcessor\docProcessor.csproj" />
     </ItemGroup>
 

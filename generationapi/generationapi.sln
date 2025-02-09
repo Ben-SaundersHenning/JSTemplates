@@ -2,9 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "generationapi", "generationapi.csproj", "{5BFDD4D1-EDF3-4EE9-BAA0-16900EAA8629}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "docProcessor", "..\docProcessor\docProcessor\docProcessor.csproj", "{56B4E1E4-4A94-4A36-8508-0212A5E5C49A}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "testRunner", "..\docProcessor\testRunner\testRunner.csproj", "{75832656-67FB-4C04-A397-7699CFB43439}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "docProcessor", "..\docProcessor\docProcessor.csproj", "{0B5A6485-AE3E-4AF3-93B9-D4832523B87E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +24,9 @@ Global
 		{75832656-67FB-4C04-A397-7699CFB43439}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75832656-67FB-4C04-A397-7699CFB43439}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{75832656-67FB-4C04-A397-7699CFB43439}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B5A6485-AE3E-4AF3-93B9-D4832523B87E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B5A6485-AE3E-4AF3-93B9-D4832523B87E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B5A6485-AE3E-4AF3-93B9-D4832523B87E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B5A6485-AE3E-4AF3-93B9-D4832523B87E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
