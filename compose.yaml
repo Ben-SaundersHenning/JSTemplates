@@ -10,7 +10,7 @@ services:
     #   - db
 
   generationapi:
-    build: ./generationapi
+    build: ./generation
     ports:
       - 8080:8080
 

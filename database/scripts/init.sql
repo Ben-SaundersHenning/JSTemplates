@@ -1,8 +1,9 @@
 --
--- PostgreSQL modified database dump
+-- PostgreSQL database dump
 --
--- Dumped from database version 13.13 (Debian 13.13-0+deb11u1)
--- Dumped by pg_dump version 13.13 (Debian 13.13-0+deb11u1)
+
+-- Dumped from database version 16.3
+-- Dumped by pg_dump version 17.2
 
 CREATE USER jstg
 with password 'password';
@@ -17,6 +18,34 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: gender; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.gender AS ENUM (
+    'male',
+    'female',
+    'other'
+);
+
+
+ALTER TYPE public.gender OWNER TO postgres;
+
+--
+-- Name: image_type; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE public.image_type AS ENUM (
+    'signature'
+);
+
+
+ALTER TYPE public.image_type OWNER TO postgres;
 
 SET default_tablespace = '';
 
@@ -48,7 +77,7 @@ CREATE SEQUENCE public.assessment_types_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.assessment_types_id_seq OWNER TO jstg;
+ALTER SEQUENCE public.assessment_types_id_seq OWNER TO jstg;
 
 --
 -- Name: assessment_types_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: jstg
@@ -56,7 +85,6 @@ ALTER TABLE public.assessment_types_id_seq OWNER TO jstg;
 
 ALTER SEQUENCE public.assessment_types_id_seq OWNED BY public.assessment_types.id;
 
-CREATE TYPE public.gender AS ENUM ('male', 'female', 'other');
 
 --
 -- Name: assessors; Type: TABLE; Schema: public; Owner: jstg
@@ -102,13 +130,49 @@ CREATE SEQUENCE public.documents_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.documents_id_seq OWNER TO jstg;
+ALTER SEQUENCE public.documents_id_seq OWNER TO jstg;
 
 --
 -- Name: documents_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: jstg
 --
 
 ALTER SEQUENCE public.documents_id_seq OWNED BY public.documents.id;
+
+
+--
+-- Name: images; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.images (
+    id integer NOT NULL,
+    assessor_id character varying(8),
+    image_type public.image_type NOT NULL,
+    path text NOT NULL
+);
+
+
+ALTER TABLE public.images OWNER TO postgres;
+
+--
+-- Name: images_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.images_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.images_id_seq OWNER TO postgres;
+
+--
+-- Name: images_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.images_id_seq OWNED BY public.images.id;
 
 
 --
@@ -146,7 +210,7 @@ CREATE SEQUENCE public.referral_companies_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.referral_companies_id_seq OWNER TO jstg;
+ALTER SEQUENCE public.referral_companies_id_seq OWNER TO jstg;
 
 --
 -- Name: referral_companies_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: jstg
@@ -170,10 +234,100 @@ ALTER TABLE ONLY public.documents ALTER COLUMN id SET DEFAULT nextval('public.do
 
 
 --
+-- Name: images id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.images ALTER COLUMN id SET DEFAULT nextval('public.images_id_seq'::regclass);
+
+
+--
 -- Name: referral_companies id; Type: DEFAULT; Schema: public; Owner: jstg
 --
 
 ALTER TABLE ONLY public.referral_companies ALTER COLUMN id SET DEFAULT nextval('public.referral_companies_id_seq'::regclass);
+
+
+--
+-- Data for Name: assessment_types; Type: TABLE DATA; Schema: public; Owner: jstg
+--
+
+INSERT INTO public.assessment_types (id, name, common_name) VALUES (1, 'Assessment type 1', 'at1');
+INSERT INTO public.assessment_types (id, name, common_name) VALUES (2, 'Assessment type 2', 'at2');
+INSERT INTO public.assessment_types (id, name, common_name) VALUES (3, 'Assessment type 3', 'at3');
+
+
+--
+-- Data for Name: assessors; Type: TABLE DATA; Schema: public; Owner: jstg
+--
+
+INSERT INTO public.assessors (registration_id, first_name, last_name, gender, email, qualifications_paragraph) VALUES ('G1234569', 'Frodo', 'Baggins', 'male', 'frodo@lotr.com', 'Ring Bearer');
+INSERT INTO public.assessors (registration_id, first_name, last_name, gender, email, qualifications_paragraph) VALUES ('G1234559', 'Bilbo', 'Baggins', 'male', 'bilbo@lotr.com', 'Ring Bearer');
+INSERT INTO public.assessors (registration_id, first_name, last_name, gender, email, qualifications_paragraph) VALUES ('G6543219', 'Tom', 'Bombadil', 'male', 'tom@lotr.com', 'Yellow Boots');
+INSERT INTO public.assessors (registration_id, first_name, last_name, gender, email, qualifications_paragraph) VALUES ('G1597539', 'Goldberry', 'River-daughter', 'female', 'goldberry@lotr.com', 'lilies');
+INSERT INTO public.assessors (registration_id, first_name, last_name, gender, email, qualifications_paragraph) VALUES ('G1597535', 'Treebeard', 'Fangorn', 'other', 'treebeard@lotr.com', 'Fangorn Forest');
+
+
+--
+-- Data for Name: documents; Type: TABLE DATA; Schema: public; Owner: jstg
+--
+
+INSERT INTO public.documents (id, name, user_friendly_name, common_name, path) VALUES (1, 'Test Document 1', 'AC', 'AC', 'TD1.docx');
+INSERT INTO public.documents (id, name, user_friendly_name, common_name, path) VALUES (2, 'Test Document 2', 'AC MRB', 'AC MRB', 'TD2.docx');
+INSERT INTO public.documents (id, name, user_friendly_name, common_name, path) VALUES (3, 'Test Document 3', 'AC MRB NEB', 'AC MRB NEB', 'TD3.docx');
+INSERT INTO public.documents (id, name, user_friendly_name, common_name, path) VALUES (4, 'Test Document 4', 'AC NEB', 'AC NEB', 'TD4.docx');
+INSERT INTO public.documents (id, name, user_friendly_name, common_name, path) VALUES (5, 'Test Document 5', 'CAT', 'CAT', 'TD5.docx');
+INSERT INTO public.documents (id, name, user_friendly_name, common_name, path) VALUES (6, 'Test Document 5', 'CAT AC', 'CAT AC', 'TD5.docx');
+INSERT INTO public.documents (id, name, user_friendly_name, common_name, path) VALUES (7, 'Test Document 5', 'CAT AC MRB', 'CAT AC MRB', 'TD5.docx');
+INSERT INTO public.documents (id, name, user_friendly_name, common_name, path) VALUES (8, 'Test Document 5', 'CAT CAT_GOSE', 'CAT CAT_GOSE', 'TD5.docx');
+INSERT INTO public.documents (id, name, user_friendly_name, common_name, path) VALUES (9, 'Test Document 5', 'CAT CAT_GOSE MRB', 'CAT CAT_GOSE MRB', 'TD5.docx');
+INSERT INTO public.documents (id, name, user_friendly_name, common_name, path) VALUES (10, 'Test Document 5', 'CAT_GOSE', 'CAT_GOSE', 'TD5.docx');
+INSERT INTO public.documents (id, name, user_friendly_name, common_name, path) VALUES (11, 'Test Document 5', 'MRB', 'MRB', 'TD5.docx');
+INSERT INTO public.documents (id, name, user_friendly_name, common_name, path) VALUES (12, 'Test Document 5', 'MRB NEB', 'MRB NEB', 'TD5.docx');
+INSERT INTO public.documents (id, name, user_friendly_name, common_name, path) VALUES (13, 'Test Document 5', 'NEB', 'NEB', 'TD5.docx');
+
+
+--
+-- Data for Name: images; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+INSERT INTO public.images (id, assessor_id, image_type, path) VALUES (1, 'G1234569', 'signature', '../test/sfs');
+
+
+--
+-- Data for Name: referral_companies; Type: TABLE DATA; Schema: public; Owner: jstg
+--
+
+INSERT INTO public.referral_companies (id, name, common_name, street_address, unit, city, province, postal_code, country, phone, fax, email) VALUES (1, 'Nalgene', 'Nalgene', '123 Water Street', 'Suite 1500', 'Toronto', 'Ontario', 'M1M 1M1', 'Canada', '999-999-9999', '999-999-9999', 'info@nalgene.com');
+INSERT INTO public.referral_companies (id, name, common_name, street_address, unit, city, province, postal_code, country, phone, fax, email) VALUES (2, 'Excel', 'Execel', '123 Gum Street', '', 'Toronto', 'Ontario', 'M9M 9M9', 'Canada', '111-111-1111', '111-111-1111', 'info@excel.com');
+
+
+--
+-- Name: assessment_types_id_seq; Type: SEQUENCE SET; Schema: public; Owner: jstg
+--
+
+SELECT pg_catalog.setval('public.assessment_types_id_seq', 3, true);
+
+
+--
+-- Name: documents_id_seq; Type: SEQUENCE SET; Schema: public; Owner: jstg
+--
+
+SELECT pg_catalog.setval('public.documents_id_seq', 13, true);
+
+
+--
+-- Name: images_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.images_id_seq', 1, true);
+
+
+--
+-- Name: referral_companies_id_seq; Type: SEQUENCE SET; Schema: public; Owner: jstg
+--
+
+SELECT pg_catalog.setval('public.referral_companies_id_seq', 2, true);
+
 
 --
 -- Name: assessment_types assessment_types_pkey; Type: CONSTRAINT; Schema: public; Owner: jstg
@@ -200,62 +354,30 @@ ALTER TABLE ONLY public.documents
 
 
 --
+-- Name: images images_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.images
+    ADD CONSTRAINT images_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: referral_companies referral_companies_pkey; Type: CONSTRAINT; Schema: public; Owner: jstg
 --
 
 ALTER TABLE ONLY public.referral_companies
     ADD CONSTRAINT referral_companies_pkey PRIMARY KEY (id);
 
---
--- documents test data
---
-
-insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 1', 'AC', 'AC', 'TD1.docx');
-insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 2', 'AC MRB', 'AC MRB', 'TD2.docx');
-insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 3', 'AC MRB NEB', 'AC MRB NEB', 'TD3.docx');
-insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 4', 'AC NEB', 'AC NEB', 'TD4.docx');
-insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 5', 'CAT', 'CAT', 'TD5.docx');
-insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 5', 'CAT AC', 'CAT AC', 'TD5.docx');
-insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 5', 'CAT AC MRB', 'CAT AC MRB', 'TD5.docx');
-insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 5', 'CAT CAT_GOSE', 'CAT CAT_GOSE', 'TD5.docx');
-insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 5', 'CAT CAT_GOSE MRB', 'CAT CAT_GOSE MRB', 'TD5.docx');
-insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 5', 'CAT_GOSE', 'CAT_GOSE', 'TD5.docx');
-insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 5', 'MRB', 'MRB', 'TD5.docx');
-insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 5', 'MRB NEB', 'MRB NEB', 'TD5.docx');
-insert into public.documents (name, user_friendly_name, common_name, path) values ('Test Document 5', 'NEB', 'NEB', 'TD5.docx');
 
 --
--- referral_companies test data
+-- Name: images images_assessor_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-insert into public.referral_companies (name, common_name, street_address, unit, city, province, country, postal_code, phone, fax, email) values
-('Nalgene', 'Nalgene', '123 Water Street', 'Suite 1500', 'Toronto', 'Ontario', 'Canada', 'M1M 1M1', '999-999-9999', '999-999-9999', 'info@nalgene.com');
+ALTER TABLE ONLY public.images
+    ADD CONSTRAINT images_assessor_id_fkey FOREIGN KEY (assessor_id) REFERENCES public.assessors(registration_id);
 
-insert into public.referral_companies (name, common_name, street_address, unit, city, province, country, postal_code, phone, fax, email) values
-('Excel', 'Execel', '123 Gum Street', '', 'Toronto', 'Ontario', 'Canada', 'M9M 9M9', '111-111-1111', '111-111-1111', 'info@excel.com');
 
 --
--- assessors test data
+-- PostgreSQL database dump complete
 --
 
-insert into public.assessors (registration_id, first_name, last_name, gender, email, qualifications_paragraph) values 
-('G1234569', 'Frodo', 'Baggins', 'male', 'frodo@lotr.com', 'Ring Bearer');
-
-insert into public.assessors (registration_id, first_name, last_name, gender, email, qualifications_paragraph) values 
-('G1234559', 'Bilbo', 'Baggins', 'male', 'bilbo@lotr.com', 'Ring Bearer');
-
-insert into public.assessors (registration_id, first_name, last_name, gender, email, qualifications_paragraph) values 
-('G6543219', 'Tom', 'Bombadil', 'male', 'tom@lotr.com', 'Yellow Boots');
-
-insert into public.assessors (registration_id, first_name, last_name, gender, email, qualifications_paragraph) values 
-('G1597539', 'Goldberry', 'River-daughter', 'female', 'goldberry@lotr.com', 'lilies');
-
-insert into public.assessors (registration_id, first_name, last_name, gender, email, qualifications_paragraph) values 
-('G1597535', 'Treebeard', 'Fangorn', 'other', 'treebeard@lotr.com', 'Fangorn Forest');
-
---
--- assessment_types test data
---
-insert into public.assessment_types (name, common_name) values ('Assessment type 1', 'at1');
-insert into public.assessment_types (name, common_name) values ('Assessment type 2', 'at2');
-insert into public.assessment_types (name, common_name) values ('Assessment type 3', 'at3');

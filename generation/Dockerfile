@@ -8,15 +8,16 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 ENV ASPNETCORE_ENVIRONMENT Development
 WORKDIR /src
-COPY ["generationapi.csproj", "./"]
-RUN dotnet restore "generationapi.csproj"
+COPY ["./generationapi/generationapi.csproj", "./generationapi/"]
+COPY ["./docProcessor/docProcessor.csproj", "./docProcessor/"]
+RUN dotnet restore "./generationapi/generationapi.csproj"
 COPY . .
 WORKDIR "/src/"
-RUN dotnet build "generationapi.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "./generationapi/generationapi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "generationapi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./generationapi/generationapi.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
