@@ -61,7 +61,13 @@ impl FormRequest {
                                      .unwrap()
                                      .unwrap();
 
-        // 4. Build AC portion
+        // 4. Retrieive image (signature path)
+        let image_data: db::ImageData = db::get_assessor_signature_path(&self.assessor_registration_id)
+                                     .await
+                                     .unwrap()
+                                     .unwrap();
+
+        // 5. Build AC portion
         let ac: Option<Ac> = match &self.ac {
             Some(val) => {
                 if val.first_assessment {
@@ -85,8 +91,8 @@ impl FormRequest {
             }
         };
 
-        // 5. Return a Document Request
-        let document_request = DocumentRequest::from_form_request(self, assessor, referral_company, document, ac);
+        // 6. Return a Document Request
+        let document_request = DocumentRequest::from_form_request(self, assessor, &image_data.path, referral_company, document, ac);
 
         document_request
 
@@ -98,6 +104,7 @@ impl FormRequest {
 #[serde(rename_all(serialize = "snake_case", deserialize = "camelCase"))]
 struct DocumentRequest {
     assessor: db::Assessor,
+    signature_path: String,
     adjuster: Option<String>,
     insurance_company: String,
     claim_number: String,
@@ -112,7 +119,7 @@ struct DocumentRequest {
 
 impl DocumentRequest {
 
-    fn from_form_request(form_request: FormRequest, assessor: db::Assessor,
+    fn from_form_request(form_request: FormRequest, assessor: db::Assessor, signature_path: &str,
                          referral_company: db::ReferralCompany, document: db::Document, ac: Option<Ac>) -> Self {
 
         // Calculate age in years
@@ -124,6 +131,7 @@ impl DocumentRequest {
 
         DocumentRequest {
             assessor,
+            signature_path: signature_path.to_owned(),
             adjuster: form_request.adjuster,
             insurance_company: form_request.insurance_company,
             claim_number: form_request.claim_number,

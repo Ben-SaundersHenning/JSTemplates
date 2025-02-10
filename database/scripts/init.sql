@@ -24,7 +24,7 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: gender; Type: TYPE; Schema: public; Owner: postgres
+-- Name: gender; Type: TYPE; Schema: public; Owner: jstg
 --
 
 CREATE TYPE public.gender AS ENUM (
@@ -34,10 +34,10 @@ CREATE TYPE public.gender AS ENUM (
 );
 
 
-ALTER TYPE public.gender OWNER TO postgres;
+ALTER TYPE public.gender OWNER TO jstg;
 
 --
--- Name: image_type; Type: TYPE; Schema: public; Owner: postgres
+-- Name: image_type; Type: TYPE; Schema: public; Owner: jstg
 --
 
 CREATE TYPE public.image_type AS ENUM (
@@ -45,7 +45,7 @@ CREATE TYPE public.image_type AS ENUM (
 );
 
 
-ALTER TYPE public.image_type OWNER TO postgres;
+ALTER TYPE public.image_type OWNER TO jstg;
 
 SET default_tablespace = '';
 
@@ -140,7 +140,7 @@ ALTER SEQUENCE public.documents_id_seq OWNED BY public.documents.id;
 
 
 --
--- Name: images; Type: TABLE; Schema: public; Owner: postgres
+-- Name: images; Type: TABLE; Schema: public; Owner: jstg
 --
 
 CREATE TABLE public.images (
@@ -151,10 +151,10 @@ CREATE TABLE public.images (
 );
 
 
-ALTER TABLE public.images OWNER TO postgres;
+ALTER TABLE public.images OWNER TO jstg;
 
 --
--- Name: images_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: images_id_seq; Type: SEQUENCE; Schema: public; Owner: jstg
 --
 
 CREATE SEQUENCE public.images_id_seq
@@ -166,10 +166,10 @@ CREATE SEQUENCE public.images_id_seq
     CACHE 1;
 
 
-ALTER SEQUENCE public.images_id_seq OWNER TO postgres;
+ALTER SEQUENCE public.images_id_seq OWNER TO jstg;
 
 --
--- Name: images_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+-- Name: images_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: jstg
 --
 
 ALTER SEQUENCE public.images_id_seq OWNED BY public.images.id;
@@ -234,7 +234,7 @@ ALTER TABLE ONLY public.documents ALTER COLUMN id SET DEFAULT nextval('public.do
 
 
 --
--- Name: images id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: images id; Type: DEFAULT; Schema: public; Owner: jstg
 --
 
 ALTER TABLE ONLY public.images ALTER COLUMN id SET DEFAULT nextval('public.images_id_seq'::regclass);
@@ -287,11 +287,14 @@ INSERT INTO public.documents (id, name, user_friendly_name, common_name, path) V
 
 
 --
--- Data for Name: images; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: images; Type: TABLE DATA; Schema: public; Owner: jstg
 --
 
 INSERT INTO public.images (id, assessor_id, image_type, path) VALUES (1, 'G1234569', 'signature', '../test/sfs');
-
+INSERT INTO public.images (id, assessor_id, image_type, path) VALUES (2, 'G1234559', 'signature', '../test/sfs');
+INSERT INTO public.images (id, assessor_id, image_type, path) VALUES (3, 'G6543219', 'signature', '../test/sfs');
+INSERT INTO public.images (id, assessor_id, image_type, path) VALUES (4, 'G1597539', 'signature', '../test/sfs');
+INSERT INTO public.images (id, assessor_id, image_type, path) VALUES (5, 'G1597535', 'signature', '../test/sfs');
 
 --
 -- Data for Name: referral_companies; Type: TABLE DATA; Schema: public; Owner: jstg
@@ -316,7 +319,7 @@ SELECT pg_catalog.setval('public.documents_id_seq', 13, true);
 
 
 --
--- Name: images_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- Name: images_id_seq; Type: SEQUENCE SET; Schema: public; Owner: jstg
 --
 
 SELECT pg_catalog.setval('public.images_id_seq', 1, true);
@@ -354,7 +357,7 @@ ALTER TABLE ONLY public.documents
 
 
 --
--- Name: images images_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: images images_pkey; Type: CONSTRAINT; Schema: public; Owner: jstg
 --
 
 ALTER TABLE ONLY public.images
@@ -370,7 +373,7 @@ ALTER TABLE ONLY public.referral_companies
 
 
 --
--- Name: images images_assessor_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: images images_assessor_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: jstg
 --
 
 ALTER TABLE ONLY public.images

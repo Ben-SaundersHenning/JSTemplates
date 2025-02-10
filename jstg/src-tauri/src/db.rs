@@ -73,6 +73,12 @@ pub struct Document {
     pub path: String,
 }
 
+#[derive(Serialize, Deserialize, sqlx::FromRow, Debug)]
+#[serde(rename_all(serialize = "snake_case", deserialize = "camelCase"))]
+pub struct ImageData {
+    pub path: String,
+}
+
 
 // Retrieves the set of documents
 // (name)
@@ -271,4 +277,33 @@ pub async fn get_referral_company(
     conn.close().await?;
 
     Ok(company)
+}
+
+pub async fn get_assessor_signature_path(registration_id: &str) -> Result<Option<ImageData>, Error> {
+
+    let mut conn_str: String = String::new();
+
+    // dev environment
+    if cfg!(dev) {
+        conn_str.push_str("postgres://jstg:password@localhost:5432/jsot");
+    } else {
+        conn_str.push_str(&env::var(DB_CONN_STR).unwrap());
+    }
+
+    let mut conn = PgConnection::connect(&conn_str).await?;
+
+    let query = "SELECT path
+                 FROM \"images\"
+                 WHERE assessor_id = $1
+                 AND image_type = 'signature'";
+
+    let signature = sqlx::query_as::<_, ImageData>(query)
+        .bind(registration_id)
+        .fetch_optional(&mut conn)
+        .await?;
+
+    conn.close().await?;
+
+    Ok(signature)
+
 }
