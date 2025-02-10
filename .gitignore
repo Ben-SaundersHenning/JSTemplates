@@ -10,3 +10,5 @@ jstg/src-tauri/.DS_Store
 bin
 obj
 docProcessor/testRunner
+generation/testRunner
+generation/generation.sln.DotSettings.user

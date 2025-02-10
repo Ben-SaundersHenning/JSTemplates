@@ -1,0 +1,14 @@
+
+<<[claimant.first_name] :switch>>
+
+<<[claimant.first_name] :upper>>
+
+<<[claimant.first_name] :upper>>
+
+<<[claimant.amounts[0]] :upper>>
+
+<<[key.date] :f YYYY-mm-dd>>
+
+<<[claimant.gender] :t p0 :upper>>
+
+<<if [claimant.age > 18]>>some text<</if>>

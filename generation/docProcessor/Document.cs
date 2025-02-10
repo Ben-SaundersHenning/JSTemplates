@@ -96,6 +96,63 @@ public class Document: IDisposable
         return null;
     }
 
+    // Evaluates all tags matching the <<[]>> syntax inside the document.
+    public void ProcessDocument(Func<string, string>? getReplacementString)
+    {
+        
+        string regexp = @"<<((?:if|\/if||) {0,})\[([\w \[\]._-]{3,})\]([\w \[\].:_-]{0,})>>";
+        Regex matcher = new Regex(regexp);
+        
+        foreach (Paragraph para in Body!.Descendants<Paragraph>())
+        {
+            
+            if (!matcher.IsMatch(para.InnerText))
+            {
+                continue;
+            }
+
+            if (para.Descendants<Text>().Count() > 1)
+            {
+                IsolatePatternInParagraph(para, regexp);
+            }
+            
+            foreach (Text text in para.Descendants<Text>())
+            {
+
+                foreach (Match match in matcher.Matches(text.Text))
+                {
+
+                    if (match.Groups[1].Value.Contains("if"))
+                    {
+
+                    } 
+                    else
+                    {
+                        string key = match.Groups[2].Value;
+                        string switches = match.Groups[3].Value;
+                        if (switches.Contains(":upper"))
+                        {
+                            text.Text = text.Text.Replace(match.Value, getReplacementString!(key).ToUpper());
+                        } else if (switches.Contains(":lower"))
+                        {
+                            text.Text = text.Text.Replace(match.Value, getReplacementString!(key).ToLower());
+                        }
+                        else
+                        {
+                            text.Text = text.Text.Replace(match.Value, getReplacementString!(key));
+                        }
+                    }
+
+                }
+                
+                text.Space = SpaceProcessingModeValues.Preserve;
+                
+            }
+
+        } 
+        
+    }
+
     private void SearchAndReplace(string pattern, Func<string, string>? getReplacementString, string? replacementStr, bool isRegex)
     {
         
