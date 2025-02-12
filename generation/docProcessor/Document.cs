@@ -1,3 +1,6 @@
+using System.Web;
+using Newtonsoft.Json.Linq;
+
 namespace DocProcessor;
 
 using System.Text.RegularExpressions;
@@ -9,6 +12,7 @@ using A = DocumentFormat.OpenXml.Drawing;
 using Checked = DocumentFormat.OpenXml.Wordprocessing.Checked;
 using DW = DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
+
 
 public enum DocumentType
 {
@@ -97,7 +101,7 @@ public class Document: IDisposable
     }
 
     // Evaluates all tags matching the <<[]>> syntax inside the document.
-    public void ProcessDocument(Func<string, string>? getReplacementString)
+    public void ProcessDocument(Func<string, string>? getReplacementString, JObject data)
     {
         
         string regexp = @"<<((?:if|\/if||) {0,})\[([\w \[\]._-]{3,})\]([\w \[\].:_-]{0,})>>";
@@ -121,21 +125,41 @@ public class Document: IDisposable
 
                 foreach (Match match in matcher.Matches(text.Text))
                 {
+                    
+                    string key = match.Groups[2].Value;
+                    string[] keys = key.Split(' ');
+                    string switches = match.Groups[3].Value;
 
-                    if (match.Groups[1].Value.Contains("if"))
+                    // <<if [a == b]>>
+                    if (match.Groups[1].Value.Contains("if") && keys.Length == 3)
                     {
+                        /*
+                        switch (keys[1])
+                        {
+                            case "==":
+                                if obj[a] == obj[b]
+                                {
+                                    // keep if content
+                                }
+                                break;
+                            case "!=":
+                                if obj[a] != obj[b]
+                                {
+                                    // remove if content
+                                }
+                                break;
+                        } 
+                        */
 
                     } 
                     else
                     {
-                        string key = match.Groups[2].Value;
-                        string switches = match.Groups[3].Value;
                         if (switches.Contains(":upper"))
                         {
-                            text.Text = text.Text.Replace(match.Value, getReplacementString!(key).ToUpper());
+                            text.Text = text.Text.Replace(match.Value, Utility.ToUpperFirstChar(getReplacementString!(key)));
                         } else if (switches.Contains(":lower"))
                         {
-                            text.Text = text.Text.Replace(match.Value, getReplacementString!(key).ToLower());
+                            text.Text = text.Text.Replace(match.Value, Utility.ToLowerFirstChar(getReplacementString!(key)));
                         }
                         else
                         {

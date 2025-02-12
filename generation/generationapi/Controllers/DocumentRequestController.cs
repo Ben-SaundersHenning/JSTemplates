@@ -46,7 +46,7 @@ public class DocumentRequestController : Controller
         
         // 3. Find image path
         
-        string imgPath = (string)data.SelectToken("document.image_path");
+        string imgPath = (string)data.SelectToken("signature_path");
         
         // 4. Insert image into document
         
